@@ -1,21 +1,19 @@
-.App {
-  /*text-align: center;*/
+.ubuntu-terminal-desktop {
   background-image: url("./ubuntu_wallpaper.jpg");
   background-size: cover;
   background-attachment: fixed;
-  min-height: 100vh;
+  background-repeat: no-repeat;
+  height: 100vh;
   display: flex;
-  flex-direction: row;
-  align-items: center;
   justify-content: center;
+  align-items: center;
+}
+
+.App {
+  min-height: 200vh;
   font-family: monospace;
   font-size: calc(10px + 2vmin);
   color: white;
-}
-
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
 }
 
 .App-container {

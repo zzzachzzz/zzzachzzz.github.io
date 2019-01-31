@@ -7,9 +7,13 @@ class App extends Component {
   render() {
     return (
       <div className="App">
+        <div className="ubuntu-terminal-desktop">
+          <div className="App-container">
+            <Terminal />
+          </div>
+        </div>
         <div className="App-container">
-          <header></header>
-          <Terminal />
+          content
         </div>
       </div>
     );

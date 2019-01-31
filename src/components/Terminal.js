@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Typer from './Typer';
 import './Terminal.css';
 
 class Terminal extends Component {
@@ -12,10 +13,7 @@ class Terminal extends Component {
           <div className="header-text">zach@penguin</div>
         </div>
         <div className="terminal-window">
-          <div className="statement">
-            <div className="input-statement">Input statement</div>
-            <div className="return-statement">text text text</div>
-          </div>
+          <Typer />
         </div>
       </div>
     );

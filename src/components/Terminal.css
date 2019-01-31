@@ -25,19 +25,20 @@
 }
 
 .header-text {
-    font-size: 0.7em;
+    font-size: 0.6em;
     justify-self: center;
 }
 
 .terminal-window {
+    font-weight: bold;
     height: 300px;
     background-color: black;
-    opacity: 0.7;
+    opacity: 0.8;
     border-radius: 0 0 10px 10px;
 }
 
 .statement {
-    font-size: 0.75em;
+    font-size: 0.6em;
     margin-left: 35px;
     margin-right: 35px;
     padding-top: 20px;
@@ -50,6 +51,10 @@
 
 .input-statement::before {
     content: ">>> ";
+}
+
+.non-py-statement::before {
+    content: "";
 }
 
 .return-statement {
