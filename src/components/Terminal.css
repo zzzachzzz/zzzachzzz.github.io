@@ -49,13 +49,13 @@
 
 }
 
-.input-statement::before {
+/*.input-statement::before {
     content: ">>> ";
-}
+}*/
 
-.non-py-statement::before {
+/*.non-py-statement::before {
     content: "";
-}
+}*/
 
 .return-statement {
 
