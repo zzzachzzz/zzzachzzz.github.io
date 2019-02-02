@@ -4,15 +4,24 @@ import Statement from './Statement';
 class Typer extends Component {
   state = {
     inputLines: [
-      'python3', '2nd input', '8 * 8'
+      'python3',
+      'import zach',
+      'zach.github',
+      'zach.current_location'
     ],
     returnLines: [
-      'you are now in python :D', '2nd return', '64'
+      'Python 3.5.3',
+      '',
+      <React.Fragment>
+        <span>'</span><a style={{textDecoration: 'none', color: 'blue'}} target="_blank" href="https://github.com/zzzachzzz">
+          github.com/zzzachzzz</a><span>'</span>
+      </React.Fragment>,
+      '\'Boise, ID\''
     ],
     currentInputLines: [],
     currentReturnLines: [],
     currentStatementIndex: 0,
-    typingSpeed: 100
+    typingSpeed: 60
   }
 
   componentDidMount() {
@@ -58,6 +67,10 @@ class Typer extends Component {
                    returnStatement={currentReturnLines[2] || ''}
                    showCursorHere={Boolean(currentStatementIndex === 2)}
                    statementReached={Boolean(currentStatementIndex >= 2)} />
+        <Statement inputStatement={currentInputLines[3] || ''}
+                   returnStatement={currentReturnLines[3] || ''}
+                   showCursorHere={Boolean(currentStatementIndex === 3)}
+                   statementReached={Boolean(currentStatementIndex >= 3)} />
       </div>
     );
   }

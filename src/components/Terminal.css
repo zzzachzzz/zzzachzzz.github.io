@@ -4,7 +4,7 @@
     align-content: center;
     width: 1000px;
     height: 28px;
-    background-color: #514f48;/*#e4e3e5;*/
+    background-color: #514f48;
     border-radius: 10px 10px 0 0;
 }
 
@@ -13,7 +13,7 @@
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    margin-left: 9px;    
+    margin-left: 9px;
 }
 
 .header-btn1 {
@@ -41,22 +41,14 @@
     font-size: 0.6em;
     margin-left: 35px;
     margin-right: 35px;
-    padding-top: 20px;
-    margin-bottom: 20px;
+    /*padding-top: 20px;*/
+    /*margin-bottom: 20px;*/
 }
 
 .input-statement {
-
+    padding-top: 5px;
 }
 
-/*.input-statement::before {
-    content: ">>> ";
-}*/
-
-/*.non-py-statement::before {
-    content: "";
-}*/
-
 .return-statement {
-
+    margin-top: 5px;
 }
