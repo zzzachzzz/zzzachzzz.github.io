@@ -3,21 +3,34 @@ import Statement from './Statement';
 
 class Typer extends Component {
   state = {
-    inputLines: [
-      'python3',
-      'import zach',
-      'zach.github',
-      'zach.current_location'
-    ],
-    returnLines: [
-      'Python 3.5.3',
-      '',
-      <React.Fragment>
-        <span>'</span><a style={{textDecoration: 'none', color: 'blue'}} target="_blank" href="https://github.com/zzzachzzz">
-          github.com/zzzachzzz</a><span>'</span>
-      </React.Fragment>,
-      '\'Boise, ID\''
-    ],
+    inputLines: {
+      0: 'python3',
+      1: 'import zach',
+      2: 'zach.current_location',
+      3: 'zach.skills',
+      4: 'zach.resume',
+      5: 'zach.github',
+      6: 'zach.email'
+    },
+    returnLines: {
+      0: 'Python 3.5.3',
+      1: '',
+      2: '\'Boise, ID\'',
+      3: '[\'Python\', \'JavaScript\', \'React\', \'Django\']',
+      4: <React.Fragment>
+           '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
+             href="https://drive.google.com/open?id=1bQ3qTFrOGzH0jDxaLVAibP99uRxwepbh">
+             zRosenbergerResume.pdf</a>'
+         </React.Fragment>,
+      5: <React.Fragment>
+           '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
+            href="https://github.com/zzzachzzz">github.com/zzzachzzz</a>'
+         </React.Fragment>,
+      6: <React.Fragment>
+           '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
+           href="mailto:zach1rosen@gmail.com">zach1rosen@gmail.com</a>'
+         </React.Fragment>
+    },
     currentInputLines: [],
     currentReturnLines: [],
     currentStatementIndex: 0,
@@ -34,8 +47,9 @@ class Typer extends Component {
     }
 
     const { inputLines, returnLines, currentInputLines, currentReturnLines, typingSpeed } = this.state;
-    for (let i = 0; i < inputLines.length; i++) {
-      await sleep(1500);  // Wait between rendered statements
+    const statementsLength = Object.keys(inputLines).length;
+    for (let i = 0; i < statementsLength; i++) {
+      await sleep(1000);  // Wait between rendered statements
       for (let j = 0; j < inputLines[i].length; j++) {
         if (this.state.currentInputLines[i] === undefined) {
           currentInputLines[i] = '';
@@ -53,7 +67,7 @@ class Typer extends Component {
   render() {
     const { currentInputLines, currentReturnLines, currentStatementIndex } = this.state;
     return (
-      <div>
+      <React.Fragment>
         <Statement inputStatement={currentInputLines[0] || ''}
                    returnStatement={currentReturnLines[0] || ''}
                    showCursorHere={Boolean(currentStatementIndex === 0)}
@@ -71,7 +85,19 @@ class Typer extends Component {
                    returnStatement={currentReturnLines[3] || ''}
                    showCursorHere={Boolean(currentStatementIndex === 3)}
                    statementReached={Boolean(currentStatementIndex >= 3)} />
-      </div>
+        <Statement inputStatement={currentInputLines[4] || ''}
+                   returnStatement={currentReturnLines[4] || ''}
+                   showCursorHere={Boolean(currentStatementIndex === 4)}
+                   statementReached={Boolean(currentStatementIndex >= 4)} />
+        <Statement inputStatement={currentInputLines[5] || ''}
+                   returnStatement={currentReturnLines[5] || ''}
+                   showCursorHere={Boolean(currentStatementIndex === 5)}
+                   statementReached={Boolean(currentStatementIndex >= 5)} />
+        <Statement inputStatement={currentInputLines[6] || ''}
+                   returnStatement={currentReturnLines[6] || ''}
+                   showCursorHere={Boolean(currentStatementIndex === 6)}
+                   statementReached={Boolean(currentStatementIndex >= 6)} />
+      </React.Fragment>
     );
   }
 }

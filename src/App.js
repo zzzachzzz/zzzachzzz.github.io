@@ -8,16 +8,25 @@ class App extends Component {
     return (
       <div className="App">
         <div className="ubuntu-terminal-desktop">
-          <div className="App-container">
+          <div className="container">
             <Terminal />
           </div>
         </div>
-        <div className="App-container">
-          content
+        <div className="navbar">
+          <a href="#projects">
+            {arrow}
+          </a>
         </div>
       </div>
     );
   }
 }
+
+const arrow = (
+  <React.Fragment>
+    \\&nbsp;&nbsp;//<br/>
+    &nbsp;\\//<br/>
+    &nbsp;&nbsp;\/<br/>
+  </React.Fragment>)
 
 export default App;

@@ -1,8 +1,13 @@
+.Terminal {
+    height: 50vh;
+    max-width: 900px;
+    width: 100%;
+}
+
 .terminal-header {
     display: grid;
     grid-template-columns: 23px 23px 23px auto 69px;
     align-content: center;
-    width: 1000px;
     height: 28px;
     background-color: #514f48;
     border-radius: 10px 10px 0 0;
@@ -31,9 +36,9 @@
 
 .terminal-window {
     font-weight: bold;
-    height: 300px;
+    height: 100%;
     background-color: black;
-    opacity: 0.8;
+    opacity: 0.7;
     border-radius: 0 0 10px 10px;
 }
 
@@ -51,4 +56,9 @@
 
 .return-statement {
     margin-top: 5px;
+}
+
+.terminal-link {
+    text-decoration-line: none;
+    color: DodgerBlue;
 }

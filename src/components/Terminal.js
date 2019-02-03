@@ -5,7 +5,7 @@ import './Terminal.css';
 class Terminal extends Component {
   render() {
     return (
-      <div>
+      <div className="Terminal">
         <div className="terminal-header">
           <div className="terminal-header-btn header-btn1"></div>
           <div className="terminal-header-btn header-btn2"></div>
