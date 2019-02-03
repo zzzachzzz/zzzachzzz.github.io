@@ -12,7 +12,8 @@
 .App {
   min-height: 200vh;
   font-family: monospace;
-  font-size: calc(10px + 2vmin);
+  font-size: calc(11px + 0.3vw);
+  /*font-size: 16px;*/
   color: white;
   background-color: #514f48;
 }

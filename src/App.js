@@ -4,6 +4,15 @@ import Terminal from './components/Terminal';
 import './App.css';
 
 class App extends Component {
+  constructor() {
+    super()
+    this.projectsRef = React.createRef();
+  }
+
+  scroll = (ref) => {
+    ref.current.scrollIntoView({behavior: 'smooth'})
+  }
+
   render() {
     return (
       <div className="App">
@@ -13,11 +22,11 @@ class App extends Component {
           </div>
         </div>
         <div className="navbar">
-          <a href="#projects">
+          <a onClick={() => this.scroll(this.projectsRef)}>
             {arrow}
           </a>
         </div>
-      </div>
+      </div>  
     );
   }
 }

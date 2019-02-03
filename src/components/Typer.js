@@ -10,13 +10,15 @@ class Typer extends Component {
       3: 'zach.skills',
       4: 'zach.resume',
       5: 'zach.github',
-      6: 'zach.email'
+      6: 'zach.email',
+      7: 'exit()',
+      8: ''
     },
     returnLines: {
       0: 'Python 3.5.3',
       1: '',
       2: '\'Boise, ID\'',
-      3: '[\'Python\', \'JavaScript\', \'React\', \'Django\']',
+      3: '[\'Python\', \'JavaScript\', \'React\', \'Django\', \'git\']',
       4: <React.Fragment>
            '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
              href="https://drive.google.com/open?id=1bQ3qTFrOGzH0jDxaLVAibP99uRxwepbh">
@@ -29,7 +31,9 @@ class Typer extends Component {
       6: <React.Fragment>
            '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
            href="mailto:zach1rosen@gmail.com">zach1rosen@gmail.com</a>'
-         </React.Fragment>
+         </React.Fragment>,
+      7: '',
+      8: ''
     },
     currentInputLines: [],
     currentReturnLines: [],
@@ -49,7 +53,7 @@ class Typer extends Component {
     const { inputLines, returnLines, currentInputLines, currentReturnLines, typingSpeed } = this.state;
     const statementsLength = Object.keys(inputLines).length;
     for (let i = 0; i < statementsLength; i++) {
-      await sleep(1000);  // Wait between rendered statements
+      await sleep(300);  // Wait between rendered statements
       for (let j = 0; j < inputLines[i].length; j++) {
         if (this.state.currentInputLines[i] === undefined) {
           currentInputLines[i] = '';
@@ -97,6 +101,15 @@ class Typer extends Component {
                    returnStatement={currentReturnLines[6] || ''}
                    showCursorHere={Boolean(currentStatementIndex === 6)}
                    statementReached={Boolean(currentStatementIndex >= 6)} />
+        <Statement inputStatement={currentInputLines[7] || ''}
+                   returnStatement={currentReturnLines[7] || ''}
+                   showCursorHere={Boolean(currentStatementIndex === 7)}
+                   statementReached={Boolean(currentStatementIndex >= 7)} />
+        <Statement inputStatement={currentInputLines[8] || ''}
+                   returnStatement={currentReturnLines[8] || ''}
+                   showCursorHere={Boolean(currentStatementIndex === 8)}
+                   statementReached={Boolean(currentStatementIndex >= 8)}
+                   statementPrefix={linuxPrefix} />
       </React.Fragment>
     );
   }

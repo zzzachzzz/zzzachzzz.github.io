@@ -1,7 +1,9 @@
 .Terminal {
-    height: 50vh;
+    height: 500px;
     max-width: 900px;
     width: 100%;
+    margin-bottom: 50px;
+    margin-top: 50px;
 }
 
 .terminal-header {
@@ -30,7 +32,7 @@
 }
 
 .header-text {
-    font-size: 0.6em;
+    /*font-size: 0.6em;*/
     justify-self: center;
 }
 
@@ -40,10 +42,11 @@
     background-color: black;
     opacity: 0.7;
     border-radius: 0 0 10px 10px;
+    /*padding-bottom: 100px;*/
 }
 
 .statement {
-    font-size: 0.6em;
+    /*font-size: 0.6em;*/
     margin-left: 35px;
     margin-right: 35px;
     /*padding-top: 20px;*/
