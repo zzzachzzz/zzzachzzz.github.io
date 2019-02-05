@@ -13,7 +13,6 @@
   min-height: 200vh;
   font-family: monospace;
   font-size: calc(11px + 0.3vw);
-  /*font-size: 16px;*/
   color: white;
   background-color: #514f48;
 }
@@ -23,8 +22,6 @@
   justify-content: center;
   align-items: center;
   width: 100%;
-  margin-left: 50px;
-  margin-right: 50px;
 }
 
 .navbar {

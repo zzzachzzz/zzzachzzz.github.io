@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Terminal from './components/Terminal';
 // import logo from './logo.svg';
 import './App.css';
+import ProjectCard from './components/ProjectCard';
 
 class App extends Component {
   constructor() {
@@ -25,6 +26,9 @@ class App extends Component {
           <a onClick={() => this.scroll(this.projectsRef)}>
             {arrow}
           </a>
+        </div>
+        <div className="container">
+          <ProjectCard />
         </div>
       </div>  
     );

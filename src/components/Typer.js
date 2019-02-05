@@ -18,7 +18,7 @@ class Typer extends Component {
       0: 'Python 3.5.3',
       1: '',
       2: '\'Boise, ID\'',
-      3: '[\'Python\', \'JavaScript\', \'React\', \'Django\', \'git\']',
+      3: '[\'Python\', \'JavaScript\', \'React\', \'Flask\', \'Django\', \'git\']',
       4: <React.Fragment>
            '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
              href="https://drive.google.com/open?id=1bQ3qTFrOGzH0jDxaLVAibP99uRxwepbh">
