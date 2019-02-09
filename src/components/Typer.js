@@ -49,7 +49,7 @@ class Typer extends Component {
     function sleep(ms) {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
-
+    await sleep(1000);  // Initial wait on page load
     const { inputLines, returnLines, currentInputLines, currentReturnLines, typingSpeed } = this.state;
     const statementsLength = Object.keys(inputLines).length;
     for (let i = 0; i < statementsLength; i++) {

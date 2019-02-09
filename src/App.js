@@ -27,8 +27,18 @@ class App extends Component {
             {arrow}
           </a>
         </div>
-        <div className="container">
-          <ProjectCard />
+        <h2 style={{textAlign: 'center'}}>Projects</h2>
+        <div className="ubuntu-card-background">
+          <div className="cards-container">
+            <ProjectCard />
+            <ProjectCard />
+            <ProjectCard />
+            <ProjectCard />
+            <ProjectCard />
+            <ProjectCard />
+            <ProjectCard />
+            <ProjectCard />
+          </div>
         </div>
       </div>  
     );

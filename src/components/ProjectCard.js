@@ -2,14 +2,12 @@ import React, {memo} from 'react';
 
 function ProjectCard({}) {
   return (
-    <div style={cardStyle}>Card #1</div>
+    <div class="outer">
+      <div class="inner">
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim
+      </div>
+    </div>
   );
-}
-
-const cardStyle = {
-  backgroundColor: 'white',
-  width: '100px',
-  height: '100px'
 }
 
 export default memo(ProjectCard);
