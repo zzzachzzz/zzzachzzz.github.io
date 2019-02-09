@@ -35,9 +35,6 @@ class App extends Component {
             <ProjectCard />
             <ProjectCard />
             <ProjectCard />
-            <ProjectCard />
-            <ProjectCard />
-            <ProjectCard />
           </div>
         </div>
       </div>  
