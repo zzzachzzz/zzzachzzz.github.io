@@ -2,8 +2,16 @@ import React, { Component } from 'react';
 import Statement from './Statement';
 
 class Typer extends Component {
-  state = {
-    inputLines: {
+  constructor(props) {
+    super(props);
+    this.state = {
+      currentInputLines: [],
+      currentReturnLines: [],
+      currentStatementIndex: 0,
+      typingSpeed: 60
+    }
+
+    this.inputLines = {
       0: 'python3',
       1: 'import zach',
       2: 'zach.current_location',
@@ -13,8 +21,9 @@ class Typer extends Component {
       6: 'zach.email',
       7: 'exit()',
       8: ''
-    },
-    returnLines: {
+    }
+
+    this.returnLines = {
       0: 'Python 3.5.3',
       1: '',
       2: '\'Boise, ID\'',
@@ -34,11 +43,7 @@ class Typer extends Component {
          </React.Fragment>,
       7: '',
       8: ''
-    },
-    currentInputLines: [],
-    currentReturnLines: [],
-    currentStatementIndex: 0,
-    typingSpeed: 60
+    }
   }
 
   componentDidMount() {
@@ -50,7 +55,8 @@ class Typer extends Component {
       return new Promise(resolve => setTimeout(resolve, ms));
     }
     await sleep(1000);  // Initial wait on page load
-    const { inputLines, returnLines, currentInputLines, currentReturnLines, typingSpeed } = this.state;
+    const { inputLines, returnLines } = this;
+    const { currentInputLines, currentReturnLines, typingSpeed } = this.state;
     const statementsLength = Object.keys(inputLines).length;
     for (let i = 0; i < statementsLength; i++) {
       await sleep(300);  // Wait between rendered statements

@@ -4,20 +4,22 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  margin-left: 15%;
-  margin-right: 15%;
+  height: 80%;
+  width: 80%;
 }
 
 .outer {
-  position:relative;
+  position: relative;
   width: 100%;
-  height: 350px;
-  /*margin: 0 auto;*/
+  height: 380px;
+  margin: 0 auto;
   overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.outer::after {
+.outer::before {
   content:'';
   position:absolute;
   left: 10%; top: 10%;
@@ -29,9 +31,7 @@
 }
 
 
-.inner > h2 {
-  position: absolute;
-  top: 50px;
+.card-header-container > h2 {
 }
 
 .inner > p {
@@ -45,16 +45,41 @@
   flex-direction: row;
   /*justify-content: center;*/
   align-items: center;
-  height: 35px;
-  bottom: 50px;
+  height: 37px;
+  bottom: 12px;
   background-color: white;
-  padding-top: 7px;
-  padding-bottom: 7px;
   border-radius: 10px;
 }
 
 .tech-icon {
-  height: 35px;
-  margin-left: 10px;
-  margin-right: 10px;
+  height: 28px;
+  margin-left: 8px;
+  margin-right: 8px;
+}
+
+.github-link {
+  background-color: white;
+  color: black;
+  position: absolute;
+  /*top: 52px;*/
+  right: 15px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.github-logo {
+  height: 28px;
+  margin: 5px;
+}
+
+.card-header-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  top: 4px;
+  width: 100%
 }
