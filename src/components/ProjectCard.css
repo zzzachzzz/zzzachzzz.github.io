@@ -5,7 +5,8 @@
   justify-content: center;
   align-items: center;
   height: 80%;
-  width: 80%;
+  width: 90%;
+  max-width: 800px;
 }
 
 .outer {
@@ -22,11 +23,11 @@
 .outer::before {
   content:'';
   position:absolute;
-  left: 10%; top: 10%;
+  /*left: 10%; top: 10%;*/
   border-radius: 10px;
-  width: 80%;
   height: 80%;
-  /*box-shadow: 0px 0px 0px 2000px #E3DFD2;*/
+  width: 90%;
+  max-width: 800px;
   box-shadow: 0px 0px 0px 2000px #514f48;
 }
 
@@ -37,13 +38,14 @@
 .inner > p {
   /*font-style: oblique;*/
   line-height: 27px;
+  margin-left: 50px;
+  margin-right: 50px;
 }
 
 .tech-icon-row {
   position: absolute;
   display: flex;
   flex-direction: row;
-  /*justify-content: center;*/
   align-items: center;
   height: 37px;
   bottom: 12px;
@@ -61,13 +63,10 @@
   background-color: white;
   color: black;
   position: absolute;
-  /*top: 52px;*/
   right: 15px;
   border-radius: 10px;
   display: flex;
   justify-content: center;
-  text-decoration: none;
-  font-size: 12px;
 }
 
 .github-logo {
@@ -80,6 +79,6 @@
   align-items: center;
   justify-content: center;
   position: absolute;
-  top: 4px;
+  top: 0px;
   width: 100%
 }

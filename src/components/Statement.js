@@ -13,7 +13,9 @@ class Statement extends PureComponent {
             statementPrefix, statementReached } = this.props;
     return (
       <div className="statement">
-        <div className="input-statement">{statementReached && statementPrefix}{inputStatement}</div>
+        <div className="input-statement">
+          {statementReached && statementPrefix}{inputStatement}{showCursorHere &&<span className="cursor">&nbsp;</span>}
+        </div>
         {returnStatement && <div className="return-statement">{returnStatement}</div>}
       </div>
     );
