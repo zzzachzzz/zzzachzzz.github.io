@@ -19,6 +19,16 @@ class App extends Component {
         githubLink: 'https://github.com/zzzachzzz/AutomateMyJob'
       },
       1: {
+        title: 'Portfolio',
+        body: `
+          This site, which is built with ReactJS. The typing of statements in the terminal is performed
+          by updating the state with each character being added, optimized through the use of
+          React.PureComponent and React.memo. This prevents statements that have already been typed
+          from re-rendering unnecessarily. Hosted on Digital Ocean.`,
+        icons: ['javascript.png', 'react.png', 'digital_ocean.png'],
+        githubLink: 'https://github.com/zzzachzzz/portfolio'
+      },
+      2: {
         title: 'Toonkit.net',
         body: `
           A hub of utilities for the community-maintained Toontown Rewritten and Toontown Corporate Clash.
@@ -28,7 +38,7 @@ class App extends Component {
         icons: ['python.png', 'flask.png', 'postgreSQL.png', 'digital_ocean.png'],
         githubLink: 'https://github.com/Toonkit/Website'
       },
-      2: {
+      3: {
         title: 'LoLWikiQuotes',
         body: `
           A web scraper created with the Beautiful Soup Python module. It scrapes champion quotes from
@@ -38,12 +48,6 @@ class App extends Component {
         icons: ['python.png', 'beautiful_soup.png', 'riot_games_api.png'],
         githubLink: 'https://github.com/zzzachzzz/LoLWikiQuotes'
       },
-      3: {
-        title: 'Portfolio',
-        body: '',
-        icons: ['javascript.png', 'react.png', 'digital_ocean.png'],
-        githubLink: 'https://github.com/zzzachzzz/portfolio'
-      }
     }
   }
 
