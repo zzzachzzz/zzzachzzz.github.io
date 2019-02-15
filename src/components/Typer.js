@@ -7,11 +7,9 @@ class Typer extends Component {
     this.state = {
       currentInputLines: [],
       currentReturnLines: [],
-      currentStatementIndex: 0
+      currentStatementIndex: 0,
+      typingSpeed: 60
     }
-
-    
-    this.typingSpeed = 60;
 
     this.inputLines = {
       0: 'python3',
@@ -58,20 +56,20 @@ class Typer extends Component {
     }
     await sleep(1000);  // Initial wait on page load
     const { inputLines, returnLines } = this;
-    const { currentInputLines, currentReturnLines } = this.state;
+    const { currentInputLines, currentReturnLines, typingSpeed } = this.state;
     const statementsLength = Object.keys(inputLines).length;
     for (let i = 0; i < statementsLength; i++) {
       this.setState({ currentStatementIndex: i });
-      await sleep(1500);  // Delay before typing next input statement
+      await sleep(900);  // Delay before typing next input statement
       for (let j = 0; j < inputLines[i].length; j++) {
         if (this.state.currentInputLines[i] === undefined) {
           currentInputLines[i] = '';
         }
         currentInputLines[i] += inputLines[i][j];  // Type next character
         this.setState({ currentInputLines: currentInputLines });
-        await sleep(this.typingSpeed);  // Delay between characters
+        await sleep(typingSpeed);  // Delay between characters
       }
-      await sleep(350);  // Delay 'hitting Enter' after typing statement
+      await sleep(250);  // Delay 'hitting Enter' after typing statement
       currentReturnLines[i] = returnLines[i];
       this.setState({ currentReturnLines: currentReturnLines });
     }
