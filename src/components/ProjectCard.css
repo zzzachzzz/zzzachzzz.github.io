@@ -12,7 +12,8 @@
 .outer {
   position: relative;
   width: 100%;
-  height: 380px;
+  height: calc(650px - 15vw);
+  min-height: 350px;
   margin: 0 auto;
   overflow: hidden;
   display: flex;
@@ -23,7 +24,6 @@
 .outer::before {
   content:'';
   position:absolute;
-  /*left: 10%; top: 10%;*/
   border-radius: 10px;
   height: 80%;
   width: 90%;
@@ -36,10 +36,9 @@
 }
 
 .inner > p {
-  /*font-style: oblique;*/
-  line-height: 27px;
-  margin-left: 50px;
-  margin-right: 50px;
+  text-align: center;
+  line-height: 24px;
+  margin: 50px;
 }
 
 .tech-icon-row {
