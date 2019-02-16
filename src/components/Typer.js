@@ -29,7 +29,7 @@ class Typer extends Component {
       1: '',
       2: '\'Zachary Rosenberger\'',
       3: '\'Boise, ID\'',
-      4: '[\'Python\', \'JavaScript\', \'React\', \'Flask\', \'Django\', \'git\']',
+      4: '[\'Python\', \'JavaScript\', \'React\', \'Flask\', \'Django\', \'Git\']',
       5: <React.Fragment>
            '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
              href="https://drive.google.com/open?id=1bQ3qTFrOGzH0jDxaLVAibP99uRxwepbh">

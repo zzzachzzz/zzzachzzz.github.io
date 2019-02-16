@@ -24,7 +24,7 @@ class App extends Component {
           This site, which is built with ReactJS. The typing of statements in the terminal is performed
           by updating the state with each character being added, optimized through the use of
           React.PureComponent and React.memo. This prevents statements that have already been typed
-          from re-rendering unnecessarily. Hosted on Digital Ocean.`,
+          from re-rendering unnecessarily. Hosted on DigitalOcean.`,
         icons: ['javascript.png', 'react.png', 'digital_ocean.png'],
         githubLink: 'https://github.com/zzzachzzz/portfolio'
       },
