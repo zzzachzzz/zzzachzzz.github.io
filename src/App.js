@@ -52,19 +52,20 @@ class App extends Component {
   }
 
   scroll = (ref) => {
-    ref.current.scrollIntoView({behavior: 'smooth'})
+    ref.current.scrollIntoView({behavior: 'smooth'});
   }
 
   render() {
     return (
       <div className="App">
+        <div className="navbar">
+          <a>Blog</a>
+          <a href="#projects" onClick={() => this.scroll(this.projectsRef)}>
+            Projects
+          </a>
+        </div>
         <div className="ubuntu-terminal-desktop">
           <Terminal />
-        </div>
-        <div className="navbar">
-          <a href="#projects" onClick={() => this.scroll(this.projectsRef)}>
-            {arrow}
-          </a>
         </div>
         <h2 ref={this.projectsRef} className="projects-header">Projects</h2>
         <div className="ubuntu-card-background">
@@ -75,7 +76,7 @@ class App extends Component {
             <ProjectCard project={this.projects[3]} />
           </div>
         </div>
-      </div>  
+      </div>
     );
   }
 }
