@@ -5,7 +5,6 @@ class Statement extends PureComponent {
     statementPrefix: '>>> ',
     inputStatement: '',
     returnStatement: '',
-    firstStatement: false
   }
 
   render() {
