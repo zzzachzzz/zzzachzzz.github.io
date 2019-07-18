@@ -6,7 +6,11 @@ let blogSchema = mongoose.Schema({
     type: String,
     required: true,
   },
-  body: {
+  content: {
+    type: String,
+    required: true,
+  },
+  urlTitle: {
     type: String,
     required: true,
   },

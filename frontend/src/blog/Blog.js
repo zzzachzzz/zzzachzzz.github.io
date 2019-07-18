@@ -6,9 +6,7 @@ import Editor from './components/Editor';
 
 
 export default class Blog extends Component {
-  state = {
-    thing: '<p><code>code</code>&lt;script&gt;&lt;/script&gt;</p>'
-  };
+  state = {};
 
   componentDidMount() {
     Prism.highlightAll();
@@ -21,13 +19,23 @@ export default class Blog extends Component {
 
   buttonClick = () => {
     Prism.highlightAll();
-    fetch('/api')
-      .then((res) => {
-        return res.json();
-      })
-      .then((json) => {
-        console.log(JSON.stringify(json));
-      });
+    fetch('/api/blogs', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title: 'DO IT AGAIN DUDE',
+        content: '<h1> L O L </h1>',
+      }),
+    })
+    .then((res) => {
+      return res.json();
+    })
+    .then((json) => {
+      console.log(JSON.stringify(json));
+    });
   };
 
   render() {
