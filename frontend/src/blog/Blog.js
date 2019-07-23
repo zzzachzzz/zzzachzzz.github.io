@@ -20,15 +20,16 @@ export default class Blog extends Component {
   buttonClick = () => {
     Prism.highlightAll();
     fetch('/api/blogs', {
-      method: 'POST',
+      method: 'GET',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        title: 'DO IT AGAIN DUDE',
-        content: '<h1> L O L </h1>',
-      }),
+      // body: JSON.stringify({
+      //   title: 'DO IT AGAIN DUDE',
+      //   content: '<h1> L O L </h1>',
+      //   password: 'yol',
+      // }),
     })
     .then((res) => {
       return res.json();
