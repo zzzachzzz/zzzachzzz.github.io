@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import RichTextEditor from 'react-rte';
+import RichTextEditor, { Modifier } from 'react-rte';
+import './Editor.css';
 
 
 export default class Editor extends Component {
@@ -14,6 +15,9 @@ export default class Editor extends Component {
 
   onChange = (value) => {
     this.setState({value});
+  };
+
+  exportHtml = () => {
     let options = {
       blockRenderers: {
         'code-javascript': (block) => {
@@ -26,9 +30,7 @@ export default class Editor extends Component {
         },
       },
     };
-    this.props.onChange(
-      value.toString('html', options)
-    );
+    return this.state.value.toString('html', options);
   };
 
   render() {
@@ -55,16 +57,23 @@ export default class Editor extends Component {
       ]
     };
 
+    const blockStyleFn = (contentBlock) => {
+      const type = contentBlock.getType();
+      if (type  === 'code-python' || type === 'code-javascript') {
+        return 'codeBlock';
+      }
+    };
+
     return (
       <div>
         <RichTextEditor
           value={this.state.value}
           onChange={this.onChange}
-          toolbarConfig={toolbarConfig}
+          // toolbarConfig={toolbarConfig}
+          blockStyleFn={blockStyleFn}
+          stripPastedStyles={true}
         />
       </div>
     );
   }
 }
-
-// Use preview instead!
