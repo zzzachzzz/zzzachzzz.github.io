@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Prism from 'prismjs';
 import '../prism.css';
 import 'prismjs/components/prism-python.js';
-import Editor from './Editor';
+import SlateEditor from './SlateEditor';
 import ViewBlog from './ViewBlog';
 
 
@@ -55,7 +55,7 @@ export default class EditBlog extends Component {
       <div>
         {/* Hide component without re-render to avoid losing state of Editor */}
         <div style={ this.state.showEditor ? null : {display: 'none'} } >
-          <Editor ref={this.refsEditor} getHtml={this.getHtml} />
+          <SlateEditor ref={this.refsEditor} />
         </div>
         { !this.state.showEditor &&
           <ViewBlog content={this.state.content} /> }
