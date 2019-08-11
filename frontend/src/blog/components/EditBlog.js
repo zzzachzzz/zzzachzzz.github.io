@@ -5,14 +5,15 @@ import 'prismjs/components/prism-python.js';
 import SlateEditor from './SlateEditor';
 import ViewBlog from './ViewBlog';
 
+import Content from './content.js';
 
 export default class EditBlog extends Component {
   constructor() {
     super();
     this.refsEditor = React.createRef();
     this.state = {
-      showEditor: true,
-      content: '',
+      showEditor: false,
+      content: Content
     };
   }
 
@@ -52,14 +53,14 @@ export default class EditBlog extends Component {
 
   render() {
     return (
-      <div>
+      <div id="AYYYY" style={{ height: '100%' }}>
+        <button onClick={() => this.toggleEditorPreview()}>{this.state.showEditor ? "Preview" : "Edit"}</button>
         {/* Hide component without re-render to avoid losing state of Editor */}
         <div style={ this.state.showEditor ? null : {display: 'none'} } >
           <SlateEditor ref={this.refsEditor} />
         </div>
         { !this.state.showEditor &&
           <ViewBlog content={this.state.content} /> }
-        <button onClick={() => this.toggleEditorPreview()}>{this.state.showEditor ? "Preview" : "Edit"}</button>
       </div>
     );
   }

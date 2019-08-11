@@ -128,7 +128,7 @@ export default class SlateEditor extends React.Component {
   }
 
   exportHtml = () => {
-    return html.serialize(this.state.value);
+    return String.raw`${ html.serialize(this.state.value) }`;
   };
 
   /**

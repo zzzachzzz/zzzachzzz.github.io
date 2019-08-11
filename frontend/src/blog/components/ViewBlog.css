@@ -1,0 +1,13 @@
+#CHILD > :not(pre) {
+  /*max-width: '1000px';*/
+  margin-left: 15%;
+  margin-right: 15%;
+}
+#CHILD > pre {
+  width: 80vw;
+  padding-left: 3vw;
+  padding-right: 3vw;
+  margin-left: 7vw;
+  margin-right: 7vw;
+  max-width: none;
+}
