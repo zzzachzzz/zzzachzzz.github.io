@@ -1,9 +1,8 @@
-#CHILD > :not(pre) {
-  /*max-width: '1000px';*/
+#blog-content > :not(pre) {
   margin-left: 15%;
   margin-right: 15%;
 }
-#CHILD > pre {
+#blog-content > pre {
   width: 80vw;
   padding-left: 3vw;
   padding-right: 3vw;
@@ -12,16 +11,9 @@
   max-width: none;
 }
 
-#CHILD {
-  /*maxWidth: '1000px',*/
-  /*margin: '5%',*/
-  font-size: 24px;
+#blog-content {
+  font-size: 1em;
   line-height: 1.4em;
   letter-spacing: 0.009em;
+  margin-bottom: 4em;
 };
-
-@media screen and (min-width: 700px) {
-  #CHILD {
-    font-size: 10px;
-  }
-}

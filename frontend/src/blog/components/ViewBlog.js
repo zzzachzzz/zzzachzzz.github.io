@@ -20,11 +20,10 @@ export default class ViewBlog extends Component {
       height: '100%',
       color: 'white',
     };
-    const childStyle = {};
     return (
-      <div id="PARENT" style={viewBlogStyle}>
-        <h1 style={{textAlign: 'center', margin: '50px', marginBottom: '28px'}}>{this.props.title}</h1>
-        <div id="CHILD" style={childStyle} dangerouslySetInnerHTML={{ __html: this.props.content }} />
+      <div style={viewBlogStyle}>
+        <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '1.2em'}}>{this.props.title}</h1>
+        <div id="blog-content" dangerouslySetInnerHTML={{ __html: this.props.content }} />
       </div>
     );
   }

@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import Prism from 'prismjs';
 import '../prism.css';
 import 'prismjs/components/prism-python.js';
+import './BlogList.css';
 
 
 export default class BlogList extends Component {
@@ -11,7 +12,7 @@ export default class BlogList extends Component {
     blogs: [
       {title: 'Once upon a time', urlTitle: 'once-upon-a-time'},
       {title: 'Slate.js: Draft.js Without the Bad Parts', urlTitle: 'slatejs-draftjs-without-the-bad-parts'},
-      {title: 'A longer title how long will it go lol that rhymes accidentally (please god no)', urlTitle: 'bad-link'}
+      {title: 'A longer title how long will it go lol that rhymes accidentally (please god no) oh but it does go even even longer longer', urlTitle: 'bad-link'}
     ]
   }
 
@@ -30,13 +31,10 @@ export default class BlogList extends Component {
       color: 'white',
     };
 
-
-
-    const other = {flexDirection: 'column', display: 'flex', align_items: 'flex-start', width: '80%'};
     return (
       <div style={blogListStyle}>
         <h1>Recent Posts</h1>
-        <div style={other}>
+        <div style={{flexDirection: 'column', display: 'flex', align_items: 'flex-start', width: '80%'}}>
           {this.state.blogs.map((blog) => <BlogPreview title={blog.title} urlTitle={blog.urlTitle} />)}
         </div>
       </div>
@@ -45,20 +43,24 @@ export default class BlogList extends Component {
 }
 
 function BlogPreview({ title, urlTitle }) {
-  const linkStyle = {fontSize: '24px', color: 'white', textDecoration: 'none', margin: '30px', textDecoration: 'none',
-                     fontFamily: 'Consolas, Monaco, Andale Mono, Ubuntu Mono, monospace'};
-  const blockStyle = {
-    height: '72px',
-    background: '#272822',
-    borderRadius: '0.3em',
-    margin: '25px',
-    padding: '20px'
-  };
+  const prismBlue = '#66d9ef';
+  const prismGreen = '#a6e22e';
+  const prismRed = '#f92672';
+  const prismPurple = '#ae81ff';
+
   return (
-    <div style={blockStyle}>
-      <span style={{fontSize: '24px', marginRight: '15px'}}>&nabla;</span>
-      <Link style={linkStyle} to={`/blog/${urlTitle}`}>{title}
-      </Link>
-    </div>
+    <Link class="link-block" to={`/blog/${urlTitle}`}>
+      <div style={{fontSize: '1em', display: 'flex', alignItems: 'center'}}>
+        <span style={{color: prismRed}}>{`{`}</span>
+        <span style={{color: prismBlue}}>{`{`}</span>
+        <span style={{color: prismGreen}}>{`{`}</span>
+      </div>
+      <p style={{marginLeft: '1.5em', marginRight: '1.5em', textAlign: 'center', display: 'flex', alignItems: 'center'}}>{title}</p>
+      <div style={{fontSize: '1em', display: 'flex', alignItems: 'center'}}>
+        <span style={{color: prismGreen}}>{`}`}</span>
+        <span style={{color: prismBlue}}>{`}`}</span>
+        <span style={{color: prismRed}}>{`}`}</span>
+      </div>
+    </Link>
   );
 }
