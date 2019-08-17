@@ -13,7 +13,8 @@ export default class EditBlog extends Component {
     this.refsEditor = React.createRef();
     this.state = {
       showEditor: false,
-      content: Content
+      content: Content,
+      title: "Slate.js: Draft.js Without the Bad Parts",
     };
   }
 
@@ -60,7 +61,7 @@ export default class EditBlog extends Component {
           <SlateEditor ref={this.refsEditor} />
         </div>
         { !this.state.showEditor &&
-          <ViewBlog content={this.state.content} /> }
+          <ViewBlog content={this.state.content} title={this.state.title} /> }
       </div>
     );
   }

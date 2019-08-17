@@ -12,21 +12,18 @@ export default class ViewBlog extends Component {
 
   render() {
     const viewBlogStyle = {
-      backgroundColor: '#3e4d4f', //'#514f48',
+      backgroundColor: '#3e4d4f',
       display: 'flex',
       justifyContent: 'center',
+      flexDirection: 'column',
       minHeight: '100vh',
       height: '100%',
-    };
-    const childStyle = {
-      // maxWidth: '1000px',
-      // margin: '5%',
       color: 'white',
-      fontSize: '22px',
-      lineHeight: '1.6em',
     };
+    const childStyle = {};
     return (
       <div id="PARENT" style={viewBlogStyle}>
+        <h1 style={{textAlign: 'center', margin: '50px', marginBottom: '28px'}}>{this.props.title}</h1>
         <div id="CHILD" style={childStyle} dangerouslySetInnerHTML={{ __html: this.props.content }} />
       </div>
     );
