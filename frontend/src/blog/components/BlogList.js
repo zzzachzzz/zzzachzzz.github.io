@@ -1,23 +1,29 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
 
-import Prism from 'prismjs';
-import '../prism.css';
-import 'prismjs/components/prism-python.js';
 import './BlogList.css';
 
 
 export default class BlogList extends Component {
   state = {
-    blogs: [
-      {title: 'Once upon a time', urlTitle: 'once-upon-a-time'},
-      {title: 'Slate.js: Draft.js Without the Bad Parts', urlTitle: 'slatejs-draftjs-without-the-bad-parts'},
-      {title: 'A longer title how long will it go lol that rhymes accidentally (please god no) oh but it does go even even longer longer', urlTitle: 'bad-link'}
-    ]
-  }
+    blogs: [],
+  };
 
   componentDidMount() {
-    Prism.highlightAll();
+    fetch('/api/blogs')
+    .then(res => {
+      if (res.ok) {
+        return res.json();
+      } else {
+        console.log(res);
+        // alert(res.status);
+        throw Error(`Request rejected with status ${res.status}`);
+      }
+    })
+    .then(json => {
+      this.setState({ blogs: json });
+    })
+    .catch(console.error);
   }
 
   render() {
@@ -35,7 +41,7 @@ export default class BlogList extends Component {
       <div style={blogListStyle}>
         <h1>Recent Posts</h1>
         <div style={{flexDirection: 'column', display: 'flex', align_items: 'flex-start', width: '80%'}}>
-          {this.state.blogs.map((blog) => <BlogPreview title={blog.title} urlTitle={blog.urlTitle} />)}
+          {this.state.blogs.map((blog, index) => <BlogPreview title={blog.title} urlTitle={blog.urlTitle} key={index} />)}
         </div>
       </div>
     );
@@ -49,7 +55,7 @@ function BlogPreview({ title, urlTitle }) {
   const prismPurple = '#ae81ff';
 
   return (
-    <Link class="link-block" to={`/blog/${urlTitle}`}>
+    <Link className="link-block" to={`/blog/${urlTitle}`}>
       <div style={{fontSize: '1em', display: 'flex', alignItems: 'center'}}>
         <span style={{color: prismRed}}>{`{`}</span>
         <span style={{color: prismBlue}}>{`{`}</span>

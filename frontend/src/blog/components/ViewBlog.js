@@ -13,17 +13,24 @@ export default class ViewBlog extends Component {
 
   async componentDidMount() {
     if (this.props.match) {
-      console.log('aight');
       await fetch('/api/blogs/' + this.props.match.params.urlTitle)
-      .then(res => res.json())
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          console.log(res);
+          // alert(res.status);
+          throw Error(`Request rejected with status ${res.status}`);
+        }
+      })
       .then(json => {
         this.setState({
           title: json.title,
           content: json.content
         });
-      });
+      })
+      .catch(console.error);
     }
-    console.log('prism');
     Prism.highlightAll();
   }
 

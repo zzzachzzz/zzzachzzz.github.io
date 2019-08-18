@@ -118,6 +118,10 @@ export default class SlateEditor extends React.Component {
     return html.serialize(this.state.value);
   };
 
+  importHtml = (htmlString) => {
+    this.setState({ value: html.deserialize(htmlString) });
+  };
+
   hasMark = type => {
     const { value } = this.state
     return value.activeMarks.some(mark => mark.type === type)

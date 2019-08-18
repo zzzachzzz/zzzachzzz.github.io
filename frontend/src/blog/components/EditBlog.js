@@ -5,14 +5,41 @@ import ViewBlog from './ViewBlog';
 import Content from './content.js';
 
 export default class EditBlog extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.refsEditor = React.createRef();
     this.state = {
       showEditor: true,
-      content: Content,
       title: "",
+      content: "",
     };
+
+    const match = this.props.match;
+    if (match && match.params && match.params.urlTitle) {
+      this.isBlogUpdate = true;
+    } else {
+      this.isBlogUpdate = false;
+    }
+  }
+
+  componentDidMount() {
+    if (this.isBlogUpdate) {
+      fetch('/api/blogs/' + this.props.match.params.urlTitle)
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          console.log(res);
+          // alert(res.status);
+          throw Error(`Request rejected with status ${res.status}`);
+        }
+      })
+      .then(json => {
+        this.refsEditor.current.importHtml(json.content);
+        this.setState({ title: json.title });
+      })
+      .catch(console.error);
+    }
   }
 
   toggleEditorPreview = () => {
@@ -28,9 +55,12 @@ export default class EditBlog extends Component {
   };
 
   saveBlog = () => {
-    //{this.props.match.params.urlTitle}
     console.log("HELLOOOOOO");
-    fetch('/api/blogs', {
+
+    // Create or update based on url
+    const url = '/api/blogs/' + (this.isBlogUpdate ? this.props.match.params.urlTitle : '');
+
+    fetch(url, {
       method: 'POST',
       headers: {
         Accept: 'application/json',
@@ -48,6 +78,7 @@ export default class EditBlog extends Component {
         return res;
       } else {
         console.log(res);
+        // alert(res.status);
         throw Error(`Request rejected with status ${res.status}`);
       }
     })

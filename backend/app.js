@@ -97,6 +97,7 @@ router.get('/blogs', function(req, res) {
   Blog.find({}, 'title urlTitle', function(err, blogs) {
     if (err) {
       console.log(err);
+      res.sendStatus(400);
     } else {
       res.send(blogs);
     }
@@ -108,6 +109,9 @@ router.get('/blogs/:urlTitle', function(req, res) {
   Blog.findOne({ urlTitle: req.params.urlTitle }, function(err, blog) {
     if (err) {
       console.log(err);
+      res.sendStatus(400);
+    } else if (!blog) {
+      res.sendStatus(404);
     } else {
       res.send(blog);
     }
@@ -118,12 +122,13 @@ router.get('/blogs/:urlTitle', function(req, res) {
 router.post('/blogs/:urlTitle', authenticate, function(req, res) {
   console.log(req.body);
   const doc = { title: req.body.title, content: req.body.content,
-                   urlTitle: convertTitleToUrlTitle(req.body.title) };
+                urlTitle: convertTitleToUrlTitle(req.body.title) };
   Blog.updateOne({ urlTitle: req.params.urlTitle }, doc, function(err, blog) {
     if (err) {
       console.log(err);
+      res.sendStatus(400);
     } else {
-      res.send(blog);
+      res.send({ success: true});
     }
   });
 });
@@ -137,7 +142,7 @@ router.post('/blogs', authenticate, function(req, res) {
       console.log(err);
       res.sendStatus(400);
     } else {
-      res.send(blog);
+      res.send({ success: true});
     }
   });
 });
@@ -147,12 +152,12 @@ router.delete('/blogs/:urlTitle', authenticate, function(req, res) {
   Blog.deleteOne({ urlTitle: req.params.urlTitle }, function(err) {
     if (err) {
       console.log(err);
+      res.sendStatus(400);
     } else {
       res.send({ success: true });
     }
   });
 });
-
 
 
 // Convert blog title to be url friendly | My First Blog -> my-first-blog
