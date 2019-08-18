@@ -2,7 +2,6 @@ import { Editor } from 'slate-react';
 import { Value } from 'slate';
 import Html from 'slate-html-serializer';
 
-import Prism from 'prismjs';
 import React from 'react';
 import './SlateEditor.css';
 import { Button, Icon, Toolbar } from './SlateComponents.js';
@@ -21,47 +20,49 @@ const initialValue = Value.fromJSON(initialValueAsJson);
 
 const rules = [
   {
-    deserialize(el, next) {
-      if (el.tagName.toLowerCase() == 'code') {
-        return {
-          object: 'block',
-          type: 'code',
-          data: {
-            className: 'code-javascript',
-          },
-          nodes: next(el.childNodes),
-        }
-      }
-      if (el.tagName.toLowerCase() == 'p') {
-        return {
-          object: 'block',
-          type: 'paragraph',
-          data: {
-            className: el.getAttribute('class'),
-          },
-          nodes: next(el.childNodes),
-        }
-      }
-    },
     serialize(obj, children) {
-      if (obj.object == 'block' && obj.type == 'paragraph') {
+      if (obj.object === 'block' && obj.type === 'paragraph') {
         return <p className={obj.data.get('className')}>{children}</p>
       }
-      if (obj.object == 'block' && obj.type == 'code_line') {
+      if (obj.object === 'block' && obj.type === 'code_line') {
         return (
           <React.Fragment>
             {children}{'\n'}
           </React.Fragment>
         );
       }
-      if (obj.object == 'block' && obj.type == 'code') {
+      if (obj.object === 'block' && obj.type === 'code') {
         const codeLanguage = `language-${obj.data.get('language')}`;
         return <pre><code className={codeLanguage}>{children}</code></pre>;
       }
-      if (obj.object == 'mark' && obj.type == 'code') {
+      if (obj.object === 'mark' && obj.type === 'code') {
         return <code className="code-inline">{children}</code>;
       }
-      if (obj.object == 'string') {
+      if (obj.object === 'mark' && obj.type === 'bold') {
+        return <b>{children}</b>
+      }
+      if (obj.object === 'mark' && obj.type === 'underlined') {
+        return <u>{children}</u>
+      }
+      if (obj.object === 'mark' && obj.type === 'italic') {
+        return <i>{children}</i>
+      }
+      if (obj.object === 'block' && obj.type === 'heading-one') {
+        return <h1>{children}</h1>
+      }
+      if (obj.object === 'block' && obj.type === 'heading-two') {
+        return <h2>{children}</h2>
+      }
+      if (obj.object === 'block' && obj.type === 'numbered-list') {
+        return <ol>{children}</ol>
+      }
+      if (obj.object === 'block' && obj.type === 'bulleted-list') {
+        return <ul>{children}</ul>
+      }
+      if (obj.object === 'block' && obj.type === 'list-item') {
+        return <li>{children}</li>
+      }
+      if (obj.object === 'string') {
         return children;
       }
     },
@@ -134,7 +135,7 @@ export default class SlateEditor extends React.Component {
           {this.renderMarkButton('bold', 'format_bold')}
           {this.renderMarkButton('italic', 'format_italic')}
           {this.renderMarkButton('underlined', 'format_underlined')}
-          {this.renderMarkButton('code', 'code')}
+          {this.renderBlockButton('code', 'code')}
           {this.renderBlockButton('heading-one', 'looks_one')}
           {this.renderBlockButton('heading-two', 'looks_two')}
           {this.renderBlockButton('block-quote', 'format_quote')}
@@ -236,11 +237,7 @@ export default class SlateEditor extends React.Component {
   onKeyDown = (event, editor, next) => {
     let mark;
 
-    if (false && event.key === 'Enter' && (editor.value.startBlock.type === 'code')) {
-      editor.insertText('\n');
-      console.log('On Key Down Enter Inserted \\n');
-      return;
-    } else if (isBoldHotkey(event)) {
+    if (isBoldHotkey(event)) {
       mark = 'bold';
     } else if (isItalicHotkey(event)) {
       mark = 'italic';
@@ -290,8 +287,29 @@ export default class SlateEditor extends React.Component {
     const { value } = editor;
     const { document } = value;
 
+    if (type === 'code') {
+      editor.insertBlock({
+        "object": "block",
+        "type": "code",
+        "data": {
+          "language": "javascript"
+        },
+        "nodes": [
+          {
+            "object": "block",
+            "type": "code_line",
+            "nodes": [
+              {
+                "object": "text",
+                "text": ""
+              }
+            ]
+          }
+        ]
+      });
+    }
     // Handle everything but list buttons.
-    if (type !== 'bulleted-list' && type !== 'numbered-list') {
+    else if (type !== 'bulleted-list' && type !== 'numbered-list') {
       const isActive = this.hasBlock(type);
       const isList = this.hasBlock('list-item');
 

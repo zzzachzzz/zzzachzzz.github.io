@@ -7,8 +7,8 @@
 
 /*IS THIS A PROBLEM CHILD WTF*/
 #blog-content > :not(pre) {
-  margin-left: 15%;
-  margin-right: 15%;
+  margin-left: 15vw;
+  margin-right: 15vw;
 }
 #blog-content > pre {
   width: 80vw;

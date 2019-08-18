@@ -133,13 +133,13 @@ router.post('/blogs', authenticate, function(req, res) {
   const doc = { title: req.body.title, content: req.body.content,
                    urlTitle: convertTitleToUrlTitle(req.body.title) };
   Blog.create(doc, function(err, blog) {
-      if (err) {
-        console.log(err);
-      } else {
-        res.send(blog);
-      }
+    if (err) {
+      console.log(err);
+      res.sendStatus(400);
+    } else {
+      res.send(blog);
     }
-  );
+  });
 });
 
 // DELETE existing blog | Requires authorization

@@ -6,7 +6,24 @@ import './ViewBlog.css';
 
 
 export default class ViewBlog extends Component {
-  componentDidMount() {
+  state = {
+    title: this.props.title,
+    content: this.props.content,
+  };
+
+  async componentDidMount() {
+    if (this.props.match) {
+      console.log('aight');
+      await fetch('/api/blogs/' + this.props.match.params.urlTitle)
+      .then(res => res.json())
+      .then(json => {
+        this.setState({
+          title: json.title,
+          content: json.content
+        });
+      });
+    }
+    console.log('prism');
     Prism.highlightAll();
   }
 
@@ -16,13 +33,12 @@ export default class ViewBlog extends Component {
       display: 'flex',
       flexDirection: 'column',
       minHeight: '100vh',
-      height: '100%',
       color: 'white',
     };
     return (
       <div style={viewBlogStyle}>
-        <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '1.2em'}}>{this.props.title}</h1>
-        <div id="blog-content" dangerouslySetInnerHTML={{ __html: this.props.content }} />
+        <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '1.2em'}}>{this.state.title}</h1>
+        <div id="blog-content" dangerouslySetInnerHTML={{ __html: this.state.content }} />
       </div>
     );
   }

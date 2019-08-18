@@ -1,7 +1,4 @@
 import React, { Component } from 'react';
-import Prism from 'prismjs';
-import '../prism.css';
-import 'prismjs/components/prism-python.js';
 import SlateEditor from './SlateEditor';
 import ViewBlog from './ViewBlog';
 
@@ -12,9 +9,9 @@ export default class EditBlog extends Component {
     super();
     this.refsEditor = React.createRef();
     this.state = {
-      showEditor: false,
+      showEditor: true,
       content: Content,
-      title: "Slate.js: Draft.js Without the Bad Parts",
+      title: "",
     };
   }
 
@@ -30,35 +27,58 @@ export default class EditBlog extends Component {
     }
   };
 
-  asdf = () => {
+  saveBlog = () => {
     //{this.props.match.params.urlTitle}
+    console.log("HELLOOOOOO");
     fetch('/api/blogs', {
-      method: 'GET',
+      method: 'POST',
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      // body: JSON.stringify({
-      //   title: 'DO IT AGAIN DUDE',
-      //   content: '<h1> L O L </h1>',
-      //   password: 'yol',
-      // }),
+      body: JSON.stringify({
+        title: this.state.title,
+        content: this.refsEditor.current.exportHtml()
+      }),
     })
-    .then((res) => {
-      return res.json();
+    .then(res => {
+      if (res.ok) {
+        console.log("HELLO");
+        console.log(res);
+        return res;
+      } else {
+        console.log(res);
+        throw Error(`Request rejected with status ${res.status}`);
+      }
     })
-    .then((json) => {
-      console.log(JSON.stringify(json));
-    });
+    .catch(console.error);
   };
 
   render() {
+    const buttonStyle = {
+      backgroundColor: 'grey', color: 'black', borderRadius: '50%', width: '50px', height: '50px',
+      cursor: 'pointer', outline: 'none', position: 'fixed', border: 'none',
+      boxShadow: '4px 6px 8px rgba(0, 0, 0, .8)', margin: '15px', fontWeight: 'bold',
+    };
+
     return (
-      <div style={{ height: '100vh', color: 'white', backgroundColor: '#3e4d4f'}}>
-        <button onClick={() => this.toggleEditorPreview()}>{this.state.showEditor ? "Preview" : "Edit"}</button>
+      <div style={{ minHeight: '100vh', color: 'white', backgroundColor: '#3e4d4f'}}>
+        <button onClick={() => this.toggleEditorPreview()} style={{...buttonStyle, left: '8px', top: '8px'}}>
+          {this.state.showEditor ? "View" : "Edit"}
+        </button>
+        <button onClick={() => this.saveBlog()} style={{...buttonStyle, left: '8px', bottom: '8px'}}>
+          {"Save"}
+        </button>
         {/* Hide component without re-render to avoid losing state of Editor */}
-        <div style={ this.state.showEditor ? null : {display: 'none'} } >
-          <SlateEditor ref={this.refsEditor} />
+        <div style={{padding: '10vw', paddingTop: '5vh',
+                     display: this.state.showEditor ? 'block' : 'none'}}>
+          <div style={{outline: '2px solid white', padding: '5vw'}}>
+            <input type="text" placeholder="<Blog Title>"
+              style={{width: '80%', fontSize: '1em', display: 'block', margin: '0 auto', marginTop: '0', marginBottom: '1.7em', padding: '0.6em'}}
+              value={this.state.title} onChange={(e) => this.setState({title: e.target.value})}
+            />
+            <SlateEditor ref={this.refsEditor} />
+          </div>
         </div>
         { !this.state.showEditor &&
           <ViewBlog content={this.state.content} title={this.state.title} /> }
