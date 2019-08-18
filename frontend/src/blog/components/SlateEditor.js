@@ -10,25 +10,13 @@ import { isKeyHotkey } from 'is-hotkey'
 
 import initialValueAsJson from './value.json';
 
-/**
- * Define the default node type.
- *
- * @type {String}
- */
+const DEFAULT_NODE = 'paragraph';
 
-const DEFAULT_NODE = 'paragraph'
-
-/**
- * Define hotkey matchers.
- *
- * @type {Function}
- */
-
-const isBoldHotkey = isKeyHotkey('mod+b')
-const isItalicHotkey = isKeyHotkey('mod+i')
-const isUnderlinedHotkey = isKeyHotkey('mod+u')
-const isCodeHotkey = isKeyHotkey('mod+;')
-const isInlineCodeHotkey = isKeyHotkey("mod+'")
+const isBoldHotkey = isKeyHotkey('mod+b');
+const isItalicHotkey = isKeyHotkey('mod+i');
+const isUnderlinedHotkey = isKeyHotkey('mod+u');
+const isCodeHotkey = isKeyHotkey('mod+;');
+const isInlineCodeHotkey = isKeyHotkey("mod+'");
 const initialValue = Value.fromJSON(initialValueAsJson);
 
 const rules = [
@@ -83,8 +71,8 @@ const rules = [
 const html = new Html({ rules });
 
 function CodeBlock(props) {
-  const { editor, node } = props
-  const language = node.data.get('language')
+  const { editor, node } = props;
+  const language = node.data.get('language');
 
   function onChange(event) {
     editor.setNodeByKey(node.key, { data: { language: event.target.value } });
@@ -107,65 +95,37 @@ function CodeBlock(props) {
         </select>
       </div>
     </div>
-  )
+  );
 }
 
 function CodeBlockLine(props) {
-  return <div className="CODE_BLOCK_LINE" {...props.attributes}>{props.children}</div>
+  return <div className="CODE_BLOCK_LINE" {...props.attributes}>{props.children}</div>;
 }
 
 export default class SlateEditor extends React.Component {
   state = {
-    value: initialValue
+    value: initialValue,
   };
 
   onChange = ({ value }) => this.setState({ value });
 
-  /**
-   * Store a reference to the `editor`.
-   *
-   * @param {Editor} editor
-   */
-
   ref = editor => {
-    this.editor = editor
-  }
-
-  exportHtml = () => {
-    // String.raw`${}`
-    return html.serialize(this.state.value);
+    this.editor = editor;
   };
 
-  /**
-   * Check if the current selection has a mark with `type` in it.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
+  exportHtml = () => {
+    return html.serialize(this.state.value);
+  };
 
   hasMark = type => {
     const { value } = this.state
     return value.activeMarks.some(mark => mark.type === type)
-  }
-
-  /**
-   * Check if the any of the currently selected blocks are of `type`.
-   *
-   * @param {String} type
-   * @return {Boolean}
-   */
+  };
 
   hasBlock = type => {
     const { value } = this.state
     return value.blocks.some(node => node.type === type)
-  }
-
-
-  /**
-   * Render.
-   *
-   * @return {Element}
-   */
+  };
 
   render() {
     return (
@@ -193,21 +153,11 @@ export default class SlateEditor extends React.Component {
           renderMark={this.renderMark}
         />
       </div>
-    )
+    );
   }
 
-
-
-  /**
-   * Render a mark-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
-
   renderMarkButton = (type, icon) => {
-    const isActive = this.hasMark(type)
+    const isActive = this.hasMark(type);
 
     return (
       <Button
@@ -216,26 +166,18 @@ export default class SlateEditor extends React.Component {
       >
         <Icon>{icon}</Icon>
       </Button>
-    )
+    );
   }
 
-  /**
-   * Render a block-toggling toolbar button.
-   *
-   * @param {String} type
-   * @param {String} icon
-   * @return {Element}
-   */
-
   renderBlockButton = (type, icon) => {
-    let isActive = this.hasBlock(type)
+    let isActive = this.hasBlock(type);
 
     if (['numbered-list', 'bulleted-list'].includes(type)) {
-      const { value: { document, blocks } } = this.state
+      const { value: { document, blocks } } = this.state;
 
       if (blocks.size > 0) {
-        const parent = document.getParent(blocks.first().key)
-        isActive = this.hasBlock('list-item') && parent && parent.type === type
+        const parent = document.getParent(blocks.first().key);
+        isActive = this.hasBlock('list-item') && parent && parent.type === type;
       }
     }
 
@@ -246,72 +188,50 @@ export default class SlateEditor extends React.Component {
       >
         <Icon>{icon}</Icon>
       </Button>
-    )
+    );
   }
 
-  /**
-   * Render a Slate block.
-   *
-   * @param {Object} props
-   * @return {Element}
-   */
-
   renderBlock = (props, editor, next) => {
-    const { attributes, children, node } = props
+    const { attributes, children, node } = props;
 
     switch (node.type) {
       case 'code_line':
-        return <CodeBlockLine {...props} />
+        return <CodeBlockLine {...props} />;
       case 'code':
         return <CodeBlock {...props} />;
       case 'block-quote':
-        return <blockquote {...attributes}>{children}</blockquote>
+        return <blockquote {...attributes}>{children}</blockquote>;
       case 'bulleted-list':
-        return <ul {...attributes}>{children}</ul>
+        return <ul {...attributes}>{children}</ul>;
       case 'heading-one':
-        return <h1 {...attributes}>{children}</h1>
+        return <h1 {...attributes}>{children}</h1>;
       case 'heading-two':
-        return <h2 {...attributes}>{children}</h2>
+        return <h2 {...attributes}>{children}</h2>;
       case 'list-item':
-        return <li {...attributes}>{children}</li>
+        return <li {...attributes}>{children}</li>;
       case 'numbered-list':
-        return <ol {...attributes}>{children}</ol>
+        return <ol {...attributes}>{children}</ol>;
       default:
-        return next()
+        return next();
     }
   }
 
-  /**
-   * Render a Slate mark.
-   *
-   * @param {Object} props
-   * @return {Element}
-   */
-
   renderMark = (props, editor, next) => {
-    const { children, mark, attributes } = props
+    const { children, mark, attributes } = props;
 
     switch (mark.type) {
       case 'bold':
-        return <strong {...attributes}>{children}</strong>
+        return <strong {...attributes}>{children}</strong>;
       case 'code':
-        return <code className= "code-inline" {...attributes}>{children}</code>
+        return <code className= "code-inline" {...attributes}>{children}</code>;
       case 'italic':
-        return <em {...attributes}>{children}</em>
+        return <em {...attributes}>{children}</em>;
       case 'underlined':
-        return <u {...attributes}>{children}</u>
+        return <u {...attributes}>{children}</u>;
       default:
-        return next()
+        return next();
     }
   }
-
-  /**
-   * On key down, if it's a formatting command toggle a mark.
-   *
-   * @param {Event} event
-   * @param {Editor} editor
-   * @return {Change}
-   */
 
   onKeyDown = (event, editor, next) => {
     let mark;
@@ -358,65 +278,51 @@ export default class SlateEditor extends React.Component {
     editor.toggleMark(mark);
   };
 
-  /**
-   * When a mark button is clicked, toggle the current mark.
-   *
-   * @param {Event} event
-   * @param {String} type
-   */
-
   onClickMark = (event, type) => {
-    event.preventDefault()
-    this.editor.toggleMark(type)
+    event.preventDefault();
+    this.editor.toggleMark(type);
   }
 
-  /**
-   * When a block button is clicked, toggle the block type.
-   *
-   * @param {Event} event
-   * @param {String} type
-   */
-
   onClickBlock = (event, type) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    const { editor } = this
-    const { value } = editor
-    const { document } = value
+    const { editor } = this;
+    const { value } = editor;
+    const { document } = value;
 
     // Handle everything but list buttons.
     if (type !== 'bulleted-list' && type !== 'numbered-list') {
-      const isActive = this.hasBlock(type)
-      const isList = this.hasBlock('list-item')
+      const isActive = this.hasBlock(type);
+      const isList = this.hasBlock('list-item');
 
       if (isList) {
         editor
           .setBlocks(isActive ? DEFAULT_NODE : type)
           .unwrapBlock('bulleted-list')
-          .unwrapBlock('numbered-list')
+          .unwrapBlock('numbered-list');
       } else {
-        editor.setBlocks(isActive ? DEFAULT_NODE : type)
+        editor.setBlocks(isActive ? DEFAULT_NODE : type);
       }
     } else {
       // Handle the extra wrapping required for list buttons.
-      const isList = this.hasBlock('list-item')
+      const isList = this.hasBlock('list-item');
       const isType = value.blocks.some(block => {
-        return !!document.getClosest(block.key, parent => parent.type === type)
+        return !!document.getClosest(block.key, parent => parent.type === type);
       })
 
       if (isList && isType) {
         editor
           .setBlocks(DEFAULT_NODE)
           .unwrapBlock('bulleted-list')
-          .unwrapBlock('numbered-list')
+          .unwrapBlock('numbered-list');
       } else if (isList) {
         editor
           .unwrapBlock(
             type === 'bulleted-list' ? 'numbered-list' : 'bulleted-list'
           )
-          .wrapBlock(type)
+          .wrapBlock(type);
       } else {
-        editor.setBlocks('list-item').wrapBlock(type)
+        editor.setBlocks('list-item').wrapBlock(type);
       }
     }
   }
