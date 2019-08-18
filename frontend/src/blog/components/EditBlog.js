@@ -54,7 +54,7 @@ export default class EditBlog extends Component {
 
   render() {
     return (
-      <div id="AYYYY" style={{ height: '100%' }}>
+      <div style={{ height: '100vh', color: 'white', backgroundColor: '#3e4d4f'}}>
         <button onClick={() => this.toggleEditorPreview()}>{this.state.showEditor ? "Preview" : "Edit"}</button>
         {/* Hide component without re-render to avoid losing state of Editor */}
         <div style={ this.state.showEditor ? null : {display: 'none'} } >

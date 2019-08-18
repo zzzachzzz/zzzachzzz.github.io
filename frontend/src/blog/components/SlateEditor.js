@@ -28,6 +28,7 @@ const isBoldHotkey = isKeyHotkey('mod+b')
 const isItalicHotkey = isKeyHotkey('mod+i')
 const isUnderlinedHotkey = isKeyHotkey('mod+u')
 const isCodeHotkey = isKeyHotkey('mod+;')
+const isInlineCodeHotkey = isKeyHotkey("mod+'")
 const initialValue = Value.fromJSON(initialValueAsJson);
 
 const rules = [
@@ -60,14 +61,17 @@ const rules = [
       }
       if (obj.object == 'block' && obj.type == 'code_line') {
         return (
-          <div className={obj.data.get('className')}>
+          <React.Fragment>
             {children}{'\n'}
-          </div>
+          </React.Fragment>
         );
       }
       if (obj.object == 'block' && obj.type == 'code') {
         const codeLanguage = `language-${obj.data.get('language')}`;
-        return <pre><code className={codeLanguage}>{children}</code></pre>
+        return <pre><code className={codeLanguage}>{children}</code></pre>;
+      }
+      if (obj.object == 'mark' && obj.type == 'code') {
+        return <code className="code-inline">{children}</code>;
       }
       if (obj.object == 'string') {
         return children;
@@ -290,8 +294,8 @@ export default class SlateEditor extends React.Component {
     switch (mark.type) {
       case 'bold':
         return <strong {...attributes}>{children}</strong>
-      // case 'code':
-      //   return <code {...attributes}>{children}</code>
+      case 'code':
+        return <code className= "code-inline" {...attributes}>{children}</code>
       case 'italic':
         return <em {...attributes}>{children}</em>
       case 'underlined':
@@ -322,6 +326,8 @@ export default class SlateEditor extends React.Component {
       mark = 'italic';
     } else if (isUnderlinedHotkey(event)) {
       mark = 'underlined';
+    } else if (isInlineCodeHotkey(event)) {
+      mark = 'code';
     } else if (isCodeHotkey(event)) {
       event.preventDefault();
       editor.insertBlock({

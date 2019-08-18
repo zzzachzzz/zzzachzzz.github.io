@@ -14,7 +14,6 @@ export default class ViewBlog extends Component {
     const viewBlogStyle = {
       backgroundColor: '#3e4d4f',
       display: 'flex',
-      justifyContent: 'center',
       flexDirection: 'column',
       minHeight: '100vh',
       height: '100%',

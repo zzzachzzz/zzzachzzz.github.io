@@ -1,3 +1,11 @@
+.code-inline {
+  background-color: #272822;
+  font-family: "Inconsolata", "Menlo", "Consolas", monospace;
+  padding: 1px;
+}
+
+
+/*IS THIS A PROBLEM CHILD WTF*/
 #blog-content > :not(pre) {
   margin-left: 15%;
   margin-right: 15%;

@@ -1,9 +1,15 @@
 .code-block {
-  background-color: #f3f3f3;
+  background-color: #272822;
   font-family: "Inconsolata", "Menlo", "Consolas", monospace;
-  font-size: 16px;
+  font-size: 0.8em;
   margin: 14px 0;
   padding: 20px;
+}
+
+.code-inline {
+  background-color: #272822;
+  font-family: "Inconsolata", "Menlo", "Consolas", monospace;
+  padding: 1px;
 }
 
 /* fallback */
