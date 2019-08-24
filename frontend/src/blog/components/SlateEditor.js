@@ -20,6 +20,39 @@ const initialValue = Value.fromJSON(initialValueAsJson);
 
 const rules = [
   {
+    deserialize(el, next) {
+      switch (el.tagName.toLowerCase()) {
+        case 'p':
+          return {
+            object: 'block',
+            type: 'paragraph',
+            data: {},
+            nodes: next(el.childNodes),
+          };
+        case 'code':
+          return {
+            "object": "block",
+            "type": "code",
+            "data": {
+              "language": el.getAttribute('class').match(/language-(\w+)/)[1]
+            },
+            "nodes": el.textContent.split('\n').map(codeLine => {
+              return {
+                "object": "block",
+                "type": "code_line",
+                "nodes": [
+                  {
+                    "object": "text",
+                    "text": codeLine
+                  }
+                ]
+              }
+            })
+          };
+        default:
+          return;
+      }
+    },
     serialize(obj, children) {
       if (obj.object === 'block' && obj.type === 'paragraph') {
         return <p className={obj.data.get('className')}>{children}</p>
@@ -90,7 +123,7 @@ function CodeBlock(props) {
         contentEditable={false}
         style={{ position: 'absolute', top: '5px', right: '5px' }}
       >
-        <select value={language} onChange={onChange}>
+        <select multiple={false} value={language} onChange={onChange}>
           <option value="python">Python</option>
           <option value="javascript">JavaScript</option>
         </select>

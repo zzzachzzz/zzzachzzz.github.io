@@ -30,7 +30,7 @@ export default class EditBlog extends Component {
           return res.json();
         } else {
           console.log(res);
-          // alert(res.status);
+          // alert(`${res.status}: You are not Zach`);
           throw Error(`Request rejected with status ${res.status}`);
         }
       })
@@ -55,8 +55,6 @@ export default class EditBlog extends Component {
   };
 
   saveBlog = () => {
-    console.log("HELLOOOOOO");
-
     // Create or update based on url
     const url = '/api/blogs/' + (this.isBlogUpdate ? this.props.match.params.urlTitle : '');
 
