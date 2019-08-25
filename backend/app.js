@@ -86,7 +86,7 @@ function authenticate(req, res, next) {
     next();
   } else {
     console.log("NOT authenticated");
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401);
   }
 }
 
@@ -142,7 +142,7 @@ router.post('/blogs', authenticate, function(req, res) {
       console.log(err);
       res.sendStatus(400);
     } else {
-      res.send({ success: true});
+      res.send({ success: true });
     }
   });
 });

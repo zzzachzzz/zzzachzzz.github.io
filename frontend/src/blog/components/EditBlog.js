@@ -2,8 +2,6 @@ import React, { Component } from 'react';
 import SlateEditor from './SlateEditor';
 import ViewBlog from './ViewBlog';
 
-import Content from './content.js';
-
 export default class EditBlog extends Component {
   constructor(props) {
     super(props);
@@ -29,9 +27,8 @@ export default class EditBlog extends Component {
         if (res.ok) {
           return res.json();
         } else {
-          console.log(res);
-          // alert(`${res.status}: You are not Zach`);
-          throw Error(`Request rejected with status ${res.status}`);
+          alert(res.status);
+          this.props.history.push('/blog')
         }
       })
       .then(json => {
@@ -70,17 +67,19 @@ export default class EditBlog extends Component {
       }),
     })
     .then(res => {
-      if (res.ok) {
-        console.log("HELLO");
+      if (!res.ok) {
         console.log(res);
-        return res;
-      } else {
-        console.log(res);
-        // alert(res.status);
-        throw Error(`Request rejected with status ${res.status}`);
+        throw Error(res.statusText);
       }
+      this.props.history.push('/blog')  // Redirect on success
     })
-    .catch(console.error);
+    .catch(error => {
+      if (error.message === 'Unauthorized') {
+        alert(`${error.message}: You are not Zach`);
+      } else {
+        alert(`${error.message}`);
+      }
+    });
   };
 
   render() {

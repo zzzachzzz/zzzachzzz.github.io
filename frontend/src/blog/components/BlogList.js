@@ -52,7 +52,6 @@ function BlogPreview({ title, urlTitle }) {
   const prismBlue = '#66d9ef';
   const prismGreen = '#a6e22e';
   const prismRed = '#f92672';
-  const prismPurple = '#ae81ff';
 
   return (
     <Link className="link-block" to={`/blog/${urlTitle}`}>

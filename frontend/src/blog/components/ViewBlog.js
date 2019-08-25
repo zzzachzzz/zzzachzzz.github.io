@@ -18,8 +18,6 @@ export default class ViewBlog extends Component {
         if (res.ok) {
           return res.json();
         } else {
-          console.log(res);
-          // alert(res.status);
           throw Error(`Request rejected with status ${res.status}`);
         }
       })

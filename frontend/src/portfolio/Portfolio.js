@@ -84,11 +84,4 @@ class Portfolio extends Component {
   }
 }
 
-const arrow = (
-  <React.Fragment>
-    \\&nbsp;&nbsp;//<br/>
-    &nbsp;\\//<br/>
-    &nbsp;&nbsp;\/<br/>
-  </React.Fragment>)
-
 export default Portfolio;
