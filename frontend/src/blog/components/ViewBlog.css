@@ -4,6 +4,14 @@
   padding: 1px;
 }
 
+blockquote {
+  border-left: 2px solid #ddd;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 10px;
+  color: #aaa;
+  font-style: italic;
+}
 
 /*IS THIS A PROBLEM CHILD WTF*/
 #blog-content > :not(pre) {

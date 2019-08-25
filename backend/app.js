@@ -94,7 +94,7 @@ function authenticate(req, res, next) {
 // Routes
 // GET all blogs title and urlTitle
 router.get('/blogs', function(req, res) {
-  Blog.find({}, 'title urlTitle', function(err, blogs) {
+  Blog.find({}, 'title urlTitle', {sort: '-_id'}, function(err, blogs) {
     if (err) {
       console.log(err);
       res.sendStatus(400);

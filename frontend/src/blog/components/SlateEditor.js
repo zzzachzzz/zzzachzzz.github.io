@@ -7,8 +7,6 @@ import './SlateEditor.css';
 import { Button, Icon, Toolbar } from './SlateComponents.js';
 import { isKeyHotkey } from 'is-hotkey'
 
-import initialValueAsJson from './value.json';
-
 const DEFAULT_NODE = 'paragraph';
 
 const isBoldHotkey = isKeyHotkey('mod+b');
@@ -16,7 +14,27 @@ const isItalicHotkey = isKeyHotkey('mod+i');
 const isUnderlinedHotkey = isKeyHotkey('mod+u');
 const isCodeHotkey = isKeyHotkey('mod+;');
 const isInlineCodeHotkey = isKeyHotkey("mod+'");
-const initialValue = Value.fromJSON(initialValueAsJson);
+
+const initialValue = Value.fromJSON({
+  "object": "value",
+  "document": {
+    "object": "document",
+    "nodes": [
+      {
+        "object": "block",
+        "type": "paragraph",
+        "nodes": [
+          {
+            "object": "text",
+            "text": ""
+          }
+        ]
+      }
+    ]
+  }
+});
+
+
 
 const rules = [
   {
@@ -30,24 +48,96 @@ const rules = [
             nodes: next(el.childNodes),
           };
         case 'code':
+          if (el.getAttribute('class').match(/code-inline/)) {
+            return {
+              object: 'mark',
+              type: 'code',
+              data: {},
+              nodes: next(el.childNodes),
+            };
+          } else {
+            return {
+              object: 'block',
+              type: 'code',
+              data: {
+                language: el.getAttribute('class').match(/language-(\w+)/)[1]
+              },
+              nodes: el.textContent.split('\n').slice(0, -1).map(codeLine => {
+                return {
+                  object: 'block',
+                  type: 'code_line',
+                  nodes: [
+                    {
+                      object: 'text',
+                      text: codeLine
+                    }
+                  ]
+                }
+              })
+            };
+          }
+        case 'b':
           return {
-            "object": "block",
-            "type": "code",
-            "data": {
-              "language": el.getAttribute('class').match(/language-(\w+)/)[1]
-            },
-            "nodes": el.textContent.split('\n').map(codeLine => {
-              return {
-                "object": "block",
-                "type": "code_line",
-                "nodes": [
-                  {
-                    "object": "text",
-                    "text": codeLine
-                  }
-                ]
-              }
-            })
+            object: 'mark',
+            type: 'bold',
+            data: {},
+            nodes: next(el.childNodes),
+          };
+        case 'i':
+          return {
+            object: 'mark',
+            type: 'italic',
+            data: {},
+            nodes: next(el.childNodes),
+          };
+        case 'u':
+          return {
+            object: 'mark',
+            type: 'underlined',
+            data: {},
+            nodes: next(el.childNodes),
+          };
+        case 'h1':
+          return {
+            object: 'block',
+            type: 'heading-one',
+            data: {},
+            nodes: next(el.childNodes),
+          };
+        case 'h2':
+          return {
+            object: 'block',
+            type: 'heading-two',
+            data: {},
+            nodes: next(el.childNodes),
+          };
+        case 'blockquote':
+          return {
+            object: 'block',
+            type: 'block-quote',
+            data: {},
+            nodes: next(el.childNodes),
+          };
+        case 'ol':
+          return {
+            object: 'block',
+            type: 'numbered-list',
+            data: {},
+            nodes: next(el.childNodes),
+          };
+        case 'ul':
+          return {
+            object: 'block',
+            type: 'bulleted-list',
+            data: {},
+            nodes: next(el.childNodes),
+          };
+        case 'li':
+          return {
+            object: 'block',
+            type: 'list-item',
+            data: {},
+            nodes: next(el.childNodes),
           };
         default:
           return;
@@ -55,7 +145,7 @@ const rules = [
     },
     serialize(obj, children) {
       if (obj.object === 'block' && obj.type === 'paragraph') {
-        return <p className={obj.data.get('className')}>{children}</p>
+        return <p className={obj.data.get('className')}>{children}</p>;
       }
       if (obj.object === 'block' && obj.type === 'code_line') {
         return (
@@ -72,28 +162,31 @@ const rules = [
         return <code className="code-inline">{children}</code>;
       }
       if (obj.object === 'mark' && obj.type === 'bold') {
-        return <b>{children}</b>
-      }
-      if (obj.object === 'mark' && obj.type === 'underlined') {
-        return <u>{children}</u>
+        return <b>{children}</b>;
       }
       if (obj.object === 'mark' && obj.type === 'italic') {
-        return <i>{children}</i>
+        return <i>{children}</i>;
+      }
+      if (obj.object === 'mark' && obj.type === 'underlined') {
+        return <u>{children}</u>;
       }
       if (obj.object === 'block' && obj.type === 'heading-one') {
-        return <h1>{children}</h1>
+        return <h1>{children}</h1>;
       }
       if (obj.object === 'block' && obj.type === 'heading-two') {
-        return <h2>{children}</h2>
+        return <h2>{children}</h2>;
+      }
+      if (obj.object === 'block' && obj.type === 'block-quote') {
+        return <blockquote>{children}</blockquote>;
       }
       if (obj.object === 'block' && obj.type === 'numbered-list') {
-        return <ol>{children}</ol>
+        return <ol>{children}</ol>;
       }
       if (obj.object === 'block' && obj.type === 'bulleted-list') {
-        return <ul>{children}</ul>
+        return <ul>{children}</ul>;
       }
       if (obj.object === 'block' && obj.type === 'list-item') {
-        return <li>{children}</li>
+        return <li>{children}</li>;
       }
       if (obj.object === 'string') {
         return children;
@@ -172,6 +265,7 @@ export default class SlateEditor extends React.Component {
           {this.renderMarkButton('bold', 'format_bold')}
           {this.renderMarkButton('italic', 'format_italic')}
           {this.renderMarkButton('underlined', 'format_underlined')}
+          {this.renderMarkButton('code', 'calendar_view_day')}
           {this.renderBlockButton('code', 'code')}
           {this.renderBlockButton('heading-one', 'looks_one')}
           {this.renderBlockButton('heading-two', 'looks_two')}
