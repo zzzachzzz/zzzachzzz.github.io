@@ -86,7 +86,7 @@ function authenticate(req, res, next) {
     next();
   } else {
     console.log("NOT authenticated");
-    return res.status(401);
+    return res.sendStatus(401);
   }
 }
 

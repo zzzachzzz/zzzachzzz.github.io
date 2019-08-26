@@ -27,8 +27,7 @@ export default class EditBlog extends Component {
         if (res.ok) {
           return res.json();
         } else {
-          alert(res.status);
-          this.props.history.push('/blog')
+          throw Error(res.statusText);
         }
       })
       .then(json => {
