@@ -1,14 +1,28 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import Terminal from './components/Terminal';
-import './App.css';
+import './Portfolio.css';
 import ProjectCard from './components/ProjectCard';
 
-class App extends Component {
+
+class Portfolio extends Component {
   constructor() {
     super()
+
     this.projectsRef = React.createRef();
     this.projects = {
       0: {
+        title: 'Portfolio',
+        body: `
+          This site, which is built with ReactJS. The typing of statements in the terminal is performed
+          by updating the state with each character being added, optimized through the use of
+          React.PureComponent. The custom blog post editor was created using SlateJS. The server was made
+          with Express and MongoDB, and uses Passport to authenticate myself as the admin using a Google login.
+          `,
+        icons: ['javascript.png', 'react.png', 'express.png', 'node.png', 'mongo.png', 'slate.png'],
+        githubLink: 'https://github.com/zzzachzzz/portfolio'
+      },
+      1: {
         title: 'AutomateMyJob',
         body: `
           A program that automates interactions with a web app using Python and Selenium Webdriver.
@@ -17,16 +31,6 @@ class App extends Component {
           for a hybrid workflow of manual and automated work in a single browser session.`,
         icons: ['python.png', 'selenium.png', 'google_sheets.png'],
         githubLink: 'https://github.com/zzzachzzz/AutomateMyJob'
-      },
-      1: {
-        title: 'Portfolio',
-        body: `
-          This site, which is built with ReactJS. The typing of statements in the terminal is performed
-          by updating the state with each character being added, optimized through the use of
-          React.PureComponent and React.memo. This prevents statements that have already been typed
-          from re-rendering unnecessarily. Hosted on DigitalOcean.`,
-        icons: ['javascript.png', 'react.png', 'digital_ocean.png'],
-        githubLink: 'https://github.com/zzzachzzz/portfolio'
       },
       2: {
         title: 'Toonkit.net',
@@ -52,19 +56,20 @@ class App extends Component {
   }
 
   scroll = (ref) => {
-    ref.current.scrollIntoView({behavior: 'smooth'})
+    ref.current.scrollIntoView({behavior: 'smooth'});
   }
 
   render() {
     return (
-      <div className="App">
+      <div className="Portfolio">
+        <div className="navbar">
+          <Link to="/blog">Blog</Link>
+          <a href="#projects" onClick={() => this.scroll(this.projectsRef)}>
+            Projects
+          </a>
+        </div>
         <div className="ubuntu-terminal-desktop">
           <Terminal />
-        </div>
-        <div className="navbar">
-          <a href="#projects" onClick={() => this.scroll(this.projectsRef)}>
-            {arrow}
-          </a>
         </div>
         <h2 ref={this.projectsRef} className="projects-header">Projects</h2>
         <div className="ubuntu-card-background">
@@ -75,16 +80,9 @@ class App extends Component {
             <ProjectCard project={this.projects[3]} />
           </div>
         </div>
-      </div>  
+      </div>
     );
   }
 }
 
-const arrow = (
-  <React.Fragment>
-    \\&nbsp;&nbsp;//<br/>
-    &nbsp;\\//<br/>
-    &nbsp;&nbsp;\/<br/>
-  </React.Fragment>)
-
-export default App;
+export default Portfolio;

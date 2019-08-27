@@ -8,28 +8,28 @@ class Typer extends Component {
       currentInputLines: [],
       currentReturnLines: [],
       currentStatementIndex: 0,
-      typingSpeed: 45
+      typingSpeed: 35  // Delay time between characters
     }
 
     this.inputLines = {
-      0: 'python3',
-      1: 'import zach',
-      2: 'zach.full_name',
-      3: 'zach.current_location',
-      4: 'zach.skills',
-      5: 'zach.resume',
-      6: 'zach.github',
-      7: 'zach.email',
-      8: 'exit()',
-      9: '',
+      0: "python3",
+      1: "import zach",
+      2: "zach.full_name",
+      3: "zach.current_location",
+      4: "zach.skills",
+      5: "zach.resume",
+      6: "zach.github",
+      7: "zach.email",
+      8: "exit()",
+      9: "",
     }
 
     this.returnLines = {
-      0: 'Python 3.5.3',
-      1: '',
-      2: '\'Zachary Rosenberger\'',
-      3: '\'Boise, ID\'',
-      4: '[\'Python\', \'JavaScript\', \'React\', \'Flask\', \'Django\', \'Git\']',
+      0: "Python 3.5.3",
+      1: "",
+      2: "'Zachary Rosenberger'",
+      3: "'Boise, ID'",
+      4: "['Python', 'JavaScript', 'React', 'Flask', 'Express', 'Git']",
       5: <React.Fragment>
            '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
              href="https://drive.google.com/open?id=1bQ3qTFrOGzH0jDxaLVAibP99uRxwepbh">
@@ -43,8 +43,8 @@ class Typer extends Component {
            '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
            href="mailto:zach1rosen@gmail.com">zach1rosen@gmail.com</a>'
          </React.Fragment>,
-      8: '',
-      9: ''
+      8: "",
+      9: "",
     }
   }
 
@@ -52,9 +52,15 @@ class Typer extends Component {
     this.handleTyping();
   }
 
+  componentWillUnmount() {
+    clearTimeout(this.timeout);
+  }
+
   handleTyping = async () => {
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
+    const sleep = (ms) => {
+      return new Promise((resolve) => {
+        this.timeout = setTimeout(resolve, ms);
+      });
     }
     await sleep(1000);  // Initial wait on page load
     const { inputLines, returnLines } = this;

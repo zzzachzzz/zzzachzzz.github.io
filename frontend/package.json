@@ -1,11 +1,21 @@
 {
+  "proxy": "http://localhost:5000",
   "name": "zach",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-scripts": "^3.0.1"
+    "draft-js": "^0.10.5",
+    "emotion": "^10.0.14",
+    "immutable": "^4.0.0-rc.12",
+    "is-hotkey": "^0.1.4",
+    "prismjs": "^1.17.1",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-router-dom": "^5.0.1",
+    "react-scripts": "^3.1.1",
+    "slate": "^0.47.8",
+    "slate-html-serializer": "^0.8.10",
+    "slate-react": "^0.22.8"
   },
   "scripts": {
     "start": "react-scripts start",

@@ -9,19 +9,19 @@
   align-items: center;
 }
 
-.App {
+.Portfolio {
   min-height: 200vh;
   font-family: sans-serif;
   font-size: 16px;
   color: white;
-  background-color: #514f48;
+  background-color: #3e4d4f;
   position: relative;
 }
 
 .navbar {
   height: 5vh;
   display: flex;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
 }
 
@@ -29,7 +29,7 @@
   font-family: monospace;
   text-decoration: none;
   color: white;
-  font-size: 0.4em;
+  font-family: sans-serif;
 }
 
 .cards-container {
