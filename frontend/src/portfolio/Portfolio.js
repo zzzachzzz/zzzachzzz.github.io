@@ -19,7 +19,7 @@ class Portfolio extends Component {
           React.PureComponent. The custom blog post editor was created using SlateJS. The server was made
           with Express and MongoDB, and uses Passport to authenticate myself as the admin using a Google login.
           `,
-        icons: ['javascript.png', 'react.png', 'digital_ocean.png'],
+        icons: ['javascript.png', 'react.png', 'express.png', 'node.png', 'mongo.png', 'slate.png'],
         githubLink: 'https://github.com/zzzachzzz/portfolio'
       },
       1: {
