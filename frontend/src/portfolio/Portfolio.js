@@ -12,6 +12,17 @@ class Portfolio extends Component {
     this.projectsRef = React.createRef();
     this.projects = {
       0: {
+        title: 'Portfolio',
+        body: `
+          This site, which is built with ReactJS. The typing of statements in the terminal is performed
+          by updating the state with each character being added, optimized through the use of
+          React.PureComponent. The custom blog post editor was created using SlateJS. The server was made
+          with Express and MongoDB, and uses Passport to authenticate myself as the admin using a Google login.
+          `,
+        icons: ['javascript.png', 'react.png', 'digital_ocean.png'],
+        githubLink: 'https://github.com/zzzachzzz/portfolio'
+      },
+      1: {
         title: 'AutomateMyJob',
         body: `
           A program that automates interactions with a web app using Python and Selenium Webdriver.
@@ -20,16 +31,6 @@ class Portfolio extends Component {
           for a hybrid workflow of manual and automated work in a single browser session.`,
         icons: ['python.png', 'selenium.png', 'google_sheets.png'],
         githubLink: 'https://github.com/zzzachzzz/AutomateMyJob'
-      },
-      1: {
-        title: 'Portfolio',
-        body: `
-          This site, which is built with ReactJS. The typing of statements in the terminal is performed
-          by updating the state with each character being added, optimized through the use of
-          React.PureComponent and React.memo. This prevents statements that have already been typed
-          from re-rendering unnecessarily. Hosted on DigitalOcean.`,
-        icons: ['javascript.png', 'react.png', 'digital_ocean.png'],
-        githubLink: 'https://github.com/zzzachzzz/portfolio'
       },
       2: {
         title: 'Toonkit.net',

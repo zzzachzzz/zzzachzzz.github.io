@@ -8,7 +8,7 @@ class Typer extends Component {
       currentInputLines: [],
       currentReturnLines: [],
       currentStatementIndex: 0,
-      typingSpeed: 45
+      typingSpeed: 35  // Delay time between characters
     }
 
     this.inputLines = {
@@ -29,7 +29,7 @@ class Typer extends Component {
       1: "",
       2: "'Zachary Rosenberger'",
       3: "'Boise, ID'",
-      4: "['Python', 'JavaScript', 'React', 'Flask', 'Django', 'Git']",
+      4: "['Python', 'JavaScript', 'React', 'Flask', 'Express', 'Git']",
       5: <React.Fragment>
            '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
              href="https://drive.google.com/open?id=1bQ3qTFrOGzH0jDxaLVAibP99uRxwepbh">
