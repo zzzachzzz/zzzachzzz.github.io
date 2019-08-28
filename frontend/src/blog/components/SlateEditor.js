@@ -3,7 +3,6 @@ import { Value } from 'slate';
 import Html from 'slate-html-serializer';
 
 import React from 'react';
-import './SlateEditor.css';
 import { Button, Icon, Toolbar } from './SlateComponents.js';
 import { isKeyHotkey } from 'is-hotkey'
 
@@ -205,9 +204,17 @@ function CodeBlock(props) {
     editor.setNodeByKey(node.key, { data: { language: event.target.value } });
   }
 
+  const codeBlockStyle = {
+    backgroundColor: '#272822',
+    fontFamily: '"Inconsolata", "Menlo", "Consolas", monospace',
+    fontSize: '0.8em',
+    margin: '14px 0',
+    padding: '20px',
+  };
+
   return (
     <div style={{ position: 'relative' }}>
-      <pre className="code-block">
+      <pre style={codeBlockStyle} className="code-block">
         <code {...props.attributes}>
           {props.children}
         </code>
@@ -355,7 +362,12 @@ export default class SlateEditor extends React.Component {
       case 'bold':
         return <strong {...attributes}>{children}</strong>;
       case 'code':
-        return <code className= "code-inline" {...attributes}>{children}</code>;
+        const codeInlineStyle = {
+          backgroundColor: '#272822',
+          fontFamily: '"Inconsolata", "Menlo", "Consolas", monospace',
+          padding: '1px',
+        };
+        return <code style={codeInlineStyle} className="code-inline" {...attributes}>{children}</code>;
       case 'italic':
         return <em {...attributes}>{children}</em>;
       case 'underlined':
