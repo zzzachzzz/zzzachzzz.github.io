@@ -50,7 +50,7 @@ const domainUrl = process.env.NODE_ENV === 'production' ? 'https://zrose.info' :
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: domainUrl + '/auth/google/callback',
+    callbackURL: domainUrl + '/api/auth/callback',
   },
   function(accessToken, refreshToken, profile, done) {
     if (profile.id === process.env.ADMIN_PROFILE_ID) {
@@ -64,12 +64,12 @@ passport.use(new GoogleStrategy({
   })
 );
 
-app.get('/auth/google',
+app.get('/api/auth',
   passport.authenticate('google', { scope: ['profile'] }),
 );
 
-app.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+app.get('/api/auth/callback',
+  passport.authenticate('google', { failureRedirect: '/blog' }),
   function(req, res) {
     console.log('Authenticated. Redirecting home');
     res.redirect('/');
