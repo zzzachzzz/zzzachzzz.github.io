@@ -13,23 +13,36 @@ blockquote {
   font-style: italic;
 }
 
-/*IS THIS A PROBLEM CHILD WTF*/
+
 #blog-content > :not(pre) {
-  margin-left: 15vw;
-  margin-right: 15vw;
+  width: 850px;
+  max-width: 98%;
+  margin-left: auto;
+  margin-right: auto;
 }
+
 #blog-content > pre {
-  width: 80vw;
-  padding-left: 3vw;
-  padding-right: 3vw;
-  margin-left: 7vw;
-  margin-right: 7vw;
-  max-width: none;
+  display: inline-block;
+  min-width: 60%;
+  max-width: 90%;
+}
+
+@media only screen and (max-device-width: 480px) {
+  #blog-content > pre {
+    width: 92%;
+    max-width: none;
+  }
+}
+
+#blog-content > * {
+  text-align: left;
 }
 
 #blog-content {
+  text-align: center;
   font-size: 1em;
   line-height: 1.4em;
   letter-spacing: 0.009em;
   margin-bottom: 4em;
+  padding: 1em;
 };
