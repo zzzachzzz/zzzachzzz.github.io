@@ -138,6 +138,15 @@ const rules = [
             data: {},
             nodes: next(el.childNodes),
           };
+        case 'a':
+          return {
+            object: 'inline',
+            type: 'link',
+            data: {
+              href: el.getAttribute('href')
+            },
+            nodes: next(el.childNodes),
+          };
         default:
           return;
       }
@@ -186,6 +195,9 @@ const rules = [
       }
       if (obj.object === 'block' && obj.type === 'list-item') {
         return <li>{children}</li>;
+      }
+      if (obj.object === 'inline' && obj.type === 'link') {
+        return <a href={obj.data.get('href')}>{children}</a>;
       }
       if (obj.object === 'string') {
         return children;
@@ -265,6 +277,11 @@ export default class SlateEditor extends React.Component {
     return value.blocks.some(node => node.type === type)
   };
 
+  hasLinks = () => {
+    const { value } = this.state;
+    return value.inlines.some(inline => inline.type === 'link');
+  };
+
   render() {
     return (
       <div>
@@ -279,6 +296,9 @@ export default class SlateEditor extends React.Component {
           {this.renderBlockButton('block-quote', 'format_quote')}
           {this.renderBlockButton('numbered-list', 'format_list_numbered')}
           {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
+          <Button active={this.hasLinks()} onMouseDown={this.onClickLink}>
+            <Icon>link</Icon>
+          </Button>
         </Toolbar>
         <Editor
           spellCheck
@@ -290,6 +310,7 @@ export default class SlateEditor extends React.Component {
           onKeyDown={this.onKeyDown}
           renderBlock={this.renderBlock}
           renderMark={this.renderMark}
+          renderInline={this.renderInline}
         />
       </div>
     );
@@ -306,7 +327,7 @@ export default class SlateEditor extends React.Component {
         <Icon>{icon}</Icon>
       </Button>
     );
-  }
+  };
 
   renderBlockButton = (type, icon) => {
     let isActive = this.hasBlock(type);
@@ -328,7 +349,7 @@ export default class SlateEditor extends React.Component {
         <Icon>{icon}</Icon>
       </Button>
     );
-  }
+  };
 
   renderBlock = (props, editor, next) => {
     const { attributes, children, node } = props;
@@ -353,7 +374,7 @@ export default class SlateEditor extends React.Component {
       default:
         return next();
     }
-  }
+  };
 
   renderMark = (props, editor, next) => {
     const { children, mark, attributes } = props;
@@ -375,7 +396,27 @@ export default class SlateEditor extends React.Component {
       default:
         return next();
     }
-  }
+  };
+
+  renderInline = (props, editor, next) => {
+    const { attributes, children, node } = props;
+
+    switch (node.type) {
+      case 'link': {
+        const { data } = node;
+        const href = data.get('href');
+        return (
+          <a {...attributes} href={href}>
+            {children}
+          </a>
+        );
+      }
+
+      default: {
+        return next();
+      }
+    }
+  };
 
   onKeyDown = (event, editor, next) => {
     let mark;
@@ -421,7 +462,7 @@ export default class SlateEditor extends React.Component {
   onClickMark = (event, type) => {
     event.preventDefault();
     this.editor.toggleMark(type);
-  }
+  };
 
   onClickBlock = (event, type) => {
     event.preventDefault();
@@ -486,5 +527,54 @@ export default class SlateEditor extends React.Component {
         editor.setBlocks('list-item').wrapBlock(type);
       }
     }
-  }
+  };
+
+  onClickLink = event => {
+    function wrapLink(editor, href) {
+      editor.wrapInline({
+        type: 'link',
+        data: { href },
+      });
+      editor.moveToEnd();
+    }
+
+    function unwrapLink(editor) {
+      editor.unwrapInline('link');
+    }
+
+    event.preventDefault();
+
+    const { editor } = this;
+    const { value } = editor;
+    const hasLinks = this.hasLinks();
+
+    if (hasLinks) {
+      editor.command(unwrapLink);
+    } else if (value.selection.isExpanded) {
+      const href = window.prompt('Enter the URL of the link:');
+
+      if (href == null) {
+        return;
+      }
+
+      editor.command(wrapLink, href);
+    } else {
+      const href = window.prompt('Enter the URL of the link:');
+
+      if (href == null) {
+        return;
+      }
+
+      const text = window.prompt('Enter the text for the link:');
+
+      if (text == null) {
+        return;
+      }
+
+      editor
+        .insertText(text)
+        .moveFocusBackward(text.length)
+        .command(wrapLink, href);
+    }
+  };
 }
