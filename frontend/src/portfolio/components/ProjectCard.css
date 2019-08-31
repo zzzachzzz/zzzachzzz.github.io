@@ -2,7 +2,7 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   height: 80%;
   width: 90%;
@@ -12,7 +12,7 @@
 .outer {
   position: relative;
   width: 100%;
-  height: calc(650px - 15vw);
+  height: calc(950px - 75vw);
   min-height: 350px;
   margin: 0 auto;
   overflow: hidden;
@@ -22,8 +22,8 @@
 }
 
 .outer::before {
-  content:'';
-  position:absolute;
+  content: '';
+  position: absolute;
   border-radius: 10px;
   height: 80%;
   width: 90%;
@@ -32,26 +32,27 @@
 }
 
 .inner > p {
-  text-align: center;
   line-height: 24px;
-  margin: 50px;
+  margin-left: 25px;
+  margin-right: 25px;
 }
 
 .tech-icon-row {
-  position: absolute;
   display: flex;
   flex-direction: row;
-  align-items: center;
-  height: 37px;
-  bottom: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 90%;
+  margin: 10px;
   background-color: white;
   border-radius: 10px;
 }
 
 .tech-icon {
   height: 28px;
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  margin: 5px;
 }
 
 .github-link {
@@ -73,7 +74,5 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  position: absolute;
-  top: 0px;
-  width: 100%
+  width: 100%;
 }
