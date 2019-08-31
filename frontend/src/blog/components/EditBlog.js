@@ -108,7 +108,7 @@ export default class EditBlog extends Component {
           </div>
         </div>
         { !this.state.showEditor &&
-          <ViewBlog content={this.state.content} title={this.state.title} match={this.props.match} /> }
+          <ViewBlog content={this.state.content} title={this.state.title} match={this.props.match} isEditing={true} /> }
       </div>
     );
   }

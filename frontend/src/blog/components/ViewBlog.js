@@ -13,7 +13,8 @@ export default class ViewBlog extends Component {
   };
 
   async componentDidMount() {
-    if (this.props.match) {
+    // If not editing a blog, fetch blog from DB
+    if (!this.props.isEditing) {
       await fetch('/api/blogs/' + this.props.match.params.urlTitle)
       .then(res => {
         if (res.ok) {
