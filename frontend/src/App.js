@@ -12,4 +12,4 @@ export default () => (
         <Route path="/blog" component={Blog} />
     </Switch>
   </BrowserRouter>
-)
+);

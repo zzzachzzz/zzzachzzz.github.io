@@ -3,6 +3,7 @@ import Prism from 'prismjs';
 import '../prism.css';
 import 'prismjs/components/prism-python.js';
 import './ViewBlog.css';
+import Navigation from './Navigation';
 
 
 export default class ViewBlog extends Component {
@@ -42,6 +43,7 @@ export default class ViewBlog extends Component {
     };
     return (
       <div style={viewBlogStyle}>
+        <Navigation {...this.props} />
         <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '1.2em'}}>{this.state.title}</h1>
         <div id="blog-content" dangerouslySetInnerHTML={{ __html: this.state.content }} />
       </div>

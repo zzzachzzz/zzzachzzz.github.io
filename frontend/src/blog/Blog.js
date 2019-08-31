@@ -7,13 +7,11 @@ import ViewBlog from './components/ViewBlog';
 import DeleteBlog from './components/DeleteBlog';
 
 export default () => (
-  <BrowserRouter>
-    <Switch>
-        <Route exact path="/blog" component={BlogList} />
-        <Route exact path="/blog/edit/:urlTitle" component={EditBlog} />
-        <Route exact path="/blog/edit" component={EditBlog} />
-        <Route exact path="/blog/:urlTitle" component={ViewBlog} />
-        <Route exact path="/blog/delete/:urlTitle" component={DeleteBlog} />
-    </Switch>
-  </BrowserRouter>
+  <Switch>
+      <Route exact path="/blog" component={BlogList} />
+      <Route exact path="/blog/edit/:urlTitle" component={EditBlog} />
+      <Route exact path="/blog/edit" component={EditBlog} />
+      <Route exact path="/blog/:urlTitle" component={ViewBlog} />
+      <Route exact path="/blog/delete/:urlTitle" component={DeleteBlog} />
+  </Switch>
 );

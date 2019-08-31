@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-
+import Navigation from './Navigation';
 import './BlogList.css';
 
 
@@ -38,10 +38,13 @@ export default class BlogList extends Component {
     };
 
     return (
-      <div style={blogListStyle}>
-        <h1>Recent Posts</h1>
-        <div style={{flexDirection: 'column', display: 'flex', align_items: 'flex-start', width: '80%'}}>
-          {this.state.blogs.map((blog, index) => <BlogPreview title={blog.title} urlTitle={blog.urlTitle} key={index} />)}
+      <div>
+        <Navigation {...this.props} />
+        <div style={blogListStyle}>
+          <h1>Recent Posts</h1>
+          <div style={{flexDirection: 'column', display: 'flex', align_items: 'flex-start', width: '80%'}}>
+            {this.state.blogs.map((blog, index) => <BlogPreview title={blog.title} urlTitle={blog.urlTitle} key={index} />)}
+          </div>
         </div>
       </div>
     );
