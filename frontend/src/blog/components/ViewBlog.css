@@ -1,7 +1,11 @@
-.code-inline {
+.code-inline, .blog-link {
   background-color: #272822;
   font-family: "Inconsolata", "Menlo", "Consolas", monospace;
-  padding: 1px;
+  padding: 3px;
+}
+
+.blog-link {
+  color: #ae81ff;
 }
 
 blockquote {

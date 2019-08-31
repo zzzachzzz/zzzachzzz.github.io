@@ -197,7 +197,11 @@ const rules = [
         return <li>{children}</li>;
       }
       if (obj.object === 'inline' && obj.type === 'link') {
-        return <a href={obj.data.get('href')}>{children}</a>;
+        return (
+          <a className="blog-link" href={obj.data.get('href')} target="_blank" rel="noopener noreferrer">
+            {children}
+          </a>
+        );
       }
       if (obj.object === 'string') {
         return children;
@@ -406,7 +410,7 @@ export default class SlateEditor extends React.Component {
         const { data } = node;
         const href = data.get('href');
         return (
-          <a {...attributes} href={href}>
+          <a className="blog-link" href={href} target="_blank" rel="noopener noreferrer" {...attributes}>
             {children}
           </a>
         );
