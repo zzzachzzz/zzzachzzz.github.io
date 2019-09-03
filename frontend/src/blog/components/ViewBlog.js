@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Helmet } from 'react-helmet';
 import Prism from 'prismjs';
 import '../prism.css';
 import 'prismjs/components/prism-python.js';
@@ -44,6 +45,9 @@ export default class ViewBlog extends Component {
     };
     return (
       <div style={viewBlogStyle}>
+        <Helmet>
+          <title>{this.state.title + ' – { zrose.info }'}</title>
+        </Helmet>
         <Navigation {...this.props} />
         <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '1.2em'}}>{this.state.title}</h1>
         <div id="blog-content" dangerouslySetInnerHTML={{ __html: this.state.content }} />

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import Navigation from './Navigation';
 import './BlogList.css';
 
@@ -39,6 +40,9 @@ export default class BlogList extends Component {
 
     return (
       <div>
+        <Helmet>
+          <title>{'Python & JavaScript Tutorials – { zrose.info }'}</title>
+        </Helmet>
         <Navigation {...this.props} />
         <div style={blogListStyle}>
           <h1>Recent Posts</h1>
