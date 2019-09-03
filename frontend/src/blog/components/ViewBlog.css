@@ -21,6 +21,7 @@ blockquote {
 #blog-content > :not(pre) {
   width: 850px;
   max-width: 98%;
+  box-sizing: border-box;
   margin-left: auto;
   margin-right: auto;
 }
