@@ -203,9 +203,6 @@ const rules = [
           </a>
         );
       }
-      if (obj.object === 'string') {
-        return children;
-      }
     },
   },
 ];
@@ -454,6 +451,12 @@ export default class SlateEditor extends React.Component {
           }
         ]
       });
+      return;
+    // Soft line breaks for everything but code blocks
+    } else if (event.key === 'Enter' && event.shiftKey === true
+               && editor.value.startBlock.type !== 'code_line') {
+      event.preventDefault();
+      editor.insertText('\n');
       return;
     } else {
       return next();
