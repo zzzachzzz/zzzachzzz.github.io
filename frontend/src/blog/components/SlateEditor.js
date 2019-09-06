@@ -356,6 +356,8 @@ export default class SlateEditor extends React.Component {
     const { attributes, children, node } = props;
 
     switch (node.type) {
+      case 'paragraph':
+        return <p {...attributes}>{children}</p>;
       case 'code_line':
         return <CodeBlockLine {...props} />;
       case 'code':
