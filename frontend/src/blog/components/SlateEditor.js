@@ -153,7 +153,11 @@ const rules = [
     },
     serialize(obj, children) {
       if (obj.object === 'block' && obj.type === 'paragraph') {
-        return <p className={obj.data.get('className')}>{children}</p>;
+        if (obj.text === '') {
+          return <br/>;
+        } else {
+          return <p className={obj.data.get('className')}>{children}</p>;
+        }
       }
       if (obj.object === 'block' && obj.type === 'code_line') {
         return (
