@@ -1,24 +1,20 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 
-class Statement extends PureComponent {
-  static defaultProps = {
-    statementPrefix: '>>> ',
-    inputStatement: '',
-    returnStatement: '',
-  }
-
-  render() {
-    const { inputStatement, returnStatement, showCursorHere,
-            statementPrefix, statementReached } = this.props;
-    return (
-      <div className="statement">
-        <div className="input-statement">
-          {statementReached && statementPrefix}{inputStatement}{showCursorHere &&<span className="cursor">&nbsp;</span>}
-        </div>
-        {returnStatement && <div className="return-statement">{returnStatement}</div>}
-      </div>
-    );
-  }
+Statement.defaultProps = {
+  statementPrefix: '>>> ',
+  inputStatement: '',
+  returnStatement: ''
 }
 
-export default Statement;
+export default function Statement (props) {
+  const { inputStatement, returnStatement, showCursorHere,
+          statementPrefix, statementReached } = props;
+  return (
+    <div className="statement">
+      <div className="input-statement">
+        {statementReached && statementPrefix}{inputStatement}{showCursorHere &&<span className="cursor">&nbsp;</span>}
+      </div>
+      {returnStatement && <div className="return-statement">{returnStatement}</div>}
+    </div>
+  );
+}
