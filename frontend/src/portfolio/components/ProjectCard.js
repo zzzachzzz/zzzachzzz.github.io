@@ -1,9 +1,9 @@
-import React, {memo} from 'react';
+import React from 'react';
 import './ProjectCard.css';
 import githubLogo from '../assets/github.svg';
 
-function ProjectCard(props) {
-  const {title, body, icons, githubLink} = props.project;
+export default React.memo(function ProjectCard(props) {
+  const { title, body, icons, githubLink } = props.project;
   return (
     <div className="outer">
       <div className="inner">
@@ -11,7 +11,7 @@ function ProjectCard(props) {
           <h2>{title}</h2>
           <a className="github-link" href={githubLink}
             target="_blank" rel="noopener noreferrer">
-            <img className="github-logo" src={githubLogo} alt="" />
+            <img className="github-logo" src={githubLogo} alt={`GitHub link for ${title}`} />
           </a>
         </div>
         <p>{body}</p>
@@ -21,6 +21,5 @@ function ProjectCard(props) {
       </div>
     </div>
   );
-}
+});
 
-export default memo(ProjectCard);
