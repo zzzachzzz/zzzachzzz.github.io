@@ -1,28 +1,24 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import SlateEditor from './SlateEditor';
 import ViewBlog from './ViewBlog';
 
-export default class EditBlog extends Component {
-  constructor(props) {
-    super(props);
-    this.refsEditor = React.createRef();
-    this.state = {
-      showEditor: true,
-      title: "",
-      content: "",
-    };
+export default function EditBlog(props) {
+  const [showEditor, setShowEditor] = useState(true);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
 
-    const match = this.props.match;
-    if (match && match.params && match.params.urlTitle) {
-      this.isBlogUpdate = true;
-    } else {
-      this.isBlogUpdate = false;
-    }
+  const refsEditor = React.createRef();
+
+  let isBlogUpdate;
+  if (props.match && props.match.params && props.match.params.urlTitle) {
+    isBlogUpdate = true;
+  } else {
+    isBlogUpdate = false;
   }
 
-  componentDidMount() {
-    if (this.isBlogUpdate) {
-      fetch('/api/blogs/' + this.props.match.params.urlTitle)
+  useEffect(() => {
+    if (isBlogUpdate) {
+      fetch('/api/blogs/' + props.match.params.urlTitle)
       .then(res => {
         if (res.ok) {
           return res.json();
@@ -31,28 +27,26 @@ export default class EditBlog extends Component {
         }
       })
       .then(json => {
-        this.refsEditor.current.importHtml(json.content);
-        this.setState({ title: json.title });
+        refsEditor.current.importHtml(json.content);
+        setTitle(json.title);
       })
       .catch(console.error);
     }
-  }
+  }, [isBlogUpdate, props.match.params.urlTitle, refsEditor]);
 
-  toggleEditorPreview = () => {
+  const toggleEditorPreview = () => {
     // If Editor is being shown, toggle to hide and show preview
-    if (this.state.showEditor) {
-      this.setState({
-        showEditor: false,
-        content: this.refsEditor.current.exportHtml(),
-      });
+    if (showEditor) {
+      setShowEditor(false);
+      setContent(refsEditor.current.exportHtml());
     } else {
-      this.setState({ showEditor: true });
+      setShowEditor(true);
     }
   };
 
-  saveBlog = () => {
+  const saveBlog = () => {
     // Create or update based on url
-    const url = '/api/blogs/' + (this.isBlogUpdate ? this.props.match.params.urlTitle : '');
+    const url = '/api/blogs/' + (isBlogUpdate ? props.match.params.urlTitle : '');
 
     fetch(url, {
       method: 'POST',
@@ -61,8 +55,8 @@ export default class EditBlog extends Component {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        title: this.state.title,
-        content: this.refsEditor.current.exportHtml()
+        title: title,
+        content: refsEditor.current.exportHtml()
       }),
     })
     .then(res => {
@@ -70,7 +64,7 @@ export default class EditBlog extends Component {
         console.log(res);
         throw Error(res.statusText);
       }
-      this.props.history.push('/blog')  // Redirect on success
+      props.history.push('/blog')  // Redirect on success
     })
     .catch(error => {
       if (error.message === 'Unauthorized') {
@@ -81,35 +75,33 @@ export default class EditBlog extends Component {
     });
   };
 
-  render() {
-    const buttonStyle = {
-      backgroundColor: 'grey', color: 'black', borderRadius: '50%', width: '50px', height: '50px',
-      cursor: 'pointer', outline: 'none', position: 'fixed', border: 'none',
-      boxShadow: '4px 6px 8px rgba(0, 0, 0, .8)', margin: '15px', fontWeight: 'bold',
-    };
+  const buttonStyle = {
+    backgroundColor: 'grey', color: 'black', borderRadius: '50%', width: '50px', height: '50px',
+    cursor: 'pointer', outline: 'none', position: 'fixed', border: 'none',
+    boxShadow: '4px 6px 8px rgba(0, 0, 0, .8)', margin: '15px', fontWeight: 'bold',
+  };
 
-    return (
-      <div style={{ minHeight: '100vh', color: 'white', backgroundColor: '#3e4d4f'}}>
-        <button onClick={() => this.toggleEditorPreview()} style={{...buttonStyle, left: '8px', top: '8px'}}>
-          {this.state.showEditor ? "View" : "Edit"}
-        </button>
-        <button onClick={() => this.saveBlog()} style={{...buttonStyle, left: '8px', bottom: '8px'}}>
-          {"Save"}
-        </button>
-        {/* Hide component without re-render to avoid losing state of Editor */}
-        <div style={{padding: '10vw', paddingTop: '5vh',
-                     display: this.state.showEditor ? 'block' : 'none'}}>
-          <div style={{outline: '2px solid white', padding: '5vw'}}>
-            <input type="text" placeholder="<Blog Title>"
-              style={{width: '80%', fontSize: '1em', display: 'block', margin: '0 auto', marginTop: '0', marginBottom: '1.7em', padding: '0.6em'}}
-              value={this.state.title} onChange={(e) => this.setState({title: e.target.value})}
-            />
-            <SlateEditor ref={this.refsEditor} />
-          </div>
+  return (
+    <div style={{ minHeight: '100vh', color: 'white', backgroundColor: '#3e4d4f'}}>
+      <button onClick={() => toggleEditorPreview()} style={{...buttonStyle, left: '8px', top: '8px'}}>
+        {showEditor ? "View" : "Edit"}
+      </button>
+      <button onClick={() => saveBlog()} style={{...buttonStyle, left: '8px', bottom: '8px'}}>
+        {"Save"}
+      </button>
+      {/* Hide component without re-render to avoid losing state of Editor */}
+      <div style={{padding: '10vw', paddingTop: '5vh',
+                   display: showEditor ? 'block' : 'none'}}>
+        <div style={{outline: '2px solid white', padding: '5vw'}}>
+          <input type="text" placeholder="<Blog Title>"
+            style={{width: '80%', fontSize: '1em', display: 'block', margin: '0 auto', marginTop: '0', marginBottom: '1.7em', padding: '0.6em'}}
+            value={title} onChange={(e) => setTitle(e.target.value)}
+          />
+          <SlateEditor ref={refsEditor} />
         </div>
-        { !this.state.showEditor &&
-          <ViewBlog content={this.state.content} title={this.state.title} match={this.props.match} isEditing={true} /> }
       </div>
-    );
-  }
+      { !showEditor &&
+        <ViewBlog content={content} title={title} match={props.match} isEditing={true} /> }
+    </div>
+  );
 }

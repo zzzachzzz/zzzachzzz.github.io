@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function DeleteBlog(props) {
 
-  function onEnter(value) {
+  const onEnter = value => {
     if (value === props.match.params.urlTitle) {
       fetch(`/api/blogs/${props.match.params.urlTitle}`, {
         method: 'DELETE',
@@ -25,9 +25,10 @@ export default function DeleteBlog(props) {
   }
 
   return (
-    <div>
+    <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
       <p>Enter the blog url title to confirm</p>
-      <input type="text" onKeyDown={(e) => e.key === 'Enter' ? onEnter(e.target.value) : null} />
+      <input type="text" style={{width: '280px'}}
+       onKeyDown={(e) => e.key === 'Enter' ? onEnter(e.target.value) : null} />
     </div>
   );
 }

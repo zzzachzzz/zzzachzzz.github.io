@@ -8,8 +8,8 @@ import Blog from './blog/Blog';
 export default () => (
   <BrowserRouter>
     <Switch>
-        <Route exact path="/" component={Portfolio} />
-        <Route path="/blog" component={Blog} />
+      <Route exact path="/" component={Portfolio} />
+      <Route path="/blog" component={Blog} />
     </Switch>
   </BrowserRouter>
 );

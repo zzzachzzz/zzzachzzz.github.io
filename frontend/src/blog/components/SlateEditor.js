@@ -4,7 +4,7 @@ import Html from 'slate-html-serializer';
 
 import React from 'react';
 import { Button, Icon, Toolbar } from './SlateComponents.js';
-import { isKeyHotkey } from 'is-hotkey'
+import { isKeyHotkey } from 'is-hotkey';
 
 const DEFAULT_NODE = 'paragraph';
 
@@ -32,8 +32,6 @@ const initialValue = Value.fromJSON({
     ]
   }
 });
-
-
 
 const rules = [
   {
@@ -273,13 +271,13 @@ export default class SlateEditor extends React.Component {
   };
 
   hasMark = type => {
-    const { value } = this.state
-    return value.activeMarks.some(mark => mark.type === type)
+    const { value } = this.state;
+    return value.activeMarks.some(mark => mark.type === type);
   };
 
   hasBlock = type => {
-    const { value } = this.state
-    return value.blocks.some(node => node.type === type)
+    const { value } = this.state;
+    return value.blocks.some(node => node.type === type);
   };
 
   hasLinks = () => {

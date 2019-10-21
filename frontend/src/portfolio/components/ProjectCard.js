@@ -2,7 +2,7 @@ import React from 'react';
 import './ProjectCard.css';
 import githubLogo from '../assets/github.svg';
 
-export default React.memo(function ProjectCard(props) {
+export default function ProjectCard(props) {
   const { title, body, icons, githubLink } = props.project;
   return (
     <div className="outer">
@@ -21,5 +21,5 @@ export default React.memo(function ProjectCard(props) {
       </div>
     </div>
   );
-});
+};
 

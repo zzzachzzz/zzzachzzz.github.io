@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Statement from './Statement';
 import { inputLines, returnLines } from './typerData';
 
-export default function Typer () {
+export default function Typer() {
   const [currentInputLines, setCurrentInputLines] = useState(['']);
   const [currentReturnLines, setCurrentReturnLines] = useState([]);
   const [currentStatementIndex, setCurrentStatementIndex] = useState(0);
