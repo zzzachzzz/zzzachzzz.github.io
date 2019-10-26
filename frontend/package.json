@@ -5,18 +5,18 @@
   "private": true,
   "dependencies": {
     "draft-js": "^0.10.5",
-    "emotion": "^10.0.14",
+    "emotion": "^10.0.17",
     "immutable": "^4.0.0-rc.12",
-    "is-hotkey": "^0.1.4",
+    "is-hotkey": "^0.1.6",
     "prismjs": "^1.17.1",
-    "react": "^16.9.0",
-    "react-dom": "^16.9.0",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
     "react-helmet": "^5.2.1",
-    "react-router-dom": "^5.0.1",
-    "react-scripts": "^3.1.1",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "^3.2.0",
     "slate": "^0.47.8",
     "slate-html-serializer": "^0.8.10",
-    "slate-react": "^0.22.8"
+    "slate-react": "^0.22.9"
   },
   "scripts": {
     "start": "react-scripts start",
