@@ -19,10 +19,9 @@ export default function BlogList(props) {
     })
     .then(json => {
       setBlogs(json);
-      // this.setState({ blogs: json });
     })
     .catch(console.error);
-  }, [blogs]);
+  }, []);
 
   const blogListStyle = {
     backgroundColor: '#3e4d4f',
@@ -37,12 +36,12 @@ export default function BlogList(props) {
   return (
     <div>
       <Helmet>
-        <title>{'Python & JavaScript Tutorials – { zrose.info }'}</title>
+        <title>{'Python & JavaScript Blog – { zrose.info }'}</title>
       </Helmet>
       <Navigation {...props} />
       <div style={blogListStyle}>
         <h1>Recent Posts</h1>
-        <div style={{flexDirection: 'column', display: 'flex', alignItems: 'flex-start', width: '80%'}}>
+        <div style={{flexDirection: 'column', display: 'flex', width: '80%'}}>
           {blogs.map((blog, index) => <BlogPreview title={blog.title} urlTitle={blog.urlTitle} key={index} />)}
         </div>
       </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 import Terminal from './components/Terminal';
 import './Portfolio.css';
 import ProjectCard from './components/ProjectCard';
@@ -15,6 +16,9 @@ export default function Portfolio() {
 
   return (
     <div className="Portfolio">
+      <Helmet>
+        <title>{'{ zrose.info }'}</title>
+      </Helmet>
       <div className="navbar">
         <Link to="/blog">Blog</Link>
         <a href="#projects" onClick={() => scroll(projectsRef)}>

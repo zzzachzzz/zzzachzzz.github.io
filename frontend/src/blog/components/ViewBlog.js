@@ -11,7 +11,6 @@ export default function ViewBlog(props) {
   const [content, setContent] = useState(props.content);
 
   useEffect(() => {
-    console.log('hit it');
     const fetchBlog = async () => {
       await fetch('/api/blogs/' + props.match.params.urlTitle)
       .then(res => {
@@ -31,8 +30,9 @@ export default function ViewBlog(props) {
     if (!props.isEditing) {
       fetchBlog();
     }
-    Prism.highlightAll();
   }, [props.isEditing, props.match.params.urlTitle]);
+
+  useEffect(() => Prism.highlightAll(), [content]);
 
   const viewBlogStyle = {
     backgroundColor: '#3e4d4f',
