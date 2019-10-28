@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 
-export default React.memo(function Statement(
+export default memo(function Statement(
   { showCursorHere, statementPrefix = '>>> ', inputStatement = '', returnStatement = '' }) {
   return (
     <div className="statement">

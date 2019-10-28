@@ -2,7 +2,7 @@ import { Editor } from 'slate-react';
 import { Value } from 'slate';
 import Html from 'slate-html-serializer';
 
-import React from 'react';
+import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Button, Icon, Toolbar } from './SlateComponents.js';
 import { isKeyHotkey } from 'is-hotkey';
 
@@ -251,110 +251,69 @@ function CodeBlockLine(props) {
   return <div className="CODE_BLOCK_LINE" {...props.attributes}>{props.children}</div>;
 }
 
-export default class SlateEditor extends React.Component {
-  state = {
-    value: initialValue,
-  };
+export default forwardRef(function SlateEditor(props, ref) {
+  const [value, setValue] = useState(initialValue);
 
-  onChange = ({ value }) => this.setState({ value });
+  const onChange = ({ value }) => setValue(value);
 
-  ref = editor => {
-    this.editor = editor;
-  };
+  let editor = useRef();
 
-  exportHtml = () => {
-    return html.serialize(this.state.value);
-  };
+  useImperativeHandle(ref, () => ({
+    exportHtml: () => {
+      return html.serialize(value);
+    },
+    importHtml: (htmlString) => {
+      setValue( html.deserialize(htmlString) );
+    }
+  }));
 
-  importHtml = (htmlString) => {
-    this.setState({ value: html.deserialize(htmlString) });
-  };
-
-  hasMark = type => {
-    const { value } = this.state;
+  const hasMark = type => {
     return value.activeMarks.some(mark => mark.type === type);
   };
 
-  hasBlock = type => {
-    const { value } = this.state;
+  const hasBlock = type => {
     return value.blocks.some(node => node.type === type);
   };
 
-  hasLinks = () => {
-    const { value } = this.state;
+  const hasLinks = () => {
     return value.inlines.some(inline => inline.type === 'link');
   };
 
-  render() {
-    return (
-      <div>
-        <Toolbar>
-          {this.renderMarkButton('bold', 'format_bold')}
-          {this.renderMarkButton('italic', 'format_italic')}
-          {this.renderMarkButton('underlined', 'format_underlined')}
-          {this.renderMarkButton('code', 'calendar_view_day')}
-          {this.renderBlockButton('code', 'code')}
-          {this.renderBlockButton('heading-one', 'looks_one')}
-          {this.renderBlockButton('heading-two', 'looks_two')}
-          {this.renderBlockButton('block-quote', 'format_quote')}
-          {this.renderBlockButton('numbered-list', 'format_list_numbered')}
-          {this.renderBlockButton('bulleted-list', 'format_list_bulleted')}
-          <Button active={this.hasLinks()} onMouseDown={this.onClickLink}>
-            <Icon>link</Icon>
-          </Button>
-        </Toolbar>
-        <Editor
-          spellCheck
-          autoFocus
-          placeholder="Write some code..."
-          ref={this.ref}
-          value={this.state.value}
-          onChange={this.onChange}
-          onKeyDown={this.onKeyDown}
-          renderBlock={this.renderBlock}
-          renderMark={this.renderMark}
-          renderInline={this.renderInline}
-        />
-      </div>
-    );
-  }
 
-  renderMarkButton = (type, icon) => {
-    const isActive = this.hasMark(type);
+  const renderMarkButton = (type, icon) => {
+    const isActive = hasMark(type);
 
     return (
       <Button
         active={isActive}
-        onMouseDown={event => this.onClickMark(event, type)}
-      >
+        onMouseDown={event => onClickMark(event, type)}>
         <Icon>{icon}</Icon>
       </Button>
     );
   };
 
-  renderBlockButton = (type, icon) => {
-    let isActive = this.hasBlock(type);
+  const renderBlockButton = (type, icon) => {
+    let isActive = hasBlock(type);
 
     if (['numbered-list', 'bulleted-list'].includes(type)) {
-      const { value: { document, blocks } } = this.state;
+      const { document, blocks } = value;
 
       if (blocks.size > 0) {
         const parent = document.getParent(blocks.first().key);
-        isActive = this.hasBlock('list-item') && parent && parent.type === type;
+        isActive = hasBlock('list-item') && parent && parent.type === type;
       }
     }
 
     return (
       <Button
         active={isActive}
-        onMouseDown={event => this.onClickBlock(event, type)}
-      >
+        onMouseDown={event => onClickBlock(event, type)}>
         <Icon>{icon}</Icon>
       </Button>
     );
   };
 
-  renderBlock = (props, editor, next) => {
+  const renderBlock = (props, editor, next) => {
     const { attributes, children, node } = props;
 
     switch (node.type) {
@@ -381,7 +340,7 @@ export default class SlateEditor extends React.Component {
     }
   };
 
-  renderMark = (props, editor, next) => {
+  const renderMark = (props, editor, next) => {
     const { children, mark, attributes } = props;
 
     switch (mark.type) {
@@ -403,7 +362,7 @@ export default class SlateEditor extends React.Component {
     }
   };
 
-  renderInline = (props, editor, next) => {
+  const renderInline = (props, editor, next) => {
     const { attributes, children, node } = props;
 
     switch (node.type) {
@@ -423,7 +382,7 @@ export default class SlateEditor extends React.Component {
     }
   };
 
-  onKeyDown = (event, editor, next) => {
+  const onKeyDown = (event, editor, next) => {
     let mark;
 
     if (isBoldHotkey(event)) {
@@ -470,15 +429,14 @@ export default class SlateEditor extends React.Component {
     editor.toggleMark(mark);
   };
 
-  onClickMark = (event, type) => {
+  const onClickMark = (event, type) => {
     event.preventDefault();
-    this.editor.toggleMark(type);
+    editor.toggleMark(type);
   };
 
-  onClickBlock = (event, type) => {
+  const onClickBlock = (event, type) => {
     event.preventDefault();
 
-    const { editor } = this;
     const { value } = editor;
     const { document } = value;
 
@@ -505,8 +463,8 @@ export default class SlateEditor extends React.Component {
     }
     // Handle everything but list buttons.
     else if (type !== 'bulleted-list' && type !== 'numbered-list') {
-      const isActive = this.hasBlock(type);
-      const isList = this.hasBlock('list-item');
+      const isActive = hasBlock(type);
+      const isList = hasBlock('list-item');
 
       if (isList) {
         editor
@@ -518,7 +476,7 @@ export default class SlateEditor extends React.Component {
       }
     } else {
       // Handle the extra wrapping required for list buttons.
-      const isList = this.hasBlock('list-item');
+      const isList = hasBlock('list-item');
       const isType = value.blocks.some(block => {
         return !!document.getClosest(block.key, parent => parent.type === type);
       })
@@ -540,7 +498,7 @@ export default class SlateEditor extends React.Component {
     }
   };
 
-  onClickLink = event => {
+  const onClickLink = event => {
     function wrapLink(editor, href) {
       editor.wrapInline({
         type: 'link',
@@ -555,11 +513,9 @@ export default class SlateEditor extends React.Component {
 
     event.preventDefault();
 
-    const { editor } = this;
     const { value } = editor;
-    const hasLinks = this.hasLinks();
 
-    if (hasLinks) {
+    if (hasLinks()) {
       editor.command(unwrapLink);
     } else if (value.selection.isExpanded) {
       const href = window.prompt('Enter the URL of the link:');
@@ -588,4 +544,36 @@ export default class SlateEditor extends React.Component {
         .command(wrapLink, href);
     }
   };
-}
+
+  return (
+    <div>
+      <Toolbar>
+        {renderMarkButton('bold', 'format_bold')}
+        {renderMarkButton('italic', 'format_italic')}
+        {renderMarkButton('underlined', 'format_underlined')}
+        {renderMarkButton('code', 'calendar_view_day')}
+        {renderBlockButton('code', 'code')}
+        {renderBlockButton('heading-one', 'looks_one')}
+        {renderBlockButton('heading-two', 'looks_two')}
+        {renderBlockButton('block-quote', 'format_quote')}
+        {renderBlockButton('numbered-list', 'format_list_numbered')}
+        {renderBlockButton('bulleted-list', 'format_list_bulleted')}
+        <Button active={hasLinks()} onMouseDown={onClickLink}>
+          <Icon>link</Icon>
+        </Button>
+      </Toolbar>
+      <Editor
+        spellCheck
+        autoFocus
+        placeholder="Write some code..."
+        ref={(editor_) => editor = editor_}
+        value={value}
+        onChange={onChange}
+        onKeyDown={onKeyDown}
+        renderBlock={renderBlock}
+        renderMark={renderMark}
+        renderInline={renderInline}
+      />
+    </div>
+  );
+});

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SlateEditor from './SlateEditor';
 import ViewBlog from './ViewBlog';
 
@@ -7,7 +7,7 @@ export default function EditBlog(props) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const refsEditor = React.createRef();
+  const refsEditor = useRef();
 
   let isBlogUpdate;
   if (props.match && props.match.params && props.match.params.urlTitle) {
@@ -32,7 +32,7 @@ export default function EditBlog(props) {
       })
       .catch(console.error);
     }
-  }, [isBlogUpdate, props.match.params.urlTitle, refsEditor]);
+  }, [isBlogUpdate, props.match.params.urlTitle]);
 
   const toggleEditorPreview = () => {
     // If Editor is being shown, toggle to hide and show preview
