@@ -9,6 +9,7 @@ import Navigation from './Navigation';
 export default function ViewBlog(props) {
   const [title, setTitle] = useState(props.title);
   const [content, setContent] = useState(props.content);
+  const [createdAt, setCreatedAt] = useState(formatDate(props.createdAt));
 
   useEffect(() => {
     const fetchBlog = async () => {
@@ -23,6 +24,7 @@ export default function ViewBlog(props) {
       .then(json => {
         setTitle(json.title);
         setContent(json.content);
+        setCreatedAt(formatDate(json.createdAt));
       })
       .catch(console.error);
     };
@@ -33,6 +35,12 @@ export default function ViewBlog(props) {
   }, [props.isEditing, props.match.params.urlTitle]);
 
   useEffect(() => Prism.highlightAll(), [content]);
+
+  function formatDate(dateString) {
+    if (!dateString) return;
+    const date = new Date(dateString);
+    return `${date.toLocaleString('default', {month:'long'})} ${date.getDate()}, ${date.getFullYear()}`;
+  }
 
   const viewBlogStyle = {
     backgroundColor: '#3e4d4f',
@@ -48,7 +56,8 @@ export default function ViewBlog(props) {
         <title>{title + ' – { zrose.info }'}</title>
       </Helmet>
       <Navigation {...props} />
-      <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '1.2em'}}>{title}</h1>
+      <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '0.2em'}}>{title}</h1>
+      <h3 style={{fontSize: '14px', margin: 0, textAlign: 'center'}}>{createdAt}</h3>
       <div id="blog-content" dangerouslySetInnerHTML={{ __html: content }} />
     </div>
   );

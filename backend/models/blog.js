@@ -14,6 +14,8 @@ let blogSchema = mongoose.Schema({
     type: String,
     required: true,
   },
+}, {
+  timestamps: true
 });
 
 
