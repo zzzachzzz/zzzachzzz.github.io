@@ -7,7 +7,10 @@ require('dotenv').config();
 
 
 // Database
-mongoose.connect('mongodb://localhost/blogs', { useNewUrlParser: true });
+mongoose.connect('mongodb://localhost/blogs', {
+  useUnifiedTopology: true,
+  useNewUrlParser: true
+});
 let db = mongoose.connection;
 
 db.once('open', () => {  // Check connection
