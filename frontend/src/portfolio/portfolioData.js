@@ -2,9 +2,9 @@ export const projects = [
   {
     title: 'Portfolio',
     body: `
-      This site, which is built with ReactJS. The typing of statements in the terminal is performed
+      This site, which is built with ReactJS. Originally built with class based components, all the source has been updated to use React Hooks and functional components. The typing of statements in the terminal is performed
       by updating the state with each character being added, optimized through the use of
-      React.PureComponent. The custom blog post editor was created using SlateJS. The server was made
+      React.memo. The blog post editor was custom made with SlateJS. The server was made
       with Express and MongoDB, and uses Passport to authenticate myself as the admin using a Google login.
       `,
     icons: ['javascript.png', 'react.png', 'express.png', 'node.png', 'mongo.png', 'slate.png'],
