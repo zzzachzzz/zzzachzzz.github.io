@@ -5,7 +5,7 @@
   "private": true,
   "dependencies": {
     "draft-js": "^0.10.5",
-    "emotion": "^10.0.17",
+    "emotion": "^10.0.23",
     "immutable": "^4.0.0-rc.12",
     "is-hotkey": "^0.1.6",
     "prismjs": "^1.17.1",
