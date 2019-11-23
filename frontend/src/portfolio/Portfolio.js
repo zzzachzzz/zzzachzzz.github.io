@@ -32,7 +32,12 @@ export default function Portfolio() {
       <h2 ref={projectsRef} id="projects" className="projects-header">Projects</h2>
       <div className="ubuntu-card-background">
         <div className="cards-container">
-          {projects.map((project, i) => <ProjectCard project={project} key={i} />)}
+          {projects.map((project, i) => (
+            <React.Fragment key={i}>
+              <ProjectCard project={project} />
+              <div style={{background: '#3e4d4f', height: '50px', width: '100%'}} />
+            </React.Fragment>
+          ))}
         </div>
       </div>
     </div>
