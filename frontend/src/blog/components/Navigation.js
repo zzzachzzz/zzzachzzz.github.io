@@ -7,7 +7,7 @@ export default function Navigation(props) {
     display: 'flex',
     flexDirection: 'row',
     alignItems: 'flex-start',
-    fontSize: '0.9em',
+    fontSize: '1.2em',
     textDecoration: 'none',
   };
 

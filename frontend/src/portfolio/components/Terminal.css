@@ -1,5 +1,4 @@
 .Terminal {
-    height: 500px;
     max-width: 900px;
     width: 90%;
     font-family: monospace;
@@ -31,13 +30,13 @@
 }
 
 .header-text {
-    /*font-size: 0.6em;*/
     justify-self: center;
 }
 
 .terminal-window {
     font-weight: bold;
-    height: 100%;
+    height: 480px;
+    max-height: 80vh;
     background-color: black;
     opacity: 0.75;
     border-radius: 0 0 10px 10px;

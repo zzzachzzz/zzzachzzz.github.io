@@ -57,7 +57,7 @@ export default function ViewBlog(props) {
       </Helmet>
       <Navigation {...props} />
       <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '0.2em'}}>{title}</h1>
-      <h3 style={{fontSize: '14px', margin: 0, textAlign: 'center'}}>{createdAt}</h3>
+      <h3 style={{fontSize: '0.7em', margin: 0, textAlign: 'center'}}>{createdAt}</h3>
       <div id="blog-content" dangerouslySetInnerHTML={{ __html: content }} />
     </div>
   );
