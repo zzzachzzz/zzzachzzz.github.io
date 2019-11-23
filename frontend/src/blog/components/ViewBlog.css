@@ -28,14 +28,12 @@ blockquote {
 
 #blog-content > pre {
   display: inline-block;
-  min-width: 60%;
-  max-width: 90%;
+  width: 80%;
 }
 
 @media only screen and (max-device-width: 480px) {
   #blog-content > pre {
-    width: 92%;
-    max-width: none;
+    width: 90%;
   }
 }
 

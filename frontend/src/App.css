@@ -2,6 +2,10 @@ html {
   font-size: 20px;
 }
 
+@media only screen and (max-device-width: 480px) {
+    html { font-size: 14px; }
+}
+
 body {
   background-color: #3e4d4f;
   color: white;

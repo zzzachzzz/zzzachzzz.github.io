@@ -41,7 +41,7 @@ export default function BlogList(props) {
       <Navigation {...props} />
       <div style={blogListStyle}>
         <h1>Recent Posts</h1>
-        <div style={{flexDirection: 'column', display: 'flex', width: '80%'}}>
+        <div style={{flexDirection: 'column', display: 'flex', maxWidth: '1200px'}}>
           {blogs.map((blog, index) => <BlogPreview title={blog.title} urlTitle={blog.urlTitle} key={index} />)}
         </div>
       </div>
@@ -61,7 +61,7 @@ function BlogPreview({ title, urlTitle }) {
         <span style={{color: prismBlue}}>{`{`}</span>
         <span style={{color: prismGreen}}>{`{`}</span>
       </div>
-      <p style={{marginLeft: '1.5em', marginRight: '1.5em', textAlign: 'center', display: 'flex', alignItems: 'center'}}>{title}</p>
+      <p style={{marginLeft: '1em', marginRight: '1em', textAlign: 'center', display: 'flex', alignItems: 'center'}}>{title}</p>
       <div style={{fontSize: '1em', display: 'flex', alignItems: 'center'}}>
         <span style={{color: prismGreen}}>{`}`}</span>
         <span style={{color: prismBlue}}>{`}`}</span>
