@@ -10,7 +10,8 @@ import { projects } from './portfolioData';
 export default function Portfolio() {
   const projectsRef = React.createRef();
 
-  const scroll = (ref) => {
+  const scroll = (ref, e) => {
+    e.preventDefault();
     ref.current.scrollIntoView({behavior: 'smooth'});
   }
 
@@ -21,14 +22,14 @@ export default function Portfolio() {
       </Helmet>
       <div className="navbar">
         <Link to="/blog">Blog</Link>
-        <a href="#projects" onClick={() => scroll(projectsRef)}>
+        <a href="#projects" onClick={e => scroll(projectsRef, e)}>
           Projects
         </a>
       </div>
       <div className="ubuntu-terminal-desktop">
         <Terminal />
       </div>
-      <h2 ref={projectsRef} className="projects-header">Projects</h2>
+      <h2 ref={projectsRef} id="projects" className="projects-header">Projects</h2>
       <div className="ubuntu-card-background">
         <div className="cards-container">
           {projects.map((project, i) => <ProjectCard project={project} key={i} />)}
