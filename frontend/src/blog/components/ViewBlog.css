@@ -48,4 +48,5 @@ blockquote {
   letter-spacing: 0.009em;
   margin-bottom: 4em;
   padding: 1em;
+  overflow-wrap: break-word;
 };
