@@ -44,7 +44,7 @@ export default function Typer() {
         <Statement inputStatement={currentInputLines[i] || ''}
                    returnStatement={currentReturnLines[i] || ''}
                    showCursorHere={Boolean(currentStatementIndex === i)}
-                   statementPrefix={i === 0 || i === 10 ? linuxPrefix : '>>> '}
+                   statementPrefix={i === 0 || i === 8 ? linuxPrefix : '>>> '}
                    key={i} />
       ))}
     </React.Fragment>

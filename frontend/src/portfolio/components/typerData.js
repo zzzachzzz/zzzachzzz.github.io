@@ -7,9 +7,7 @@ export const inputLines = [
     "zach.current_location",
     "zach.skills",
     "zach.resume",
-    "zach.github",
-    "zach.email",
-    "zach.linkedin",
+    "zach.links",
     "exit()",
     "",
   ];
@@ -26,16 +24,12 @@ export const returnLines = [
        zRosenbergerResume.pdf</a>'
   </React.Fragment>,
   <React.Fragment>
-    '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
-       href="https://github.com/zzzachzzz">github.com/zzzachzzz</a>'
-  </React.Fragment>,
-  <React.Fragment>
-    '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
-       href="mailto:zach1rosen@gmail.com">zach1rosen@gmail.com</a>'
-  </React.Fragment>,
-  <React.Fragment>
-    '<a className="terminal-link" target="_blank" rel="noopener noreferrer"
-       href="https://www.linkedin.com/in/zach-rosenberger-36884ab1">linkedin.com/in/zach-rosenberger</a>'
+    ['<a className="terminal-link" target="_blank" rel="noopener noreferrer"
+       href="https://github.com/zzzachzzz">github.com/zzzachzzz</a>',<br/>
+    &nbsp;'<a className="terminal-link" target="_blank" rel="noopener noreferrer"
+       href="mailto:zach1rosen@gmail.com">zach1rosen@gmail.com</a>',<br/>
+    &nbsp;'<a className="terminal-link" target="_blank" rel="noopener noreferrer"
+       href="https://www.linkedin.com/in/zach-rosenberger-36884ab1">linkedin.com/in/zach-rosenberger</a>']
   </React.Fragment>,
   "",
   "",
