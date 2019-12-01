@@ -94,7 +94,7 @@ export default function EditBlog(props) {
                    display: showEditor ? 'block' : 'none'}}>
         <div style={{outline: '2px solid white', padding: '5vw'}}>
           <input type="text" placeholder="<Blog Title>"
-            style={{width: '80%', fontSize: '1em', display: 'block', margin: '0 auto', marginTop: '0', marginBottom: '1.7em', padding: '0.6em'}}
+            style={{width: '80%', fontSize: '1em', display: 'block', margin: '0 auto', marginTop: '0', marginBottom: '1.2em', padding: '0.6em'}}
             value={title} onChange={(e) => setTitle(e.target.value)}
           />
           <SlateEditor ref={refsEditor} />

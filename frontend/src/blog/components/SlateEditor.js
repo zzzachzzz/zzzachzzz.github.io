@@ -225,6 +225,7 @@ function CodeBlock(props) {
     fontSize: '0.8em',
     margin: '14px 0',
     padding: '20px',
+    overflow: 'auto',
   };
 
   return (
