@@ -94,6 +94,13 @@ const rules = [
             data: {},
             nodes: next(el.childNodes),
           };
+        case 'del':
+          return {
+            object: 'mark',
+            type: 'strikethrough',
+            data: {},
+            nodes: next(el.childNodes),
+          };
         case 'h1':
           return {
             object: 'block',
@@ -179,6 +186,9 @@ const rules = [
       }
       if (obj.object === 'mark' && obj.type === 'underlined') {
         return <u>{children}</u>;
+      }
+      if (obj.object === 'mark' && obj.type === 'strikethrough') {
+        return <del>{children}</del>;
       }
       if (obj.object === 'block' && obj.type === 'heading-one') {
         return <h1>{children}</h1>;
@@ -348,16 +358,13 @@ export default forwardRef(function SlateEditor(props, ref) {
       case 'bold':
         return <strong {...attributes}>{children}</strong>;
       case 'code':
-        const codeInlineStyle = {
-          backgroundColor: '#272822',
-          fontFamily: '"Inconsolata", "Menlo", "Consolas", monospace',
-          padding: '1px',
-        };
-        return <code style={codeInlineStyle} className="code-inline" {...attributes}>{children}</code>;
+        return <code className="code-inline" {...attributes}>{children}</code>;
       case 'italic':
         return <em {...attributes}>{children}</em>;
       case 'underlined':
         return <u {...attributes}>{children}</u>;
+      case 'strikethrough':
+        return <del {...attributes}>{children}</del>;
       default:
         return next();
     }
@@ -552,6 +559,7 @@ export default forwardRef(function SlateEditor(props, ref) {
         {renderMarkButton('bold', 'format_bold')}
         {renderMarkButton('italic', 'format_italic')}
         {renderMarkButton('underlined', 'format_underlined')}
+        {renderMarkButton('strikethrough', 'strikethrough_s')}
         {renderMarkButton('code', 'calendar_view_day')}
         {renderBlockButton('code', 'code')}
         {renderBlockButton('heading-one', 'looks_one')}
