@@ -12,7 +12,6 @@
 .Portfolio {
   min-height: 200vh;
   font-family: sans-serif;
-  font-size: 0.8em;
   color: white;
   background-color: #3e4d4f;
   position: relative;
@@ -26,10 +25,8 @@
 }
 
 .navbar > a {
-  font-family: monospace;
   text-decoration: none;
   color: white;
-  font-family: sans-serif;
 }
 
 .cards-container {

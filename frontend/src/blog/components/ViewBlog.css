@@ -1,6 +1,6 @@
 .code-inline, .blog-link {
   background-color: #272822;
-  font-family: "Inconsolata", "Menlo", "Consolas", monospace;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   padding: 3px;
 }
 
@@ -17,7 +17,6 @@ blockquote {
   font-style: italic;
 }
 
-
 #blog-content > :not(pre) {
   width: 850px;
   max-width: 98%;
@@ -27,22 +26,14 @@ blockquote {
 }
 
 #blog-content > pre {
-  display: inline-block;
-  width: 80%;
-}
-
-@media only screen and (max-device-width: 480px) {
-  #blog-content > pre {
-    width: 90%;
-  }
-}
-
-#blog-content > * {
-  text-align: left;
+  width: 90%;
+  max-width: 1000px;
 }
 
 #blog-content {
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   font-size: 1.2em;
   line-height: 1.4em;
   letter-spacing: 0.009em;
@@ -50,3 +41,4 @@ blockquote {
   padding: 1em;
   overflow-wrap: break-word;
 };
+

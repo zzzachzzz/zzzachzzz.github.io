@@ -1,7 +1,6 @@
 import { Editor } from 'slate-react';
 import { Value } from 'slate';
 import Html from 'slate-html-serializer';
-
 import React, { useState, useRef, forwardRef, useImperativeHandle } from 'react';
 import { Button, Icon, Toolbar } from './SlateComponents.js';
 import { isKeyHotkey } from 'is-hotkey';
@@ -231,7 +230,7 @@ function CodeBlock(props) {
 
   const codeBlockStyle = {
     backgroundColor: '#272822',
-    fontFamily: '"Inconsolata", "Menlo", "Consolas", monospace',
+	  fontFamily: "Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace",
     fontSize: '0.8em',
     margin: '14px 0',
     padding: '20px',

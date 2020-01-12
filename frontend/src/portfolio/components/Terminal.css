@@ -1,7 +1,6 @@
 .Terminal {
     max-width: 900px;
     width: 90%;
-    font-family: monospace;
 }
 
 .terminal-header {
@@ -35,6 +34,7 @@
 
 .terminal-window {
     font-weight: bold;
+	  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
     height: 480px;
     max-height: 80vh;
     background-color: black;
@@ -71,3 +71,4 @@
         background-color: transparent;
     }
 }
+

@@ -1,6 +1,7 @@
 .link-block:hover > p {
   color: #ae81ff;
 }
+
 .link-block {
   min-height: 60px;
   background: #272822;
@@ -13,5 +14,6 @@
   font-size: 1.2em;
   text-decoration: none;
   color: white;
-  font-family: Consolas Monaco, Andale Mono, Ubuntu Mono, monospace;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 };
+
