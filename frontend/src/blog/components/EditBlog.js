@@ -19,18 +19,18 @@ export default function EditBlog(props) {
   useEffect(() => {
     if (isBlogUpdate) {
       fetch('/api/blogs/' + props.match.params.urlTitle)
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          throw Error(res.statusText);
-        }
-      })
-      .then(json => {
-        refsEditor.current.importHtml(json.content);
-        setTitle(json.title);
-      })
-      .catch(console.error);
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            throw Error(res.statusText);
+          }
+        })
+        .then(json => {
+          refsEditor.current.importHtml(json.content);
+          setTitle(json.title);
+        })
+        .catch(console.error);
     }
   }, [isBlogUpdate, props.match.params.urlTitle]);
 
@@ -59,20 +59,20 @@ export default function EditBlog(props) {
         content: refsEditor.current.exportHtml()
       }),
     })
-    .then(res => {
-      if (!res.ok) {
-        console.log(res);
-        throw Error(res.statusText);
-      }
-      props.history.push('/blog')  // Redirect on success
-    })
-    .catch(error => {
-      if (error.message === 'Unauthorized') {
-        alert(`${error.message}: You are not Zach`);
-      } else {
-        alert(`${error.message}`);
-      }
-    });
+      .then(res => {
+        if (!res.ok) {
+          console.log(res);
+          throw Error(res.statusText);
+        }
+        props.history.push('/blog')  // Redirect on success
+      })
+      .catch(error => {
+        if (error.message === 'Unauthorized') {
+          alert(`${error.message}: You are not Zach`);
+        } else {
+          alert(`${error.message}`);
+        }
+      });
   };
 
   const buttonStyle = {
@@ -105,3 +105,4 @@ export default function EditBlog(props) {
     </div>
   );
 }
+

@@ -19,10 +19,10 @@ export default function Typer() {
       const statementsLength = Object.keys(inputLines).length;
       for (let i = 0; i < statementsLength; i++) {
         setCurrentStatementIndex(i);
-        await sleep(700);  // Delay before typing next input statement
+        await sleep(550);  // Delay before typing next input statement
         for (let j = 0; j < inputLines[i].length; j++) {
           setCurrentInputLines([...inputLines.slice(0, i), inputLines[i].substring(0, j+1)]);
-          await sleep(35);  // Delay between characters
+          await sleep(30);  // Delay between characters
         }
         await sleep(200);  // Delay 'hitting Enter' after typing statement
         setCurrentReturnLines(returnLines.slice(0, i+1));
@@ -43,7 +43,7 @@ export default function Typer() {
       {currentInputLines.map((_, i) => (
         <Statement inputStatement={currentInputLines[i] || ''}
                    returnStatement={currentReturnLines[i] || ''}
-                   showCursorHere={Boolean(currentStatementIndex === i)}
+                   showCursorHere={currentStatementIndex === i}
                    statementPrefix={i === 0 || i === 8 ? linuxPrefix : '>>> '}
                    key={i} />
       ))}

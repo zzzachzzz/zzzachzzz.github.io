@@ -13,7 +13,7 @@ export const inputLines = [
   ];
 
 export const returnLines = [
-  "Python 3.5.3",
+  "Python 3.7.6",
   "",
   "'Zachary Rosenberger'",
   "'Boise, ID'",

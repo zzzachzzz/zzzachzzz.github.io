@@ -1,26 +1,25 @@
 import React from 'react';
 
 export default function DeleteBlog(props) {
-
-  const onEnter = value => {
+  const onEnter = async value => {
     if (value === props.match.params.urlTitle) {
-      fetch(`/api/blogs/${props.match.params.urlTitle}`, {
+      return fetch(`/api/blogs/${props.match.params.urlTitle}`, {
         method: 'DELETE',
       })
-      .then(res => {
-        if (!res.ok) {
-          console.log(res);
-          throw Error(res.statusText);
-        }
-        props.history.push('/blog')  // Redirect on success
-      })
-      .catch(error => {
-        if (error.message === 'Unauthorized') {
-          alert(`${error.message}: You are not Zach`);
-        } else {
-          alert(`${error.message}`);
-        }
-      });
+        .then(res => {
+          if (!res.ok) {
+            console.log(res);
+            throw Error(res.statusText);
+          }
+          props.history.push('/blog')  // Redirect on success
+        })
+        .catch(error => {
+          if (error.message === 'Unauthorized') {
+            alert(`${error.message}: You are not Zach`);
+          } else {
+            alert(`${error.message}`);
+          }
+        });
     }
   }
 
@@ -32,3 +31,4 @@ export default function DeleteBlog(props) {
     </div>
   );
 }
+

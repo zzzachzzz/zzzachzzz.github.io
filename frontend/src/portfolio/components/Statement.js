@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
 
 export default memo(function Statement(
-  { showCursorHere, statementPrefix = '>>> ', inputStatement = '', returnStatement = '' }) {
+  { showCursorHere, statementPrefix, inputStatement = '', returnStatement = '' }
+) {
   return (
     <div className="statement">
       <div className="input-statement">

@@ -9,18 +9,18 @@ export default function BlogList(props) {
 
   useEffect(() => {
     fetch('/api/blogs')
-    .then(res => {
-      if (res.ok) {
-        return res.json();
-      } else {
-        console.log(res);
-        throw Error(`Request rejected with status ${res.status}`);
-      }
-    })
-    .then(json => {
-      setBlogs(json);
-    })
-    .catch(console.error);
+      .then(res => {
+        if (res.ok) {
+          return res.json();
+        } else {
+          console.log(res);
+          throw Error(`Request rejected with status ${res.status}`);
+        }
+      })
+      .then(json => {
+        setBlogs(json);
+      })
+      .catch(console.error);
   }, []);
 
   const blogListStyle = {
@@ -70,3 +70,4 @@ function BlogPreview({ title, urlTitle }) {
     </Link>
   );
 }
+

@@ -8,10 +8,11 @@ import DeleteBlog from './components/DeleteBlog';
 
 export default () => (
   <Switch>
-      <Route exact path="/blog" component={BlogList} />
-      <Route exact path="/blog/edit/:urlTitle" component={EditBlog} />
-      <Route exact path="/blog/edit" component={EditBlog} />
-      <Route exact path="/blog/:urlTitle" component={ViewBlog} />
-      <Route exact path="/blog/delete/:urlTitle" component={DeleteBlog} />
+    <Route exact path="/blog" component={BlogList} />
+    <Route exact path="/blog/edit/:urlTitle" component={EditBlog} />
+    <Route exact path="/blog/edit" component={EditBlog} />
+    <Route exact path="/blog/:urlTitle" component={ViewBlog} />
+    <Route exact path="/blog/delete/:urlTitle" component={DeleteBlog} />
   </Switch>
 );
+

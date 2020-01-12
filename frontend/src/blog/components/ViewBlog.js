@@ -13,20 +13,20 @@ export default function ViewBlog(props) {
 
   useEffect(() => {
     const fetchBlog = async () => {
-      await fetch('/api/blogs/' + props.match.params.urlTitle)
-      .then(res => {
-        if (res.ok) {
-          return res.json();
-        } else {
-          throw Error(`Request rejected with status ${res.status}`);
-        }
-      })
-      .then(json => {
-        setTitle(json.title);
-        setContent(json.content);
-        setCreatedAt(formatDate(json.createdAt));
-      })
-      .catch(console.error);
+      return fetch('/api/blogs/' + props.match.params.urlTitle)
+        .then(res => {
+          if (res.ok) {
+            return res.json();
+          } else {
+            throw Error(`Request rejected with status ${res.status}`);
+          }
+        })
+        .then(json => {
+          setTitle(json.title);
+          setContent(json.content);
+          setCreatedAt(formatDate(json.createdAt));
+        })
+        .catch(console.error);
     };
     // If not editing a blog, fetch blog from DB
     if (!props.isEditing) {
