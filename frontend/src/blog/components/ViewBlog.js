@@ -3,6 +3,8 @@ import { Helmet } from 'react-helmet';
 import Prism from 'prismjs';
 import '../prism.css';
 import 'prismjs/components/prism-python.js';
+import 'prismjs/components/prism-jsx.js';
+import 'prismjs/components/prism-bash.js';
 import './ViewBlog.css';
 import Navigation from './Navigation';
 

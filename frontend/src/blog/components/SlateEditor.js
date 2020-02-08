@@ -251,6 +251,8 @@ function CodeBlock(props) {
         <select multiple={false} value={language} onChange={onChange}>
           <option value="python">Python</option>
           <option value="javascript">JavaScript</option>
+          <option value="jsx">JSX</option>
+          <option value="bash">Shell</option>
         </select>
       </div>
     </div>
