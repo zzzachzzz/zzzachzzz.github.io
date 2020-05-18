@@ -1,3 +1,7 @@
+html, body, #root {
+  height: 100%;
+}
+
 html {
   font-size: 16px;
 }
@@ -17,6 +21,10 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 h1, h2, h3, h4, h5, h6 {

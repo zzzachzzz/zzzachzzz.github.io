@@ -1,14 +1,21 @@
-.code-inline, .blog-link {
+#blog-content code,
+#blog-content a,
+.blog-link {
   background-color: #272822;
 	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   padding: 1px;
 }
 
+#blog-content a,
 .blog-link {
   color: #ae81ff;
 }
 
-blockquote {
+#blog-content li > p {
+  margin: 0;
+}
+
+#blog-content blockquote {
   border-left: 2px solid #ddd;
   margin-left: 0;
   margin-right: 0;

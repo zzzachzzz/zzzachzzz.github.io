@@ -4,10 +4,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "draft-js": "^0.11.5",
-    "emotion": "^10.0.27",
-    "immutable": "^4.0.0-rc.12",
-    "is-hotkey": "^0.1.6",
     "prismjs": "^1.20.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
@@ -15,9 +11,9 @@
     "react-helmet": "^6.0.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "^3.4.1",
-    "slate": "^0.57.2",
-    "slate-html-serializer": "^0.8.13",
-    "slate-react": "^0.57.2"
+    "remark-parse": "^8.0.2",
+    "styled-components": "^5.2.0",
+    "unified": "^9.0.0"
   },
   "scripts": {
     "start": "react-scripts start",
