@@ -17,7 +17,6 @@ export default () => (
 
 const Routes = () => (
   <Switch>
-    <Route exact path="/test" component={Sandbox} />
     <Route exact path="/" component={Portfolio} />
     <Route path="/blog" component={Blog} />
   </Switch>

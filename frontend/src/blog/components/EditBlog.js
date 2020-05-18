@@ -1,13 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import SlateEditor from './SlateEditor';
+import React, { useState, useEffect } from 'react';
+import styled from 'styled-components';
+import 'styled-components/macro';
 import ViewBlog from './ViewBlog';
 
 export default function EditBlog(props) {
   const [showEditor, setShowEditor] = useState(true);
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-
-  const refsEditor = useRef();
+  const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
 
   let isBlogUpdate;
   if (props.match && props.match.params && props.match.params.urlTitle) {
@@ -27,7 +26,6 @@ export default function EditBlog(props) {
           }
         })
         .then(json => {
-          refsEditor.current.importHtml(json.content);
           setTitle(json.title);
         })
         .catch(console.error);
@@ -38,7 +36,6 @@ export default function EditBlog(props) {
     // If Editor is being shown, toggle to hide and show preview
     if (showEditor) {
       setShowEditor(false);
-      setContent(refsEditor.current.exportHtml());
     } else {
       setShowEditor(true);
     }
@@ -55,15 +52,12 @@ export default function EditBlog(props) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        title: title,
-        content: refsEditor.current.exportHtml()
+        title,
+        content,
       }),
     })
       .then(res => {
-        if (!res.ok) {
-          console.log(res);
-          throw Error(res.statusText);
-        }
+        if (!res.ok) throw new Error(res);
         props.history.push('/blog')  // Redirect on success
       })
       .catch(error => {
@@ -82,7 +76,7 @@ export default function EditBlog(props) {
   };
 
   return (
-    <div style={{ minHeight: '100vh', color: 'white', backgroundColor: '#3e4d4f'}}>
+    <div style={{ height: '100%', color: 'white', backgroundColor: '#3e4d4f'}}>
       <button onClick={() => toggleEditorPreview()} style={{...buttonStyle, left: '8px', top: '8px'}}>
         {showEditor ? "View" : "Edit"}
       </button>
@@ -90,19 +84,38 @@ export default function EditBlog(props) {
         {"Save"}
       </button>
       {/* Hide component without re-render to avoid losing state of Editor */}
-      <div style={{padding: '10vw', paddingTop: '5vh',
-                   display: showEditor ? 'block' : 'none'}}>
-        <div style={{outline: '2px solid white', padding: '5vw'}}>
-          <input type="text" placeholder="<Blog Title>"
-            style={{width: '80%', fontSize: '1em', display: 'block', margin: '0 auto', marginTop: '0', marginBottom: '1.2em', padding: '0.6em'}}
-            value={title} onChange={(e) => setTitle(e.target.value)}
-          />
-          <SlateEditor ref={refsEditor} />
-        </div>
+      <div css={`
+        display: ${showEditor ? 'flex' : 'none'};
+        flex-direction: column;
+        padding: 5% 15%;
+        height: 100%;
+      `}>
+        <Input value={title} onChange={e => setTitle(e.target.value)} />
+        <Textarea onChange={e => setContent(e.target.value)} />
       </div>
       { !showEditor &&
         <ViewBlog content={content} title={title} match={props.match} isEditing={true} /> }
     </div>
   );
 }
+const Input = styled.input.attrs({
+  type: 'text',
+  placeholder: '<Blog Title>',
+  autoFocus: true,
+})`
+  width: 80%;
+  font-size: 1em;
+  display: block;
+  margin: 0 auto 1.2em auto;
+  padding: 0.6em;
+`;
+
+const Textarea = styled.textarea.attrs({
+  autocomplete: 'off',
+  spellcheck: 'true',
+})`
+  resize: none;
+  width: 100%;
+  height: 100%;
+`;
 

@@ -1,21 +1,29 @@
 import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
+import unified from 'unified';
+import markdownParser from 'remark-parse';
 import Prism from 'prismjs';
 import '../prism.css';
 import 'prismjs/components/prism-python.js';
 import 'prismjs/components/prism-jsx.js';
 import 'prismjs/components/prism-bash.js';
 import './ViewBlog.css';
-import Navigation from './Navigation';
 
-export default function ViewBlog(props) {
+import Navigation from './Navigation';
+import TreeToJSX from './TreeToJSX';
+
+const ViewBlog = props => {
+  console.log('ViewBlog render');
   const [title, setTitle] = useState(props.title);
   const [content, setContent] = useState(props.content);
   const [createdAt, setCreatedAt] = useState(formatDate(props.createdAt));
 
+  const { urlTitle } = useParams();
+
   useEffect(() => {
     const fetchBlog = async () => {
-      return fetch('/api/blogs/' + props.match.params.urlTitle)
+      return fetch('/api/blogs/' + urlTitle)
         .then(res => {
           if (res.ok) {
             return res.json();
@@ -31,12 +39,10 @@ export default function ViewBlog(props) {
         .catch(console.error);
     };
     // If not editing a blog, fetch blog from DB
-    if (!props.isEditing) {
+    if (!props.isEditing && urlTitle) {
       fetchBlog();
     }
-  }, [props.isEditing, props.match.params.urlTitle]);
-
-  useEffect(() => Prism.highlightAll(), [content]);
+  }, [props.isEditing, urlTitle]);
 
   function formatDate(dateString) {
     if (!dateString) return;
@@ -60,7 +66,23 @@ export default function ViewBlog(props) {
       <Navigation {...props} />
       <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '0.2em'}}>{title}</h1>
       <h3 style={{fontSize: '0.7em', margin: 0, textAlign: 'center'}}>{createdAt}</h3>
-      <div id="blog-content" dangerouslySetInnerHTML={{ __html: content }} />
+      <BlogContent content={content} />
     </div>
   );
-}
+};
+
+const BlogContent = React.memo(({ content }) => {
+  console.log('BlogContent render');
+  const tree = unified().use(markdownParser).parse(content);
+
+  useEffect(Prism.highlightAll, [content]);
+
+  return (
+    <div id="blog-content">
+      <TreeToJSX tree={tree} />
+    </div>
+  );
+});
+
+export default React.memo(ViewBlog);
+
