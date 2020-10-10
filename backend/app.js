@@ -5,13 +5,12 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 require('dotenv').config();
 
-
-// Database
 mongoose.connect('mongodb://localhost/blogs', {
   useUnifiedTopology: true,
   useNewUrlParser: true
 });
-let db = mongoose.connection;
+
+const db = mongoose.connection;
 
 db.once('open', () => {  // Check connection
   console.log('Connected to MongoDB');
@@ -97,7 +96,7 @@ function authenticate(req, res, next) {
 // Routes
 // GET all blogs title and urlTitle
 router.get('/blogs', function(req, res) {
-  Blog.find({}, 'title urlTitle', {sort: '-_id'}, function(err, blogs) {
+  Blog.find({}, 'title urlTitle -_id', {sort: '-_id'}, function(err, blogs) {
     if (err) {
       console.log(err);
       res.sendStatus(400);
@@ -109,16 +108,20 @@ router.get('/blogs', function(req, res) {
 
 // GET blog by urlTitle
 router.get('/blogs/:urlTitle', function(req, res) {
-  Blog.findOne({ urlTitle: req.params.urlTitle }, function(err, blog) {
-    if (err) {
-      console.log(err);
-      res.sendStatus(400);
-    } else if (!blog) {
-      res.sendStatus(404);
-    } else {
-      res.send(blog);
+  Blog.findOne(
+    { urlTitle: req.params.urlTitle },
+    'title content createdAt -_id',
+    function(err, blog) {
+      if (err) {
+        console.log(err);
+        res.sendStatus(400);
+      } else if (!blog) {
+        res.sendStatus(404);
+      } else {
+        res.send(blog);
+      }
     }
-  });
+  );
 });
 
 // POST update existing blog | Requires authorization
