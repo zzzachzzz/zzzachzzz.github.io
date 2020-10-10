@@ -1,7 +1,6 @@
-let mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-
-let blogSchema = mongoose.Schema({
+const blogSchema = mongoose.Schema({
   title: {
     type: String,
     required: true,
@@ -18,5 +17,5 @@ let blogSchema = mongoose.Schema({
   timestamps: true
 });
 
+module.exports = mongoose.model('Blog', blogSchema);
 
-module.exports = Blog = mongoose.model('Blog', blogSchema);
