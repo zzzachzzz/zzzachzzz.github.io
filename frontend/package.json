@@ -4,16 +4,16 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "prismjs": "^1.20.0",
+    "prismjs": "^1.22.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-ga": "^2.7.0",
-    "react-helmet": "^6.0.0",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.4.1",
-    "remark-parse": "^8.0.2",
+    "react-helmet": "^6.1.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^3.4.3",
+    "remark-parse": "^8.0.3",
     "styled-components": "^5.2.0",
-    "unified": "^9.0.0"
+    "unified": "^9.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
