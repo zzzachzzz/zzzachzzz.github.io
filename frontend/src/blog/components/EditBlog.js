@@ -27,6 +27,7 @@ export default function EditBlog(props) {
         })
         .then(json => {
           setTitle(json.title);
+          setContent(json.content);
         })
         .catch(console.error);
     }
@@ -57,14 +58,11 @@ export default function EditBlog(props) {
       }),
     })
       .then(res => {
-        if (!res.ok) throw new Error(res);
-        props.history.push('/blog')  // Redirect on success
-      })
-      .catch(error => {
-        if (error.message === 'Unauthorized') {
-          alert(`${error.message}: You are not Zach`);
+        if (!res.ok) {
+          if (res.status === 401) alert('Unauthorized: You are not Zach');
+          else console.error(res);
         } else {
-          alert(`${error.message}`);
+          props.history.push('/blog');  // Redirect on success
         }
       });
   };
@@ -91,7 +89,7 @@ export default function EditBlog(props) {
         height: 100%;
       `}>
         <Input value={title} onChange={e => setTitle(e.target.value)} />
-        <Textarea onChange={e => setContent(e.target.value)} />
+        <Textarea value={content} onChange={e => setContent(e.target.value)} />
       </div>
       { !showEditor &&
         <ViewBlog content={content} title={title} match={props.match} isEditing={true} /> }
