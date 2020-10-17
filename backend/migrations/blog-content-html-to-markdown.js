@@ -4,7 +4,9 @@ const markdownStringify = require('remark-stringify');
 const mongoose = require('mongoose');
 const rehype2remark = require('rehype-remark');
 
-mongoose.connect('mongodb://localhost/blogs', {
+const MONGO_HOST = process.env.MONGO_HOST || 'localhost';
+
+mongoose.connect(`mongodb://${MONGO_HOST}:27017/blogs`, {
   useUnifiedTopology: true,
   useNewUrlParser: true
 });

@@ -5,7 +5,9 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const session = require('express-session');
 require('dotenv').config();
 
-mongoose.connect('mongodb://localhost/blogs', {
+const MONGO_HOST = process.env.MONGO_HOST || 'localhost';
+
+mongoose.connect(`mongodb://${MONGO_HOST}:27017/blogs`, {
   useUnifiedTopology: true,
   useNewUrlParser: true
 });
@@ -176,6 +178,9 @@ function convertTitleToUrlTitle(title) {
   return title;
 }
 
-app.listen(5000, () => {
+const HOST = process.env.HOST || 'localhost';
+
+app.listen(5000, HOST, () => {
   console.log('Server listening on port 5000');
 });
+
