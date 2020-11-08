@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { Helmet } from 'react-helmet';
 import unified from 'unified';
 import markdownParser from 'remark-parse';
+import emojiTransform from 'remark-emoji';
 import Prism from 'prismjs';
 import '../prism.css';
 import 'prismjs/components/prism-python.js';
@@ -73,7 +74,8 @@ const ViewBlog = props => {
 };
 
 const BlogContent = React.memo(({ content }) => {
-  const tree = unified().use(markdownParser).parse(content);
+  let tree = unified().use(markdownParser).parse(content);
+  tree = unified().use(emojiTransform).runSync(tree);
 
   useEffect(Prism.highlightAll, [content]);
 
