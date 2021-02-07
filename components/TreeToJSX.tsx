@@ -52,19 +52,29 @@ type PropsChildren = {
 
 const P = ({ children }: PropsChildren) => <p>{children}</p>;
 
-const CodeBlock = ({ lang, children }: { lang: string; children: string; }) => {
-  const highlightedCode = Prism.highlight(children, Prism.languages[lang], lang);
-  const langCls = `language-${lang}`;
-  return (
-    <Pre className={langCls}>
-      <code dangerouslySetInnerHTML={{__html: highlightedCode}}></code>
-    </Pre>
-  );
+const CodeBlock = ({ lang, children }: { lang?: string; children: string; }) => {
+  const langCls = `language-${lang || 'none'}`;
+  if (lang) {
+    const highlightedCode = Prism.highlight(children, Prism.languages[lang], lang);
+    return (
+      <Pre className={langCls}>
+        <code dangerouslySetInnerHTML={{__html: highlightedCode}}></code>
+      </Pre>
+    );
+  } else {
+    return (
+      <Pre className={langCls}>
+        <code>{children}</code>
+      </Pre>
+    );
+  }
 };
 
+// Other styles for top-level pre elements defined in:
+// pages/blog/[slug].tsx BlogContentContainer
 const Pre = styled.pre`
-  width: 90%;
-  max-width: 1000px;
+  margin-left: auto !important;
+  margin-right: auto !important;
 `;
 
 const BlockQuote = styled.blockquote`

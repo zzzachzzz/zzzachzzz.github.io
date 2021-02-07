@@ -50,9 +50,17 @@ const BlogContentContainer = styled.div`
   line-height: 1.4em;
   letter-spacing: 0.01em;
   overflow-wrap: break-word;
-  max-width: 850px;
   padding: 1.1em;
   margin: 0 auto;
+  & > *:not(pre) {
+    max-width: 850px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  & > pre {
+    width: 93vw;
+    max-width: 1100px;
+  }
 `;
 
 type Params = { slug: string; };
