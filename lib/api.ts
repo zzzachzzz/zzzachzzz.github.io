@@ -1,11 +1,9 @@
 import * as fs from 'fs';
-import { join } from 'path';
 import matter from 'gray-matter';
-
-const postsDirectory = join(process.cwd(), '_posts');
+import { getPathToBlogPost, postsDirectory, convertTitleToSlug } from './utils';
 
 export function getPostSlugs() {
-  return fs.readdirSync(postsDirectory);
+  return fs.readdirSync(postsDirectory).filter(slug => slug !== 'new.md');
 }
 
 type BlogFrontMatter = {
@@ -21,10 +19,8 @@ type Fields = BlogFrontMatter & {
 export function getPostBySlug<T extends keyof Fields>(
   slug: string, fields: Array<T> = []
 ): Pick<Fields, typeof fields[number]> {
-  // TODO Is this necessary?
   const realSlug = slug.replace(/\.md$/, '')
-  console.log(slug, realSlug, `${realSlug}.md`);
-  const fullPath = join(postsDirectory, `${realSlug}.md`)
+  const fullPath = getPathToBlogPost(realSlug);
   const fileContents = fs.readFileSync(fullPath, 'utf8')
   const matter_ = matter(fileContents);
   const { content } = matter_;
@@ -58,3 +54,15 @@ export function getAllPosts<T extends keyof Fields>(
     .sort((post1, post2) => (((post1 as any).date > (post2 as any).date ? -1 : 1)));
   return posts;
 }
+
+/**
+ * Writes a new file from the contents of _posts/new.md
+ */
+export function writeNewPostToFile() {
+  const { title, content } = getPostBySlug('new', ['title', 'content']);
+  const date = new Date().toISOString();
+  const newFileContents = matter.stringify(content, { title, date });
+  const newSlug = convertTitleToSlug(title);
+  fs.writeFileSync(getPathToBlogPost(newSlug), newFileContents);
+}
+

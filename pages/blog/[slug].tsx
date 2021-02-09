@@ -1,6 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import unified from 'unified';
 import markdownParser from 'remark-parse';
@@ -8,6 +9,7 @@ import emojiTransform from 'remark-emoji';
 
 import Navigation from '@/components/Navigation';
 import TreeToJSX from '@/components/TreeToJSX';
+import SaveOrEditIcon from '@/components/SaveOrEditIcon';
 import { getPostBySlug, getAllPosts } from '@/lib/api';
 
 type Props = {
@@ -19,15 +21,23 @@ type Props = {
   }
 };
 
-export default function ViewBlog({ post }: Props) {
+export default function BlogPost({ post }: Props) {
+  const router = useRouter();
+
   return (
     <div>
       <Head>
         <title>{post.title + ' – { zrose.info }'}</title>
       </Head>
+      {process.env.NODE_ENV === 'development' && router.pathname.split('/')[2] !== 'edit' && (
+        <SaveOrEditIcon
+          icon="edit"
+          onClick={() => router.push(`/blog/edit/${router.query.slug}`)}
+        />
+      )}
       <Navigation postSlug={post.slug} />
       <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '0.2em'}}>{post.title}</h1>
-      <h3 style={{fontSize: '0.7em', margin: 0, textAlign: 'center'}}>{post.date}</h3>
+      <h3 style={{fontSize: '0.7em', margin: 0, textAlign: 'center'}}>{formatDate(post.date)}</h3>
       <BlogContent content={post.content} />
     </div>
   );
@@ -72,7 +82,6 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) 
     props: {
       post: {
         ...post,
-        date: formatDate(post.date),
       }
     }
   };
