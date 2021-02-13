@@ -1,10 +1,20 @@
 import * as React from 'react';
 import { useRouter } from 'next/router';
-import { createGlobalStyle, ThemeProvider, DefaultTheme } from 'styled-components';
+import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import ReactGA from 'react-ga';
 
-export const theme: DefaultTheme = {
+export const theme = {
+  prismPurple: '#ae81ff',
+  prismBlue: '#66d9ef',
+  prismGreen: '#a6e22e',
+  prismRed: '#f92672',
 };
+
+type Theme = typeof theme;
+
+declare module 'styled-components' {
+  interface DefaultTheme extends Theme {}
+}
 
 const GlobalStyle = createGlobalStyle`
   html {

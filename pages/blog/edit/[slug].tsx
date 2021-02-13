@@ -8,7 +8,6 @@ import SaveOrEditIcon from '@/components/SaveOrEditIcon';
  * This is a *Development only* route for hot reloading on changes to .md files.
  */
 export default function HotReloadBlogPost() {
-  // TODO 404 handling and redirect
   if (process.env.NODE_ENV !== 'development') return null;
 
   const router = useRouter();

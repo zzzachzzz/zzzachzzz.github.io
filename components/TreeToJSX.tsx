@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled, { css } from 'styled-components';
 import Prism from 'prismjs';
 import A from './A';
-import { inlineBlockCss } from './mixins';
+import Code from './Code';
 
 export default function TreeToJSX({ tree }) {
   let total = 0;
@@ -85,10 +85,6 @@ const BlockQuote = styled.blockquote`
   margin-left: 0;
   margin-right: 0;
   padding-left: 10px;
-`;
-
-const Code = styled.code`
-  ${inlineBlockCss}
 `;
 
 const Li = styled.li`

@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Head from 'next/head'
 import Link from '@/components/Link';
 import Navigation from '@/components/Navigation';
@@ -19,32 +19,40 @@ export default function BlogList({ allPosts }: Props) {
       </Head>
       <Navigation />
       <h1 css="text-align: center;">Recent Posts</h1>
-      <div style={{flexDirection: 'column', display: 'flex', maxWidth: '1200px'}}>
-        {allPosts.map((post, i) => <BlogPreview title={post.title} urlTitle={post.slug} key={i} />)}
+      <div css="flex-direction: column; display: flex; max-width: 1200px; margin: 0 auto;">
+        {allPosts.map((post, i) => <BlogPreview title={post.title} slug={post.slug} key={i} />)}
       </div>
     </div>
   );
 }
 
-const BlogPreview = ({ title, urlTitle }) => {
-  const prismBlue = '#66d9ef';
-  const prismGreen = '#a6e22e';
-  const prismRed = '#f92672';
+const BlogPreview = ({ title, slug }: { title: string; slug: string; }) => (
+  <BlogLink href={`/blog/${slug}`}>
+    <div css="display: flex; align-items: center;">
+      <Brace color="prismRed" />
+      <Brace color="prismBlue" />
+      <Brace color="prismGreen" />
+    </div>
+    <span css="margin: 1em; text-align: center; display: flex; align-items: center;">{title}</span>
+    <div css="display: flex; align-items: center;">
+      <Brace color="prismGreen" close />
+      <Brace color="prismBlue" close />
+      <Brace color="prismRed" close />
+    </div>
+  </BlogLink>
+);
 
+type BraceProps = {
+  color: 'prismRed' | 'prismBlue' | 'prismGreen';
+  close?: boolean;
+};
+
+const Brace = ({ color, close = false }: BraceProps) => {
+  const _css = css`color: ${({ theme }) => theme[color]};`;
   return (
-    <BlogLink href={`/blog/${urlTitle}`}>
-      <div style={{fontSize: '1em', display: 'flex', alignItems: 'center'}}>
-        <span style={{color: prismRed}}>{`{`}</span>
-        <span style={{color: prismBlue}}>{`{`}</span>
-        <span style={{color: prismGreen}}>{`{`}</span>
-      </div>
-      <p style={{marginLeft: '1em', marginRight: '1em', textAlign: 'center', display: 'flex', alignItems: 'center'}}>{title}</p>
-      <div style={{fontSize: '1em', display: 'flex', alignItems: 'center'}}>
-        <span style={{color: prismGreen}}>{`}`}</span>
-        <span style={{color: prismBlue}}>{`}`}</span>
-        <span style={{color: prismRed}}>{`}`}</span>
-      </div>
-    </BlogLink>
+    <span css={_css}>
+      {close ? '}' : '{'}
+    </span>
   );
 };
 
@@ -59,9 +67,9 @@ const BlogLink = styled(Link)`
   justify-content: space-between;
   font-size: 1.1em;
   color: white;
-  
+
   &:hover {
-    color: #ae81ff;
+    color: ${({ theme }) => theme.prismPurple};
   }
 `;
 

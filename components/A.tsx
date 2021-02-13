@@ -19,7 +19,7 @@ const A = React.forwardRef((
 
 const A_ = styled.a`
   ${inlineBlockCss}
-  color: #ae81ff;
+  color: ${({ theme }) => theme.prismPurple};
   text-decoration: none;
 `;
 
