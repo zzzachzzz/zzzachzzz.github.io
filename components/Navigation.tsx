@@ -6,7 +6,7 @@ type Props = { postSlug?: string; };
 
 export default function Navigation({ postSlug }: Props) {
   return (
-    <Container>
+    <Nav>
       <Link href="/" css="margin: 5px;">/</Link>
       <Arrow />
       <Link href="/blog" css="margin: 5px;">blog</Link>
@@ -16,11 +16,11 @@ export default function Navigation({ postSlug }: Props) {
           {postSlug}
         </Link>
       }
-    </Container>
+    </Nav>
   );
 }
 
-const Container = styled.div`
+const Nav = styled.nav`
   display: flex;
   flex-direction: row;
   align-items: flex-start;

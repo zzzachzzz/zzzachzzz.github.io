@@ -27,7 +27,7 @@ export default function BlogPost({ post }: Props) {
   return (
     <div>
       <Head>
-        <title>{post.title + ' – { zrose.info }'}</title>
+        <title>{post.title}</title>
       </Head>
       {process.env.NODE_ENV === 'development' && router.pathname.split('/')[2] !== 'edit' && (
         <SaveOrEditIcon
@@ -36,9 +36,13 @@ export default function BlogPost({ post }: Props) {
         />
       )}
       <Navigation postSlug={post.slug} />
-      <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '0.2em'}}>{post.title}</h1>
-      <h3 style={{fontSize: '0.7em', margin: 0, textAlign: 'center'}}>{formatDate(post.date)}</h3>
-      <BlogContent content={post.content} />
+      <main>
+        <article>
+          <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '0.2em'}}>{post.title}</h1>
+          <h3 style={{fontSize: '0.7em', margin: 0, textAlign: 'center'}}>{formatDate(post.date)}</h3>
+          <BlogContent content={post.content} />
+        </article>
+      </main>
     </div>
   );
 }

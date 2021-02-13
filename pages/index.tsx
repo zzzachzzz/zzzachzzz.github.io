@@ -8,7 +8,11 @@ export default function Index() {
   return (
     <Container>
       <Head>
-        <title>{'{ zrose.info }'}</title>
+        <title>zzzachzzz.github.io</title>
+        <meta
+          name="description"
+          content="Personal site and web development blog by Zach Rosenberger"
+        />
       </Head>
       <Navbar>
         <Link href="/blog" css="font-size: 0.9em;">Blog</Link>

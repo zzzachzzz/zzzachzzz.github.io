@@ -11,7 +11,11 @@ export default function BlogList({ allPosts }: Props) {
   return (
     <div>
       <Head>
-        <title>{'Python & JavaScript Blog – { zrose.info }'}</title>
+        <title>Web Dev Blog - zzzachzzz</title>
+        <meta
+          name="description"
+          content="JavaScript, TypeScript, and React by example with code."
+        />
       </Head>
       <Navigation />
       <h1 css="text-align: center;">Recent Posts</h1>
