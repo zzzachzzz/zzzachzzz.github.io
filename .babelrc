@@ -1,0 +1,12 @@
+{
+  "presets": ["next/babel"],
+  "plugins": [
+    ["styled-components", { "ssr": true }],
+    ["prismjs", {
+      "languages": ["javascript", "typescript", "jsx", "tsx", "python", "bash", "docker", "yaml"],
+      "theme": "okaidia",
+      "css": true
+    }]
+  ]
+}
+
