@@ -81,12 +81,12 @@ const GAListener = ({ children }: { children: JSX.Element; }) => {
       isGAInit.current = true;
       ReactGA.initialize('UA-146825130-1');
     }
-    sendPageView(router.pathname);
-  }, [router.pathname]);
+    sendPageView(router.asPath);
+  }, [router.asPath]);
 
-  function sendPageView(pathname: string) {
-    ReactGA.set({ page: pathname });
-    ReactGA.pageview(pathname);
+  function sendPageView(path: string) {
+    ReactGA.set({ page: path });
+    ReactGA.pageview(path);
   }
 
   return children;
