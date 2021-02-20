@@ -26,8 +26,14 @@ app.prepare().then(() => {
     ws.on('message', (postSlug: string) => {
       if (postSlug) {
         watchedSlug = postSlug;
-        watcher.add(getPathToBlogPost(watchedSlug));
-        const post = getPostBySlug(watchedSlug, ['title', 'date', 'slug', 'content']);
+        let post = null;
+        try {
+          post = getPostBySlug(watchedSlug, ['title', 'date', 'slug', 'content']);
+          watcher.add(getPathToBlogPost(watchedSlug));
+        } catch (err) {
+          // Throws an error when the .md file does not exist on disk
+          console.error(err);
+        }
         ws.send(JSON.stringify(post));
       }
     });

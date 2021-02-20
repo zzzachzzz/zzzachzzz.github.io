@@ -25,13 +25,15 @@ export default function HotReloadBlogPost() {
       };
       socket.onmessage = ({ data }) => {
         const _post = JSON.parse(data);
-        setPost({
-          ..._post,
-          ...(isNew && {
-            date: new Date().toISOString(),
-            slug: convertTitleToSlug(_post.title),
-          }),
-        });
+        if (_post) {
+          setPost({
+            ..._post,
+            ...(isNew && {
+              date: new Date().toISOString(),
+              slug: convertTitleToSlug(_post.title),
+            }),
+          });
+        }
       };
       return () => socket.close(1000);
     }
