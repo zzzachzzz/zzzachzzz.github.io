@@ -2,6 +2,7 @@ import * as React from 'react';
 import styled, { css } from 'styled-components';
 import Prism from 'prismjs';
 import A from './A';
+import Link from './Link';
 import Code from './Code';
 
 export default function TreeToJSX({ tree }) {
@@ -43,7 +44,12 @@ const nodeTypeToComponentMap = {
   'blockquote' : ()   => BlockQuote,
   'code'       : node => ()    => <CodeBlock lang={node.lang} children={node.value} />,
   'inlineCode' : node => ()    => <Code children={node.value} />,
-  'link'       : node => props => <A href={node.url} children={props.children} />,
+  'image'      : node => ()    => <Img src={node.url} alt={node.alt} />,
+  'link'       : node => props => {
+    // Use Next Link component for relative (internal) links
+    const Component = (node.url as string).startsWith('/') ? Link : A;
+    return <Component href={node.url} children={props.children} />;
+  },
 };
 
 type PropsChildren = {
@@ -91,5 +97,12 @@ const Li = styled.li`
   & > p {
     margin: 0;
   }
+`;
+
+const Img = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
 `;
 

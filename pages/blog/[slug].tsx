@@ -37,9 +37,13 @@ export default function BlogPost({ post }: Props) {
       )}
       <Navigation postSlug={post.slug} />
       <main>
+        <header>
+          <h1 css="text-align: center; margin: 2em; margin-bottom: 0.2em;">{post.title}</h1>
+          <p css="font-size: 0.8em; text-align: center;">
+            <time dateTime={post.date}>{formatDate(post.date)}</time>
+          </p>
+        </header>
         <article>
-          <h1 style={{textAlign: 'center', margin: '2em', marginBottom: '0.2em'}}>{post.title}</h1>
-          <h3 style={{fontSize: '0.7em', margin: 0, textAlign: 'center'}}>{formatDate(post.date)}</h3>
           <BlogContent content={post.content} />
         </article>
       </main>
@@ -72,7 +76,7 @@ const BlogContentContainer = styled.div`
     margin-right: auto;
   }
   & > pre {
-    width: 93vw;
+    width: 90vw;
     max-width: 1100px;
   }
 `;
