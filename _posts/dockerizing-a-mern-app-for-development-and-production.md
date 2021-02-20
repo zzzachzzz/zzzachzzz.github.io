@@ -11,7 +11,12 @@ However, things start to get a little more complicated when we want to:
 * Orchestrate connecting multiple services together (relevant for any web app with a frontend, backend, database, etc.)
 * Persist data in a database between runs (with Docker volumes)
 
-The app I'll be using as an example can be found here: https://github.com/zzzachzzz/portfolio (this blog site!), but I will also include the various Docker files in this post.
+The app I'll be using as an example can be found here: <https://github.com/zzzachzzz/zzzachzzz.github.io/tree/2ab6f0b10606162a57b946461c4dae74e2a295d5>  
+I will also include the various Docker files in this post.
+
+>**Edit (Feb. 15, 2021)**  
+>Yep, that's the source code for this site, at a prior commit. The site has since been migrated to Next.js with static site generation. To learn more about that, see the post:  
+[Going Truly Serverless with Next.js Static Site Generation](/blog/going-truly-serverless-with-nextjs-static-site-generation)
 
 To Dockerize a React app, we'll definitely want a config for developemnt, and production. In development, webpack-dev-server (`npm run [start|react-scripts-start]` in CRA) will be used with hot-reloading. In production, there are multiple ways to go about it, but I'll be using Nginx to serve the bundle, and proxying `/api` requests to the Express app.
 
@@ -98,7 +103,7 @@ CMD ["node", "app.js"]
 
 For the backend, I don't currently have a separate dev & prod Dockerfile, however I would recommend it, with the use of `nodemon` in place of `node` in the `CMD` statement in `Dockerfile.dev`, to enable hot reloading in development.
 
-Now onto the `docker-compose.yml` files. I have 3 of these under the filenames `docker-compose.yml`, `docker-compose.override.yml`, and `docker-compose.prod.yml`. You can choose different filenames, but there is a rational for these specific filenames. Both `docker-compose.yml` and `docker-compose.override.yml` are [filenames that Docker specifically looks for](https://docs.docker.com/compose/extends/). In both dev & prod, we 2 of these 3 docker-compose files.
+Now onto the `docker-compose.yml` files. I have 3 of these under the filenames `docker-compose.yml`, `docker-compose.override.yml`, and `docker-compose.prod.yml`. You can choose different filenames, but there is a rational for these specific filenames. Both `docker-compose.yml` and `docker-compose.override.yml` are [filenames that Docker specifically looks for](https://docs.docker.com/compose/extends/). In both dev & prod, we use 2 of these 3 docker-compose files.
 
 * `docker-compose.yml` - The base config for dev & prod
 * `docker-compose.override.yml` - The dev config overrides
