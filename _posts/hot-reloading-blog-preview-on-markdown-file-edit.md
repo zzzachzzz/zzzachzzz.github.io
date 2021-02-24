@@ -8,7 +8,7 @@ When building this feature for my blog, what I wanted is the snappiness of an in
 
 You may have noticed in the gif above that the page only updates once I save the file. If you want something that updates as you type, you could opt for an auto-save solution like a plugin specific to your editor.
 
-Since I'm using Next.js, which comes with its own preconfigured dev server, I needed to customize the the Next.js dev server to add this functionality. This isn't actually mandatory, as you could run an Express server separate from your Webpack / Next.js / other dev server, to be responsible for the file watching and WebSocket server.
+Since I'm using Next.js, which comes with its own preconfigured dev server, I needed to customize the Next.js dev server to add this functionality. This isn't actually mandatory, as you could run an Express server separate from your Webpack / Next.js / other dev server, to be responsible for the file watching and WebSocket server.
 
 For Next.js, there's some good suggestions for how to achieve this in [Next.js GitHub issue](https://github.com/vercel/next.js/discussions/11419). One of the suggestions I tried, the package [next-remote-watch](https://github.com/hashicorp/next-remote-watch), ended up being too sluggish for my liking. This is because the mechanism used is triggering an actual Next.js hot reload, the same as what happens when editing a source file.
 

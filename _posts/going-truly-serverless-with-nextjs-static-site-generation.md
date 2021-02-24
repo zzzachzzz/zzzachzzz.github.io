@@ -28,7 +28,7 @@ Source code can be found here:
 * Post-migration GitHub source: <https://github.com/zzzachzzz/zzzachzzz.github.io/tree/master>
 * Pre-migration GitHub source: <https://github.com/zzzachzzz/zzzachzzz.github.io/tree/2ab6f0b10606162a57b946461c4dae74e2a295d5>
 
-Aside from the usual steps to migrate a common React app to a Next.js React app, there were a few other things I needed to handle in the migration. There would be changes to accomdate for the removal of a server; no Express & no MongoDB. There would also be some small changes to account for a React app utilizing SSG or SSR (server-side rendering), specifically the way CSS is loaded, depending on the tool you use for CSS.
+Aside from the usual steps to migrate a common React app to a Next.js React app, there were a few other things I needed to handle in the migration. There would be changes to accommodate for the removal of a server; no Express & no MongoDB. There would also be some small changes to account for a React app utilizing SSG or SSR (server-side rendering), specifically the way CSS is loaded, depending on the tool you use for CSS.
 
 ### MongoDB to .md Files
 For moving the content from MongoDB to markdown files, I created a migration script: [backend/migrations/db-to-markdown-file.js](https://github.com/zzzachzzz/zzzachzzz.github.io/blob/fc62221055adea46ef43803c973b28445262c448/backend/migrations/db-to-markdown-file.js)

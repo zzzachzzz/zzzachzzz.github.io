@@ -3,14 +3,14 @@ title: How to Set Up WSL for Development
 date: '2021-02-23T23:13:25.100Z'
 ---
 
-WSL (Windows Subsystem for Linux) is a great way to gain access to a Linux OS through a command line interface. Being restricted to the the CLI, WSL does require us to use Windows GUI programs. This, along with WSL being a subsystem that depends on Windows, does result in certain quirks that need to be worked around in order to utilize WSL to the fullest.
+WSL (Windows Subsystem for Linux) is a great way to gain access to a Linux OS through a command line interface. Being restricted to the CLI, WSL does require us to use Windows GUI programs. This, along with WSL being a subsystem that depends on Windows, does result in certain quirks that need to be worked around in order to utilize WSL to the fullest.
 
 Some of these quirks to resolve include:
 * Synchronizing clipboards between WSL & Windows
 * Accessing files from both Windows and WSL
 * Choosing the right terminal to access WSL through
 
-Due to the differences between WSL 1 & 2, the solutions to some of these issues differ depending on the version in use. I'll be focusing mainly on WSL 2 in this post, though I will cover some of the differences between it and WSL 1.
+Due to the differences between WSL 1 & 2, the solutions to some of these issues differ depending on the version in use. I'll be focusing mainly on WSL 2 in this post, though I will cover some of the differences between WSL 1 & 2.
 
 ## Installation
 If you haven't already, follow the [installation guide from Microsoft](https://docs.microsoft.com/en-us/windows/wsl/install-win10) to get WSL installed, preferably WSL 2. One possible reason you would need to settle for WSL 1, is if your version of Windows is not new enough, as covered in the guide. Another problem which I once ran into when installing WSL 2, is virtualization not being enabled in my PC's BIOS. I was halted with the error:
