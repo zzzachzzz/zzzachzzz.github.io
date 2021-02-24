@@ -18,7 +18,7 @@ I will also include the various Docker files in this post.
 >Yep, that's the source code for this site, at a prior commit. The site has since been migrated to Next.js with static site generation. To learn more about that, see the post:  
 [Going Truly Serverless with Next.js Static Site Generation](/blog/going-truly-serverless-with-nextjs-static-site-generation)
 
-To Dockerize a React app, we'll definitely want a config for developemnt, and production. In development, webpack-dev-server (`npm run [start|react-scripts-start]` in CRA) will be used with hot-reloading. In production, there are multiple ways to go about it, but I'll be using Nginx to serve the bundle, and proxying `/api` requests to the Express app.
+To Dockerize a React app, we'll definitely want a config for development, and production. In development, webpack-dev-server (`npm run [start|react-scripts-start]` in CRA) will be used with hot-reloading. In production, there are multiple ways to go about it, but I'll be using Nginx to serve the bundle, and proxying `/api` requests to the Express app.
 
 `frontend/Dockerfile.dev`:
 ```dockerfile
@@ -30,7 +30,7 @@ EXPOSE 3000
 CMD ["npm", "run", "start"]
 ```
 
-One thing to note for proxying requests in development. If using CRA, you've likely set `"proxy": "http://localhost:<port>"` in `package.json` before, to proxy requests from React to a server, like Express. When running the frontend and the backend in separate Docker containers, they don't share the same localhost. Instead, we need to provide the network address created by Docker to connect the two together. You'll see more of this in later steps involving the Docker Compose `.yml` files, but as far as webpack is concerned, we'll need to provide it a config file for the proxy: 
+One thing to note for proxying requests in development. If using CRA, you've likely set `"proxy": "http://localhost:<port>"` in `package.json` before, to proxy requests from React to a server, like Express. When running the frontend and the backend in separate Docker containers, they don't share the same localhost. Instead, we need to provide the network address created by Docker to connect the two together. You'll see more of this in later steps involving the Docker Compose `.yml` files, but as far as Webpack is concerned, we'll need to provide it a config file for the proxy: 
 
 `frontend/src/setupProxy.js`:
 ```js
@@ -48,7 +48,7 @@ module.exports = function(app) {
 };
 ```
 
-Since I don't know of a way to embed an environment variable in the `package.json` file, this more advanced `setupProxy.js` file is necessary. Notice the environment variable `EXPRESS_HOST`. We will provide this variable to our Docker container, through our Docker Compose config. More on the above proxy config here: https://create-react-app.dev/docs/proxying-api-requests-in-development/#configuring-the-proxy-manually
+Since I don't know of a way to embed an environment variable in the `package.json` file, this more advanced `setupProxy.js` file is necessary. Notice the environment variable `EXPRESS_HOST`. We will provide this variable to our Docker container, through our Docker Compose config. More on the above proxy config here: <https://create-react-app.dev/docs/proxying-api-requests-in-development/#configuring-the-proxy-manually>
 
 `frontend/Dockerfile.prod`:
 ```dockerfile
@@ -66,7 +66,7 @@ EXPOSE 8080
 CMD ["nginx", "-g", "daemon off;"]
 ```
 
-This is considered a multi-stage Docker build, due to the multiple `FROM` statements. We build our webpack bundle, beginning from the `node:14` base image, and then switch to the `nginx` base image to serve that webpack bundle. Notice the line `COPY nginx.conf /etc/nginx/conf.d/`, which refers to a `nginx.conf` file I keep in Git.
+This is considered a multi-stage Docker build, due to the multiple `FROM` statements. We build our Webpack bundle, beginning from the `node:14` base image, and then switch to the `nginx` base image to serve that Webpack bundle. Notice the line `COPY nginx.conf /etc/nginx/conf.d/`, which refers to a `nginx.conf` file I keep in Git.
 
 `frontend/nginx.conf`:
 ```
@@ -84,7 +84,7 @@ server {
 }
 ```
 
-**Note that my `nginx.conf` is a bit abnormal**, since my server hosting the site has another Nginx instance running outsie of Docker, which I have setup with `location / { proxy_pass http://localhost:8080; }`. I have it setup this way so I can host multiple sites, and have Nginx handle routing traffic based on the `server_name`. You'll probably want your `nginx.conf` setup to include sections for Certbot, to manage SSL certificates, and listen on port 80 & 443. Consult another tutorial on Certbot & Nginx for that.
+**Note that my `nginx.conf` is a bit abnormal**, since my server hosting the site has another Nginx instance running outside of Docker, which I have setup with `location / { proxy_pass http://localhost:8080; }`. I have it setup this way so I can host multiple sites, and have Nginx handle routing traffic based on the `server_name`. You'll probably want your `nginx.conf` setup to include sections for Certbot, to manage SSL certificates, and listen on port 80 & 443. Consult another tutorial on Certbot & Nginx for that.
 
 The portion of this `nginx.conf` file that is applicable to you is the `proxy_pass` setup for `/api` requests, which sends it to the network host `backend` on port `5000`. This is Docker managing networking again. In this case, `backend`, is the name of our docker-compose service for Express, so Docker provides us the address for that specific container under the hostname `backend`.
 
@@ -217,9 +217,9 @@ volumes:
   mongo-data:
 ```
 
-Why does `mongo-data` appear twice? In this situation, we're using a "named volume" (again, highly recommend reading more on these volume types). A named volume behaves quite similar to the anonymouse volume I described earlier, except it's named! We could technically make this volume anonymous, but it's good to be able to identify the volume in case we need to manipulate it somehow, like making a backup of our database data. Named volumes must be defined in the top-level `volumes` key, that's why it appears in two places, unlike anonymouse volumes.
+Why does `mongo-data` appear twice? In this situation, we're using a "named volume" (again, highly recommend reading more on these volume types). A named volume behaves quite similar to the anonymous volume I described earlier, except it's named! We could technically make this volume anonymous, but it's good to be able to identify the volume in case we need to manipulate it somehow, like making a backup of our database data. Named volumes must be defined in the top-level `volumes` key, that's why it appears in two places, unlike anonymous volumes.
 
-See the Docker Compose docs on volumes: https://docs.docker.com/compose/compose-file/#volumes
+See the Docker Compose docs on volumes: <https://docs.docker.com/compose/compose-file/#volumes>
 
 You may have noticed that ports are usually mapped like `"<port>:<port>"`, without specifying a host. With this shorthand, the host is implied to be `0.0.0.0`, listening on all interfaces. This makes it publicly accessible outside of the machine. If you don't need to access Mongo remotely, and can instead do so over SSH, and then localhost. I highly recommend that for security. Especially with the default Mongo config for Docker, there will be no credentials required to access Mongo. This means that an attacker who only knows the IP address of your server can remotely access your database! Yes, I did learn that the hard way, thankfully with non-consequential data. :sweat_smile:
 
