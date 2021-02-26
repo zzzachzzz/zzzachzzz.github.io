@@ -83,7 +83,7 @@ const returnLines = [
   "",
   "'Zachary Rosenberger'",
   "'Boise, ID'",
-  "['Python', 'JavaScript', 'React', 'Flask', 'Express', 'Git']",
+  "['TypeScript', 'React', 'Redux', 'Express', 'Python', 'Git']",
   <>
     '<TerminalLink
        href="https://drive.google.com/open?id=1bQ3qTFrOGzH0jDxaLVAibP99uRxwepbh">
