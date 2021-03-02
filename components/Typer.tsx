@@ -92,7 +92,7 @@ const returnLines = [
   <>
     ['<TerminalLink href="https://github.com/zzzachzzz">github.com/zzzachzzz</TerminalLink>',<br/>
     &nbsp;'<TerminalLink href="mailto:zach1rosen@gmail.com">zach1rosen@gmail.com</TerminalLink>',<br/>
-    &nbsp;'<TerminalLink href="https://www.linkedin.com/in/zach-rosenberger-36884ab1">
+    &nbsp;'<TerminalLink href="https://www.linkedin.com/in/zach-rosenberger">
       linkedin.com/in/zach-rosenberger
     </TerminalLink>']
   </>,
