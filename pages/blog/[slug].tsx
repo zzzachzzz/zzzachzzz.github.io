@@ -11,6 +11,7 @@ import Navigation from '@/components/Navigation';
 import TreeToJSX from '@/components/TreeToJSX';
 import SaveOrEditIcon from '@/components/SaveOrEditIcon';
 import { getPostBySlug, getAllPosts } from '@/lib/api';
+import { formatDate } from '@/lib/utils';
 
 type Props = {
   post: {
@@ -39,7 +40,7 @@ export default function BlogPost({ post }: Props) {
       <main>
         <header>
           <h1 css="text-align: center; margin: 2em; margin-bottom: 0.2em;">{post.title}</h1>
-          <p css="font-size: 0.8em; text-align: center;">
+          <p css="font-size: 0.9em; text-align: center;">
             <time dateTime={post.date}>{formatDate(post.date)}</time>
           </p>
         </header>
@@ -105,10 +106,4 @@ export const getStaticPaths: GetStaticPaths<Params> = async () => {
     fallback: false,
   }
 };
-
-function formatDate(dateString: string) {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return `${date.toLocaleString('default', {month:'long'})} ${date.getDate()}, ${date.getFullYear()}`;
-}
 

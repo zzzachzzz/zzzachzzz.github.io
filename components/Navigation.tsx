@@ -29,6 +29,6 @@ const Nav = styled.nav`
 `;
 
 const Arrow = () => (
-  <span css="margin: 5px; color: white; fontWeight: 500;">&gt;</span>
+  <span css="margin: 5px; color: white; font-weight: 500; line-height: 1;">&gt;</span>
 );
 

@@ -16,3 +16,9 @@ export const postsDirectory = path.join(process.cwd(), '_posts');
 
 export const getPathToBlogPost = (slug: string) => `${postsDirectory}/${slug}.md`;
 
+export const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return `${date.toLocaleString('default', {month:'long'})} ${date.getDate()}, ${date.getFullYear()}`;
+};
+
