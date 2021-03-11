@@ -109,10 +109,10 @@ Now onto the `docker-compose.yml` files. I have 3 of these under the filenames `
 * `docker-compose.override.yml` - The dev config overrides
 * `docker-compose.prod.yml` - The prod config overrides
 
-As shown in the Docker Compose docs linked above, multiple compose files can be specified with the `-f` like so (also see `docker-compose --help`):  
+As shown in the Docker Compose docs linked above, multiple compose files can be specified with `-f` like so (also see `docker-compose --help`):  
 `docker-compose -f docker-compose.yml -f docker-compose.prod.yml [COMMAND] [ARGS...]`
 
-Compose files specified are read from left to write, which mean `docker-compose.prod.yml` will be read last, giving it priority over our base `docker-compose.yml`.
+Compose files specified are read from left to right, which means `docker-compose.prod.yml` will be read last, giving it priority over our base `docker-compose.yml`.
 
 If no files are specified with `-f`, Docker will do this:
 `docker-compose -f docker-compose.yml -f docker-compose.override.yml [COMMAND] [ARGS...]`
@@ -201,7 +201,7 @@ volumes:
   - /usr/src/frontend/node_modules
 ```
 
-`./frontend:/usr/src/frontend` maps our host's `./frontend` directory, to our container's `/usr/src/frontend` directory. Since our host may have its own `node_modules` directory inside `./frontend`, we don't want this to be shared with the container. The container needs to maintain its own installed dependencies in isolation. To prevent our container's `node_modules` from being overwritten, we create an anonymous volume of our container's `/usr/src/frontend/node_modules` directory. The ordering of the two volumes listed is important, so that our container's `node_modules` stored in a volume have highest priority (applied last). I would recommend doing other research on Docker volumes to better understand the different types of volumes that Docker supports, but just note that we can tell Docker to persist its own `node_modules` by creating an anonymous volume (we don't assign a name to it), that Docker keeps track of with a generated hash as the volume name. This volume persists between container instances.
+`./frontend:/usr/src/frontend` maps our host's `./frontend` directory, to our container's `/usr/src/frontend` directory. Since our host may have its own `node_modules` directory inside `./frontend`, we don't want this to be shared with the container. The container needs to maintain its own installed dependencies in isolation. To prevent our container's `node_modules` from being overwritten, we create an anonymous volume of our container's `/usr/src/frontend/node_modules` directory. The ordering of the two volumes listed is important, so that our container's `node_modules` stored in a volume have highest priority (applied last). I would recommend doing other research on Docker volumes to better understand the different types of volumes that Docker supports. Just note that we can tell Docker to persist its own `node_modules` by creating an anonymous volume (we don't assign a name to it), that Docker keeps track of with a generated hash as the volume name. This volume persists between container instances.
 
 On the subject of volumes, another volume is very important to persist data in our Mongo database. Without a volume, our Mongo data would be lost every time out container stops and starts again, and we definitely don't want to lose our DB data, at least in production. You'll notice this volume is mentioned in two places:
 
@@ -221,5 +221,4 @@ Why does `mongo-data` appear twice? In this situation, we're using a "named volu
 
 See the Docker Compose docs on volumes: <https://docs.docker.com/compose/compose-file/#volumes>
 
-You may have noticed that ports are usually mapped like `"<port>:<port>"`, without specifying a host. With this shorthand, the host is implied to be `0.0.0.0`, listening on all interfaces. This makes it publicly accessible outside of the machine. If you don't need to access Mongo remotely, and can instead do so over SSH, and then localhost. I highly recommend that for security. Especially with the default Mongo config for Docker, there will be no credentials required to access Mongo. This means that an attacker who only knows the IP address of your server can remotely access your database! Yes, I did learn that the hard way, thankfully with non-consequential data. :sweat_smile:
-
+You may have noticed that ports are usually mapped like `"<port>:<port>"`, without specifying a host. With this shorthand, the host is implied to be `0.0.0.0`, listening on all interfaces. This makes it publicly accessible outside of the machine. If you don't need to directly access Mongo (via the Mongo shell) remotely, and can instead do so over SSH, I highly recommend that for security. Especially with the default Mongo config for Docker, there will be no credentials required to access Mongo. This means that an attacker who only knows the IP address of your server can remotely access your database! Yes, I did learn that the hard way, thankfully with non-consequential data. :sweat_smile: So do yourself a favor and specify the mapping `127.0.0.1:27017:27017` (`localhost` for the host, implicit `0.0.0.0` for the container).
