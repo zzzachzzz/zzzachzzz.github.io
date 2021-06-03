@@ -13,6 +13,7 @@ export default function Index() {
           name="description"
           content="Personal site and web development blog by Zach Rosenberger"
         />
+        <meta name="google-site-verification" content="CIJmy23MgDGPKHQpX07qgD7lVNeTXjBs3rdM-5dp30o" />
       </Head>
       <Navbar>
         <Link href="/blog" css="font-size: 0.9em;">Blog</Link>
