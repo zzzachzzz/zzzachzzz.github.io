@@ -1,8 +1,9 @@
 import * as React from 'react';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import Prism from 'prismjs';
+import { convertTitleToSlug } from '@/lib/utils';
 import A from './A';
-import Link from './Link';
+import InternalLink from './Link';
 import Code from './Code';
 
 export default function TreeToJSX({ tree }) {
@@ -32,11 +33,19 @@ const getComponentForNode = node => {
   return componentMatch(node);
 };
 
-const nodeTypeToComponentMap = {
+type NodeTypeToComponentMap = Record<
+  string,
+  (node: any) =>
+    | keyof JSX.IntrinsicElements
+    | ((props: PropsChildren) => JSX.Element)
+>;
+
+const nodeTypeToComponentMap: NodeTypeToComponentMap = {
   'strong'     : ()   => 'b',
   'emphasis'   : ()   => 'i',
   'delete'     : ()   => 'del',
-  'heading'    : node => `h${node.depth}`,
+  'heading'    : node => props =>
+    <Heading text={node.children[0].value as string} depth={node.depth} children={props.children} />,
   'paragraph'  : ()   => P,
   'list'       : node => node.ordered ? 'ol' : 'ul',
   'listItem'   : ()   => Li,
@@ -45,11 +54,7 @@ const nodeTypeToComponentMap = {
   'code'       : node => ()    => <CodeBlock lang={node.lang} children={node.value} />,
   'inlineCode' : node => ()    => <Code children={node.value} />,
   'image'      : node => ()    => <Img src={node.url} alt={node.alt} />,
-  'link'       : node => props => {
-    // Use Next Link component for relative (internal) links
-    const Component = (node.url as string).startsWith('/') ? Link : A;
-    return <Component href={node.url} children={props.children} />;
-  },
+  'link'       : node => props => <Link url={node.url} children={props.children} />,
 };
 
 type PropsChildren = {
@@ -75,6 +80,37 @@ const CodeBlock = ({ lang, children }: { lang?: string; children: string; }) => 
       </Pre>
     );
   }
+};
+
+type HeadingProps = {
+  text: string;
+  depth: number;
+  children: React.ReactNode;
+};
+
+const Heading = ({ text, depth, children }: HeadingProps) => {
+  const H_ = `h${depth}` as keyof JSX.IntrinsicElements;
+  const id = convertTitleToSlug(text);
+  return (
+    <H_ id={id}>
+      {children}
+    </H_>
+  );
+};
+
+type LinkProps = {
+  url: string;
+  children: React.ReactNode;
+};
+
+const Link = ({ url, children }: LinkProps) => {
+  // Use Next Link component for relative (internal) links
+  const Component = url.startsWith('/')
+    ? InternalLink
+    : url.startsWith('#')
+      ? (props: any) => <A {...props} target="_self" />
+      : (props: any) => <A {...props} target="_blank" />;
+  return <Component href={url} children={children} />;
 };
 
 // Other styles for top-level pre elements defined in:
