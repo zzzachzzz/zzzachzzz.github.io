@@ -60,16 +60,3 @@ The easiest way to install the latest version is `brew install curl` (OSX & Linu
 * Further explaining `${CURL_OPTIONS[@]}`, `CURL_OPTIONS` should be an array, whose elements are then expanded and space separated with `[@]`. For example, you may want to add another header containing your access token or API key.  
 Example: `CURL_OPTIONS=("--header" "Authorization: Bearer <your-access-token>")`
 
-For such a scenario, one alternative I'd recommend is creating a bash function to return the curl options array. By using a function, the array is evaluated when it's called, not just when your `.bashrc`/`.zshrc` is sourced.
-```bash
-function get_curl_options() {
-  local arr=("--header" "Authorization: Bearer $ACCESS_TOKEN")
-  echo $arr
-}
-
-# In function `curls`, replace `${CURL_OPTIONS[@]} \` with:
-...
-${$(get_curl_options)[@]} \
-...
-```
-By doing it this way with a function call, the array of options contains an up-to-date value for `$ACCESS_TOKEN`. You can reassign the value from the command line with `ACCESS_TOKEN="..."`, and that value will be used in subsequent calls to our `curls` function.
