@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useRouter } from 'next/router';
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import ReactGA from 'react-ga';
+import { font, codeFont } from '@/components/mixins';
 
 export const theme = {
   prismPurple: '#ae81ff',
@@ -35,9 +36,7 @@ const GlobalStyle = createGlobalStyle`
   body {
     background-color: #3e4d4f;
     color: white;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-      "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-      sans-serif;
+    font-family: ${font};
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -50,8 +49,8 @@ const GlobalStyle = createGlobalStyle`
     font-weight: 400;
   }
 
-  code {
-    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+  code, code[class*="language-"] {
+    font-family: ${codeFont};
   }
 `;
 

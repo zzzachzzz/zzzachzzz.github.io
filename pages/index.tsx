@@ -26,7 +26,6 @@ export default function Index() {
 }
 
 const Container = styled.div`
-  font-family: sans-serif;
   color: white;
   background-color: #3e4d4f;
 `;

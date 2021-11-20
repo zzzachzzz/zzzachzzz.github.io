@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import Typer from './Typer';
+import { codeFont } from '@/components/mixins';
 
 export default function Terminal() {
   return (
@@ -35,8 +36,8 @@ const HeaderBtn = styled.div`
 `;
 
 const Window = styled.div`
+  font-family: ${codeFont};
   font-weight: bold;
-  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   height: 480px;
   max-height: 80vh;
   background-color: black;
