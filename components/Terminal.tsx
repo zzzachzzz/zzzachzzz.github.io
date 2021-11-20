@@ -6,10 +6,8 @@ export default function Terminal() {
   return (
     <div css="max-width: 900px; width: 90%;">
       <Header>
-        <HeaderBtn css="background: #ee7751;" />
-        <HeaderBtn css="background: #7f7e78;" />
-        <HeaderBtn css="background: #7f7e78;" />
         <div css="justify-self: center;">zach@penguin</div>
+        <XBtn />
       </Header>
       <Window>
         <Typer />
@@ -19,20 +17,23 @@ export default function Terminal() {
 }
 
 const Header = styled.div`
-  display: grid;
-  grid-template-columns: 23px 23px 23px auto 69px;
-  align-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 28px;
-  background-color: #3e4d4f;
+  background-color: #353535;
   border-radius: 10px 10px 0 0;
+  position: relative;
 `;
 
-const HeaderBtn = styled.div`
-  float: left;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  margin-left: 9px;
+const XBtn = styled.div`
+  &:after {
+    display: inline-block;
+    content: "\\00d7";
+  }
+  position: absolute;
+  right: 14px;
+  font-size: 1.4rem;
 `;
 
 const Window = styled.div`

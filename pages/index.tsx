@@ -27,7 +27,7 @@ export default function Index() {
 
 const Container = styled.div`
   color: white;
-  background-color: #3e4d4f;
+  background-color: #353535;
 `;
 
 const TerminalBackground = styled.div`
