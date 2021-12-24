@@ -31,9 +31,9 @@ const Container = styled.div`
 `;
 
 const TerminalBackground = styled.div`
-  background-image: url("/assets/ubuntu_wallpaper.jpg");
+  background-image: url("/assets/adwaita-day.jpg");
   background-size: cover;
-  background-attachment: fixed;
+  background-attachment: scroll;
   background-repeat: no-repeat;
   height: 95vh;
   display: flex;
