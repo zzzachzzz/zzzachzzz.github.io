@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json dev-server.ts",
     "build": "next build && next export && touch ./out/.nojekyll",
-    "deploy": "yarn run build && gh-pages --dist out --dotfiles",
+    "deploy": "npm run build && gh-pages --dist out --dotfiles",
     "start": "next start"
   },
   "dependencies": {
