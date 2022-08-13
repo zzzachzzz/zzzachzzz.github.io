@@ -12,6 +12,6 @@ export const font = `
 `;
 
 export const codeFont = `
-  'Inconsolata', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono'
+  'Inconsolata', Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace
 `;
 
