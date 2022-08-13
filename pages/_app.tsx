@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { useRouter } from 'next/router';
+import Script from 'next/script';
 import { createGlobalStyle, ThemeProvider } from 'styled-components';
-import ReactGA from 'react-ga';
 import { font, codeFont } from '@/components/mixins';
 
 export const theme = {
@@ -54,40 +53,36 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
+const isProd = process.env.NODE_ENV === 'production';
+
 export default function App({ Component, pageProps }) {
   return (
     <>
       <GlobalStyle />
+      {isProd && <GoogleAnalytics />}
       <ThemeProvider theme={theme}>
-        {process.env.NODE_ENV === 'production' ? (
-          <GAListener>
-            <Component {...pageProps} />
-          </GAListener>
-        ) : (
-          <Component {...pageProps} />
-        )}
+        <Component {...pageProps} />
       </ThemeProvider>
     </>
   );
 }
 
-const GAListener = ({ children }: { children: JSX.Element; }) => {
-  const router = useRouter();
-  const isGAInit = React.useRef(false);
-
-  React.useEffect(() => {
-    if (!isGAInit.current) {
-      isGAInit.current = true;
-      ReactGA.initialize('UA-146825130-1');
-    }
-    sendPageView(router.asPath);
-  }, [router.asPath]);
-
-  function sendPageView(path: string) {
-    ReactGA.set({ page: path });
-    ReactGA.pageview(path);
-  }
-
-  return children;
-};
-
+const GoogleAnalytics = () => (
+  <>
+    <Script
+      strategy="afterInteractive"
+      src="https://www.googletagmanager.com/gtag/js?id=G-MPDH3GX2GP"
+    />
+    <Script
+      id="google-analytics"
+      strategy="afterInteractive"
+    >
+      {`
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { window.dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-MPDH3GX2GP');
+      `}
+    </Script>
+  </>
+);
