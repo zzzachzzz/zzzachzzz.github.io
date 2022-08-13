@@ -2,6 +2,7 @@
   "name": "zzzachzzz.github.io",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "ts-node --project tsconfig.server.json dev-server.ts",
     "build": "next build && next export && touch ./out/.nojekyll",
@@ -26,6 +27,7 @@
     "@types/prismjs": "^1.26.0",
     "@types/react": "^18.0.17",
     "@types/styled-components": "^5.1.26",
+    "@types/ws": "^8.5.3",
     "autoprefixer": "^10.4.8",
     "babel-plugin-styled-components": "^2.0.7",
     "chokidar": "^3.5.3",

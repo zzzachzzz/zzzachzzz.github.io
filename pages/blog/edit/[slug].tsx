@@ -19,7 +19,7 @@ export default function HotReloadBlogPost() {
 
   React.useEffect(() => {
     if (slug) {
-      const socket = new WebSocket('ws://localhost:3000');
+      const socket = new WebSocket('ws://localhost:3000/hot-blog-edit');
       socket.onopen = () => {
         socket.send(slug);
       };
@@ -40,10 +40,13 @@ export default function HotReloadBlogPost() {
   }, [slug]);
 
   const onClick = () => fetch('/blog/edit/new/save')
-    .then(() => alert('Post saved successfully'))
+    .then(res => {
+      if (!res.ok) throw new Error(`${res.status} - ${res.statusText}`);
+      alert('Post saved successfully')
+    })
     .catch(err => {
-      alert('An error occured');
       console.error(err);
+      alert('An error occured');
     });
 
   return (

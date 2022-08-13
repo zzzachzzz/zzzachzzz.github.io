@@ -2,7 +2,7 @@ import { createServer } from 'http';
 import { parse } from 'url';
 import next from 'next';
 import chokidar from 'chokidar';
-import WebSocket from 'ws';
+import { WebSocketServer } from 'ws';
 import { getPostBySlug, writeNewPostToFile } from './lib/api';
 import { getPathToBlogPost } from './lib/utils';
 const app = next({ dev: true });
@@ -15,15 +15,27 @@ app.prepare().then(() => {
       writeNewPostToFile();
       res.end();
     } else {
-      handle(req, res, parsedUrl)
+      handle(req, res, parse(req.url, true))
     }
   });
 
-  let watchedSlug = null;
+  const wss = new WebSocketServer({ noServer: true });
+
+  server.on('upgrade', (req, socket, head) => {
+    const { pathname } = parse(req.url, true)
+
+    if (pathname === '/hot-blog-edit') {
+      wss.handleUpgrade(req, socket, head, (ws: any) => {
+        wss.emit('connection', ws, req);
+      });
+    }
+  });
+
+  let watchedSlug: string | null = null;
   const watcher = new chokidar.FSWatcher();
-  const wss = new WebSocket.Server({ server });
-  wss.on('connection', (ws: any) => {
-    ws.on('message', (postSlug: string) => {
+  wss.on('connection', (ws) => {
+    ws.on('message', (data) => {
+      const postSlug = data.toString();
       if (postSlug) {
         watchedSlug = postSlug;
         let post = null;

@@ -3,7 +3,8 @@ import styled from 'styled-components';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import unified from 'unified';
+import { unified } from 'unified';
+import type { Node, Data } from 'unist';
 import markdownParser from 'remark-parse';
 import emojiTransform from 'remark-emoji';
 
@@ -54,7 +55,7 @@ export default function BlogPost({ post }: Props) {
 
 // TODO Verify this is only run once for this static page
 const BlogContent = ({ content }: { content: string; }) => {
-  let tree = unified().use(markdownParser).parse(content);
+  let tree: Node<Data> = unified().use(markdownParser).parse(content);
   tree = unified().use(emojiTransform).runSync(tree);
 
   return (
