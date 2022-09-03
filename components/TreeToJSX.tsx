@@ -65,18 +65,18 @@ const P = ({ children }: PropsChildren) => <p>{children}</p>;
 
 // Add leading whitespace to <code> className due to className mismatch caused by Prism injecting class
 const CodeBlock = ({ lang, children }: { lang?: string; children: string; }) => {
-  const langCls = ` language-${lang || 'none'}`;
+  const langCls = `language-${lang || 'none'}`;
   if (lang) {
     const highlightedCode = Prism.highlight(children, Prism.languages[lang], lang);
     return (
-      <Pre className={langCls}>
-        <code className={" " + langCls} dangerouslySetInnerHTML={{__html: highlightedCode}}></code>
+      <Pre className={langCls} tabIndex={0}>
+        <code className={langCls} dangerouslySetInnerHTML={{__html: highlightedCode}}></code>
       </Pre>
     );
   } else {
     return (
-      <Pre className={langCls}>
-        <code className={" " + langCls}>{children}</code>
+      <Pre className={langCls} tabIndex={0}>
+        <code className={langCls}>{children}</code>
       </Pre>
     );
   }
