@@ -5,6 +5,7 @@ import A from './A';
 type Props = {
   href: string;
   children: React.ReactNode;
+  noblock?: boolean;
 };
 
 const Link = React.forwardRef((

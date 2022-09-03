@@ -1,7 +1,9 @@
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import Head from 'next/head'
+import { useRouter } from 'next/router';
 import Link from '@/components/Link';
 import Navigation from '@/components/Navigation';
+import BlogContent from '@/components/BlogContent';
 import { getAllPosts } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { InferGetStaticPropsType } from 'next'
@@ -22,61 +24,104 @@ export default function BlogList({ allPosts }: Props) {
       <h1 css="text-align: center;">Recent Posts</h1>
       <div css="flex-direction: column; display: flex; max-width: 1200px; margin: 0 auto;">
         {allPosts.map((post, i) =>
-          <BlogPreview title={post.title} slug={post.slug} date={post.date} key={i} />
+          <BlogPreview
+            title={post.title}
+            slug={post.slug}
+            date={post.date}
+            content={post.content}
+            key={i}
+          />
         )}
       </div>
     </div>
   );
 }
 
-const BlogPreview = ({ title, slug, date }: Props['allPosts'][number]) => (
-  <BlogLink href={`/blog/${slug}`}>
-    <div css="display: flex; align-items: center; font-size: 1.1em;">
-      <Brace color="prismRed" />
-      <Brace color="prismBlue" />
-      <Brace color="prismGreen" />
-    </div>
-    <div css="margin: 0 1em; text-align: center;">
-      <div css="margin-bottom: 0.7em;">{title}</div>
-      <time css="font-size: 0.8em;" dateTime={date}>{formatDate(date)}</time>
-    </div>
-    <div css="display: flex; align-items: center; font-size: 1.1em;">
-      <Brace color="prismGreen" close />
-      <Brace color="prismBlue" close />
-      <Brace color="prismRed" close />
-    </div>
-  </BlogLink>
-);
+// Used to only partially render a blog's content, to be shown as a preview
+const blogPreviewNumChildren = 5;
 
-type BraceProps = {
-  color: 'prismRed' | 'prismBlue' | 'prismGreen';
-  close?: boolean;
-};
-
-const Brace = ({ color, close = false }: BraceProps) => {
-  const _css = css`color: ${({ theme }) => theme[color]};`;
+const BlogPreview = ({ title, slug, date, content }: Props['allPosts'][number]) => {
+  const router = useRouter();
+  const href = `/blog/${slug}`;
   return (
-    <span css={_css}>
-      {close ? '}' : '{'}
-    </span>
+    <Article onClick={() => router.push(href)}>
+      <Header css="text-align: center;">
+        <BlogLink
+          href={href}
+          css={`
+            padding: 0.7em 2em;
+            margin: 0 auto;
+            transition: background 0.3s, color 0.3s;
+          `}
+        >
+          <h2 css="margin-bottom: 0.4em;">{title}</h2>
+          <time css="font-size: 0.8em;" dateTime={date}>{formatDate(date)}</time>
+        </BlogLink>
+      </Header>
+      <ContentPreview>
+        <Shadow />
+        <BlogContent
+          content={content}
+          numChildren={blogPreviewNumChildren}
+        />
+      </ContentPreview>
+      <BlogLink
+        href={href}
+        css={`
+          display: block; text-align: center; margin: 0 auto;
+          width: min-content; white-space: nowrap;
+          opacity: 0; transition: opacity 0.3s, color 0.3s;
+        `}
+      >
+        Continue Reading
+      </BlogLink>
+    </Article>
   );
 };
 
-const BlogLink = styled(Link)`
-  min-height: 60px;
-  background: #272822;
+const ContentPreview = styled.div`
+  height: 300px;
+  overflow: hidden;
+  font-size: 0.8rem;
+  position: relative;
+`;
+
+const Shadow = styled.div`
+  position: absolute;
+  bottom: 0;
+  box-shadow: ${({ theme }) => `0px 0px 10px 10px ${theme.bg}`};
+  width: 100%;
+`;
+
+const Article = styled.article`
   border-radius: 0.3em;
-  margin: 1.5em;
-  padding: 1.1em 0.7em;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  font-size: 1.1em;
-  color: white;
+  border: 3px solid #919191;
+  transition: border-color 0.3s;
+  padding: 0.2em;
+  cursor: pointer;
+  margin: 1.5rem;
 
   &:hover {
-    color: ${({ theme }) => theme.prismPurple};
+    border-color: ${({ theme }) => theme.prismPurple};
   }
+  &:hover a {
+    color: ${({ theme }) => theme.prismPurple};
+    opacity: 1;
+  }
+
+  &:not(:hover) header a {
+    background: transparent;
+  }
+`;
+
+const Header = styled.header`
+  display: flex;
+  flex-direction: column;
+`;
+
+const BlogLink = styled(Link)`
+  text-decoration: none;
+  color: white;
 `;
 
 export const getStaticProps = async () => {
@@ -84,6 +129,7 @@ export const getStaticProps = async () => {
     'title',
     'date',
     'slug',
+    'content',
   ]);
 
   return {

@@ -17,8 +17,8 @@ const A = React.forwardRef((
   </A_>
 ));
 
-const A_ = styled.a`
-  ${inlineBlockCss}
+const A_ = styled.a<{ noblock?: boolean }>`
+  ${({ noblock }) => !noblock && inlineBlockCss}
   color: ${({ theme }) => theme.prismPurple};
   text-decoration: none;
 `;

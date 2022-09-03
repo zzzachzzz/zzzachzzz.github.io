@@ -1,15 +1,10 @@
 import * as React from 'react';
-import styled from 'styled-components';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { GetStaticPaths, GetStaticProps } from 'next';
-import { unified } from 'unified';
-import type { Node, Data } from 'unist';
-import markdownParser from 'remark-parse';
-import emojiTransform from 'remark-emoji';
 
 import Navigation from '@/components/Navigation';
-import TreeToJSX from '@/components/TreeToJSX';
+import BlogContent from '@/components/BlogContent';
 import SaveOrEditIcon from '@/components/SaveOrEditIcon';
 import { getPostBySlug, getAllPosts } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
@@ -52,36 +47,6 @@ export default function BlogPost({ post }: Props) {
     </div>
   );
 }
-
-// TODO Verify this is only run once for this static page
-const BlogContent = ({ content }: { content: string; }) => {
-  let tree: Node<Data> = unified().use(markdownParser).parse(content);
-  tree = unified().use(emojiTransform).runSync(tree);
-
-  return (
-    <BlogContentContainer>
-      <TreeToJSX tree={tree} />
-    </BlogContentContainer>
-  );
-};
-
-const BlogContentContainer = styled.div`
-  font-size: 1.2em;
-  line-height: 1.4em;
-  letter-spacing: 0.01em;
-  overflow-wrap: break-word;
-  padding: 1.1em;
-  margin: 0 auto;
-  & > *:not(pre) {
-    max-width: 850px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  & > pre {
-    width: 90vw;
-    max-width: 1100px;
-  }
-`;
 
 type Params = { slug: string; };
 

@@ -1,21 +1,27 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import Prism from 'prismjs';
+import type { Node, Data } from 'unist';
 import { convertTitleToSlug } from '@/lib/utils';
 import A from './A';
 import InternalLink from './Link';
 import Code from './Code';
 
-export default function TreeToJSX({ tree }) {
+type Props = {
+  tree: Node<Data>;
+};
+
+export default function TreeToJSX({ tree }: Props) {
   let total = 0;
-  function recursive(node) {
+  function recursive(node: Node<Data>): React.ReactNode {
     const nodeIdx = total;
     total++;
 
     if (node.type === 'text')
-      return node.value;
+      return node['value'] as string;
 
-    const children = node.children?.map(n => recursive(n));
+    const children = (node['children'] as Node<Data>[])
+      ?.map(n => recursive(n));
 
     if (node.type === 'root')
       return children;
@@ -23,10 +29,10 @@ export default function TreeToJSX({ tree }) {
     const Component = getComponentForNode(node);
     return <Component key={nodeIdx} children={children} />
   }
-  return recursive(tree);
+  return recursive(tree) as JSX.Element;
 }
 
-const getComponentForNode = node => {
+const getComponentForNode = (node: Node<Data>) => {
   const componentMatch = nodeTypeToComponentMap[node.type];
   if (!componentMatch)
     throw Error(`No component for node type: '${node.type}'`);

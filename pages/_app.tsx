@@ -4,6 +4,7 @@ import { createGlobalStyle, ThemeProvider } from 'styled-components';
 import { font, codeFont } from '@/components/mixins';
 
 export const theme = {
+  bg: '#3e4d4f',
   prismPurple: '#ae81ff',
   prismBlue: '#66d9ef',
   prismGreen: '#a6e22e',
@@ -33,7 +34,7 @@ const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    background-color: #3e4d4f;
+    background-color: ${theme.bg};
     color: white;
     font-family: ${font};
     -webkit-font-smoothing: antialiased;
