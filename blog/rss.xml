@@ -1,0 +1,659 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Web Dev Blog - zzzachzzz</title>
+        <link>https://zzzachzzz.github.io/blog</link>
+        <description>JavaScript, TypeScript, and React by example with code.</description>
+        <lastBuildDate>Sat, 22 Oct 2022 20:13:29 GMT</lastBuildDate>
+        <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
+        <generator>Next.js</generator>
+        <language>en</language>
+        <atom:link href="https://zzzachzzz.github.io/blog/rss.xml" rel="self" type="application/rss+xml"/>
+        <item>
+            <title><![CDATA[How to Change a Pacman Package's Dependencies on Arch Linux with remakepkg]]></title>
+            <link>https://zzzachzzz.github.io/blog/how-to-change-a-pacman-packages-dependencies-on-arch-linux-with-remakepkg</link>
+            <guid>https://zzzachzzz.github.io/blog/how-to-change-a-pacman-packages-dependencies-on-arch-linux-with-remakepkg</guid>
+            <pubDate>Sat, 22 Oct 2022 20:13:29 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Recently I ran into a dependency conflict after an update of a particular package, <a href="https://archlinux.org/packages/community/any/bitwarden-cli/">bitwarden-cli</a>. Prior to version 2022.6.2-2, <code>bitwarden-cli</code> depended on <code>nodejs</code>. It was in version 2022.6.2-2 that the dependency was changed from <code>nodejs</code> to <code>nodejs-lts-gallium</code>.</p><p>Okay, so what&#x27;s the big deal? The big deal is that <code>nodejs</code> and <code>nodejs-lts-gallium</code> cannot both be installed, as they&#x27;re listed as conflicting packages of one another (see the <b>Conflicts</b> section of <a href="https://archlinux.org/packages/community/x86_64/nodejs-lts-gallium/">nodejs-lts-gallium</a>). While I could have just gone ahead and removed <code>nodejs</code> in favor of <code>nodejs-lts-gallium</code>, I didn&#x27;t really want to, as I had no issues with it and wanted the latest version of <code>nodejs</code>. And yes, alternatively I could have installed the latest version via <a href="https://github.com/nvm-sh/nvm">nvm</a> or otherwise, and kept <code>nodejs-lts-gallium</code> (version 16.x at the time of this writing) as the system dependency.</p><p>For whatever your personal reasons are, you may wish to remove or alter the restrictions defined for a package by a package maintainer. In my case, I was able to figure out why the dependency change occurred in the first place. It was due to <a href="https://bugs.archlinux.org/task/74929">this bug</a>, a bug which affected a premium feature of Bitwarden that I didn&#x27;t even have access to. With this in mind, I felt comfortable discarding the new requirement of using <code>nodejs-lts-gallium</code>.</p><p><b>IMPORTANT NOTE</b><br/>In writing this, I realized that <code>--assume-installed nodejs-lts-gallium</code> solves my problem, without the need for <code>remakepkg</code>. I just need to include that option during an upgrade, whenever there is a newer version of <code>bitwarden-cli</code> available. This works when dealing with the absence of a package. However, <code>remakepkg</code> may be needed for other scenarios. I&#x27;ll proceed with how I used <code>remakepkg</code> to solve my problem.</p><p>So, how does one go about &quot;changing&quot; a package&#x27;s dependency? It&#x27;s done with the help of an AUR package, <a href="https://aur.archlinux.org/packages/remakepkg">remakepkg</a>. You can also find the git repo containing the script <a href="https://gitlab.com/ayekat/pacman-hacks">here</a>.</p><p>First off, credit to this comment from the forum post, <a href="https://bbs.archlinux.org/viewtopic.php?pid=2030394#p2030394">nodejs-lts-gallium and nodejs are in conflict</a>. I owe the entirety of my solution to this comment. However for the non pacman experts, I&#x27;ll provide some more details on how I solved my problem.</p><p>Prior to discovering this solution, I had added the line <code>IgnorePkg = bitwarden-cli</code> to my <code>/etc/pacman.conf</code> file, preventing an upgrade of this package that introduced the <code>nodejs-lts-gallium</code> dependency. The problem is that upon removing this, and running <code>pacman -Syu</code>, I was prompted to remove the conflicting package <code>nodejs</code>, with the upgrade of <code>bitwarden-cli</code>. I needed to get the latest version of <code>bitwarden-cli</code>, but not actually install it until I had made the necessary dependency modifications. This is how I achieved that:</p><pre><code>pacman -S --downloadonly --assume-installed nodejs-lts-gallium bitwarden-cli</code></pre><p>There is another, less manual way to accomplish this. If you see the <a href="https://bbs.archlinux.org/viewtopic.php?id=234936">author&#x27;s guide to remakepkg</a>, you&#x27;ll see that the <code>remakepkg</code> command has the added convenience of downloading the latest version of a package from a mirror, independent of your system&#x27;s main synced package database. More details on that <a href="https://gitlab.com/ayekat/pacman-hacks/-/issues/43">here</a>.</p><p>Moving on with how I did this the manual way, after running the above pacman command to download <code>bitwarden-cli</code>, I was then able to access the downloaded package file from <code>/var/cache/pacman/pkg/bitwarden-cli-2022.10.0-1-any.pkg.tar.zst</code>. I copied this to another location to prepare a modified copy. Next, I created a file <code>rulefile</code>:</p><pre><code>remove-depend nodejs-lts-gallium
+add-depend nodejs</code></pre><p>and supplied it to the <code>repkg</code> command:</p><pre><code>repkg -i ./bitwarden-cli-2022.10.0-1-any.pkg.tar.zst -r ./rulefile</code></pre><p>The <code>repkg</code> command produced an output modified package file:<br/><code>bitwarden-cli-2022.10.0-1.1-any.pkg.tar.xz</code></p><p>Notice the appended <code>.1</code> to the version info, and the alternate <code>xz</code> extension for the compression format.</p><p>Running <code>pacman -Qpi ./bitwarden-cli-2022.10.0-1.1-any.pkg.tar.xz</code>, we see that the dependency was replaced in the &quot;Depends On&quot; section:</p><pre><code>Name            : bitwarden-cli
+Version         : 2022.10.0-1.1
+Description     : The command line vault
+Architecture    : any
+URL             : https://github.com/bitwarden/cli
+Licenses        : GPL3
+Groups          : None
+Provides        : bitwarden-cli=2022.10.0-1
+Depends On      : nodejs
+...</code></pre><p>All that&#x27;s left now is to install the modified package:</p><pre><code>pacman -U ./bitwarden-cli-2022.10.0-1.1-any.pkg.tar.xz</code></pre><p>You can verify the installed version once again with <code>pacman -Qi bitwarden-cli</code></p><p>That&#x27;s it! As I mentioned above, <code>remakepkg</code> isn&#x27;t necessary for my scenario, as pacman&#x27;s <code>--assume-installed</code> option does the trick. However for more advanced dependency scenarios, <code>remakepkg</code> can come in handy.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[A Curl Helper Function for Easy API Testing]]></title>
+            <link>https://zzzachzzz.github.io/blog/a-curl-helper-function-for-easy-api-testing</link>
+            <guid>https://zzzachzzz.github.io/blog/a-curl-helper-function-for-easy-api-testing</guid>
+            <pubDate>Mon, 06 Sep 2021 18:23:42 GMT</pubDate>
+            <content:encoded><![CDATA[<p>I tend to prefer command line tools for development, in this case choosing <code>curl</code> over Postman. Depending on the API that requests are being made to, curl commands can get out of hand, requiring numerous headers and other options to be manually attached on each request. The solution? Create a Bash helper function for curl, making our commands short and efficient.</p><p>The helper function:</p><pre><code>function curls() {
+  local response_code_and_method
+  response_code_and_method=$(curl \
+    --no-progress-meter \
+    --write-out &quot;%{response_code} %{method}&quot; \
+    --output /tmp/curls_body \
+    --header &quot;Content-Type: application/json&quot; \
+    ${CURL_OPTIONS[@]} \
+    $CURL_BASE_URL/$@
+  )
+
+  if [ $? -eq 0 ]; then
+    local pretty_json
+    pretty_json=$(jq --color-output &#x27;.&#x27; /tmp/curls_body 2&gt; /dev/null)
+    if [ $? -eq 0 ]; then
+      echo $pretty_json
+    else
+      cat /tmp/curls_body
+      echo &quot;&quot;
+    fi
+    echo &quot;\n$response_code_and_method&quot;
+  fi
+}</code></pre><p>In addition to providing a handful of &quot;default&quot; options to <code>curl</code>, we get some other benefits including:</p><ul><li><p>Pretty printing JSON responses with <code>jq</code> (conditionally, when a response is parse-able as JSON)</p></li><li><p>Using <code>${CURL_OPTIONS[@]}</code>, we can provide additional options through an environment variable. This may be preferred for temporarily adding additional options, rather than hard-coding them in our reusable Bash function.<br/>Further details on this option are shown below: <a href="#additional-notes">Additional Notes</a></p></li><li><p>On the line <code>$CURL_BASE_URL/$@</code>, a variable representing the API&#x27;s base URL is automatically inserted for us. This would be set to a value such as <code>http://localhost:5000</code>. A trailing slash <code>/</code> is appended, and our arguments provided to <code>curls</code> are inserted here with <code>$@</code>.</p></li></ul><h2 id="example-usage">Example Usage</h2><p>Calling the endpoint <code>POST http://localhost:5000/test</code> with a request body can concisely be expressed as:</p><p><code>curls test -d &#x27;{&quot;key&quot;: &quot;value&quot;}&#x27;</code></p><p>Full example with a minimal Flask app:</p><p><img src="https://zzzachzzz.github.io/assets/curls-flask.png" alt="Full example with a minimal Flask app"/></p><h2 id="additional-notes">Additional Notes</h2><ul><li><p>Pretty printing JSON requires installing <a href="https://stedolan.github.io/jq/">jq</a> (available from <code>brew</code>)</p></li><li><p>The <code>%{method}</code> formatter for the <code>--write-out</code> option requires curl 7.72.0+. <a href="https://curl.se/changes.html#7_72_0">https://curl.se/changes.html#7_72_0</a><br/>The easiest way to install the latest version is <code>brew install curl</code> (OSX &amp; Linuxbrew). For me on Ubuntu, the version available via <code>apt</code> was an older version.</p></li><li><p>To get a better understanding of the Bash function and to modify it to your liking, I recommend this Bash cheatsheet: <a href="https://devhints.io/bash">https://devhints.io/bash</a></p></li><li><p>Further explaining <code>${CURL_OPTIONS[@]}</code>, <code>CURL_OPTIONS</code> should be an array, whose elements are then expanded and space separated with <code>[@]</code>. For example, you may want to add another header containing your access token or API key.<br/>Example: <code>CURL_OPTIONS=(&quot;--header&quot; &quot;Authorization: Bearer &lt;your-access-token&gt;&quot;)</code></p></li></ul>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[React Hooks: How to Use useMemo]]></title>
+            <link>https://zzzachzzz.github.io/blog/react-hooks-how-to-use-usememo</link>
+            <guid>https://zzzachzzz.github.io/blog/react-hooks-how-to-use-usememo</guid>
+            <pubDate>Fri, 05 Mar 2021 21:29:51 GMT</pubDate>
+            <content:encoded><![CDATA[<blockquote><p>&quot;In computing, memoization or memoisation is an optimization technique used primarily to speed up computer programs by storing the results of expensive function calls and returning the cached result when the same inputs occur again.&quot;<br/><a href="https://en.wikipedia.org/wiki/Memoization">Memoization - Wikipedia</a></p></blockquote><p><code>useMemo</code> is a hook used to memoize values inside a React component. It&#x27;s a performance optimization to avoid recalculating expensive values on every render. You might be familiar with React&#x27;s <code>memo</code> function, which is similar, but is used to memoize React components themselves, to avoid said re-renders in the first place.</p><p>The TypeScript function signature of <code>useMemo</code>:</p><pre><code>type useMemo = &lt;T&gt;(factory: () =&gt; T, deps: Array&lt;any&gt;) =&gt; T;</code></pre><p>The first argument is a factory function returning the value we want to memoize. Like <code>useEffect</code> and <code>useCallback</code>, the second argument to this hook, <code>deps</code>, is a dependency array. Changes to the values passed to this array will trigger our factory function to rerun, returning a new value. If the values in the dependency array do not change, we&#x27;ll instead receive the memoized value saved during the most recent execution of the factory function.</p><h2 id="example">Example</h2><pre><code>function Todos({ todos, filterByStatus }) {
+  const filteredTodos = useMemo(() =&gt; {
+    return todos.filter(todo =&gt; todo.status === filterByStatus);
+  }, [todos, filterByStatus]);
+
+  return (
+    &lt;ul&gt;
+      {filteredTodos.map((todo, i) =&gt;
+        &lt;li key={i}&gt;{todo.name}&lt;/li&gt;
+      )}
+    &lt;/ul&gt;
+  );
+}</code></pre><p>We receive the props <code>todos</code>, an array of todo objects, and <code>filterByStatus</code>, a string indicating the status we want to filter by, such as &#x27;completed&#x27;, &#x27;in-progress&#x27;, etc. If todo objects are added or removed from the <code>todos</code> array, that will affect the resulting <code>filteredTodos</code>. Likewise, the result will change if our <code>filterByStatus</code> changes from &#x27;in-progress&#x27; to &#x27;completed&#x27;. We include both of these variables in the dependency array to signal to <code>useMemo</code> that changes to these variables should trigger a recalculation of our computed <code>filteredTodos</code> value.</p><p>Note that for <code>useMemo</code> to detect that the <code>todos</code> array is unchanged between renders, it must be equal by reference. The variables included in the dependency array will be compared to their previous values using strict equality (<code>===</code>). Remember that arrays, objects, and functions are only equal by reference:</p><pre><code>[1, 2, 3] === [1, 2, 3] // false
+let x = [1, 2, 3];
+x === x // true;</code></pre><p>Using our example with the <code>todos</code> array prop, if that prop comes from a parent component storing the value as state:</p><pre><code>const [todos, setTodos] = useState([]);</code></pre><p>...then <code>todos</code> will remain referentially equal <i>until</i> <code>setTodos</code> is called. You can test this out for yourself, by placing a <code>console.log</code> statement inside your <code>useMemo</code>&#x27;s factory function, to see when it is triggered.</p><p><code>useMemo</code> has a lot of concepts in common with <code>useEffect</code> and <code>useCallback</code>, and yet, at least to me, <code>useMemo</code> is a lot easier to understand. Perhaps that&#x27;s because it seems less intuitive to memoize functions, in the case of <code>useEffect</code> and <code>useCallback</code>.</p><p>For a more detailed explanation of the dependency array, and other related concepts, you can check out:</p><ul><li><p>My post on useEffect: <a href="https://zzzachzzz.github.io/blog/react-hooks-how-to-use-useeffect">React Hooks: How to Use useEffect</a></p></li><li><p><a href="https://www.benmvp.com/blog/object-array-dependencies-react-useEffect-hook">Object &amp; array dependencies in the React useEffect Hook</a></p></li></ul>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[React Hooks: How to Use useEffect]]></title>
+            <link>https://zzzachzzz.github.io/blog/react-hooks-how-to-use-useeffect</link>
+            <guid>https://zzzachzzz.github.io/blog/react-hooks-how-to-use-useeffect</guid>
+            <pubDate>Thu, 04 Mar 2021 18:04:42 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Of all the hooks built into React, <code>useEffect</code> is arguably the most difficult to understand. When I was learning React Hooks, I had just begun to get comfortable with class-based components and the lifecycle methods, such as <code>componentDidMount</code>. Part of the difficulty I had when learning <code>useEffect</code> was due to the fundamental differences between <code>useEffect</code> and the legacy React lifecycle methods. The best tutorials I&#x27;ve read on <code>useEffect</code> advise you to &quot;unlearn what you have learned&quot; in regard to lifecycle methods.</p><p><a href="https://overreacted.io/a-complete-guide-to-useeffect">Dan Abramov has an excellent blog post on useEffect</a>. It&#x27;s very thorough, and thus a long read. This post will summarize many of the points Dan covers, and I&#x27;ll cover some of the issues and solutions I&#x27;ve discovered while using <code>useEffect</code>.</p><p>First, here is the function signature for <code>useEffect</code> as a TypeScript definition:</p><pre><code>type useEffect = (effect: EffectCallback, deps?: Array&lt;any&gt;) =&gt; void;
+type EffectCallback = () =&gt; (void | (() =&gt; void));</code></pre><p><code>EffectCallback</code> is our function to execute as the effect, which can optionally return a <a href="https://reactjs.org/docs/hooks-reference.html#cleaning-up-an-effect">cleanup function</a> that will be executed when the component unmounts, or when the effect is redefined. The optional second argument to <code>useEffect</code>, <code>deps</code>, is a &quot;dependency array&quot;. If <code>deps</code> is omitted, then the effect will be executed (and redefined) after every render. When <code>deps</code> is included, the effect is only redefined and executed if any of the values provided to the array change from one execution to the next. Consequently, providing no values to the dependency array, <code>[]</code>, will result in the effect only being executed after the initial render. In determining if a dependency has changed, as far as I know, a strict equality comparison is performed (<code>===</code>). Note that arrays, objects, and functions are only equal by reference. In some situations this can be problematic. This blog post provides several solutions:<br/><a href="https://www.benmvp.com/blog/object-array-dependencies-react-useEffect-hook">Object &amp; array dependencies in the React useEffect Hook</a></p><p>Why is it even necessary to have a dependency array? How could we be accessing stale values inside an effect?</p><p>Consider the following snippet of vanilla JS:</p><pre><code>let arr = [];
+let y = 0;
+
+function pushFunc() {
+  y++;
+  let x = y;
+  arr.push(() =&gt; x);
+}
+
+pushFunc();
+pushFunc();
+
+console.log(arr[0]()); // 1
+console.log(arr[1]()); // 2</code></pre><p>We push two functions to an array, <code>() =&gt; x</code>, and each time this function is created, it captures <code>x</code> from its <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Closures">closure</a> within <code>pushFunc</code>. <code>x</code> from the first execution of <code>pushFunc</code> is not the same <code>x</code> in the second execution of <code>pushFunc</code>. When dealing with React, the same rules apply, whether those values come from props or state, as they&#x27;re also just variables. This is because a React component is just a function, and plays by the same rules concerning function execution context.<br/>1 render = 1 function call.</p><p>If we were to provide a function to <code>useEffect</code> with no dependency array; <code>useEffect(() =&gt; {...})</code>, the effect function we provide would be redefined after every render, receiving fresh values from the current execution context. The effect would also re-execute after every render. The dependency array serves two purposes:</p><ol><li><p>Tell React when to execute our effect</p></li><li><p>Tell React when to redefine our effect</p></li></ol><h2 id="example-1-basic-usage-with">Example 1: Basic Usage with <code>fetch</code></h2><p>The most common use case for <code>useEffect</code> is fetching data from an API, and then updating the state of a component to render that data in the UI.</p><pre><code>function Todo({ id }) {
+  const [todo, setTodo] = useState();
+
+  useEffect(() =&gt; {
+    fetch(`/api/todos/${id}`)
+      .then(res =&gt; res.json())
+      .then(json =&gt; setTodo(json));
+  }, []);
+
+  if (!todo) return null;
+  return &lt;div&gt;{todo.title}&lt;/div&gt;;
+}</code></pre><p>While we should avoid making too many comparisons to the class lifecycle methods, the above usage of <code>useEffect</code> with an empty dependency array <code>[]</code> is the rough equivalent of <code>componentDidMount</code>. The above does work in its current form, but we&#x27;re lying to React about the dependency array. Running the above snippet through <code>eslint</code> configured with the rule <code>react-hooks/exhaustive-deps</code> gives us this warning:</p><pre><code>React Hook useEffect has a missing dependency: &#x27;id&#x27;.
+Either include it or remove the dependency array</code></pre><p>We can fix this to become:</p><pre><code>useEffect(() =&gt; {
+  ...
+}, [id]);</code></pre><p>By providing <code>id</code> to the dependency array we are saying:<br/>&quot;Whenever <code>id</code> changes, redefine and rerun this effect.&quot;</p><p><code>id</code> may or may not change depending on how the parent component of our <code>Todo</code> component gets a todo id, and provides that prop. If our <code>Todo</code> component were to receive a different <code>id</code> prop, then we probably would want to fetch the todo corresponding to that new id, calling our effect provided to <code>useEffect</code> again.</p><p>Technically <code>setTodo</code> should be included in the dependency array too. However, since it is a function we get from our <code>useState</code> hook, its identity is guaranteed to be stable, so it will never change. Furthermore, <b>in newer versions of the <code>react-hooks/exhaustive-deps</code> rule, the linter won&#x27;t tell us to include a <code>useState</code> <code>set_</code> function, nor the <code>dispatch</code> function returned by <code>useReducer</code>.</b> It&#x27;s safe to omit these specific functions from the dependency array. Just not other functions, as we will see in the next section.</p><h2 id="example-2-functions-as-dependencies">Example 2: Functions as Dependencies</h2><p>Next, let&#x27;s take a look at functions as effect dependencies:</p><pre><code>function Todo({ id }) {
+  const [todo, setTodo] = useState();
+
+  function fetchTodo() {
+    return fetch(`/api/todos/${id}`);
+  }
+
+  useEffect(() =&gt; {
+    fetchTodo()
+      .then(res =&gt; res.json())
+      .then(json =&gt; setTodo(json));
+  }, []);
+
+  if (!todo) return null;
+  return &lt;div&gt;{todo.title}&lt;/div&gt;;
+}</code></pre><p>In this example, our effect calls a function, <code>fetchTodo</code>. This code contains a bug. 🐛 Because we omit <code>fetchTodo</code> from our effect&#x27;s dependency array, our effect captures only the original definition of <code>fetchTodo</code>, and in turn, that instance of <code>fetchTodo</code> only captures the initial value of the <code>id</code> prop. If <code>id</code> changes, our effect will reference the original stale value. Like in the first example, <code>id</code> is a dependency we need to inform our effect about. The difference is, we&#x27;ve now made that dependency indirect by accessing <code>id</code> inside <code>fetchTodo</code> rather than directly inside our effect callback.</p><p>There&#x27;s a problem with simply adding <code>fetchTodo</code> to the dependency array to solve this. Because <code>fetchTodo</code> will be redefined on each render / execution of our <code>Todo</code> component, <code>fetchTodo</code> will have a new &quot;value&quot; / &quot;function identity&quot; each time, resulting in the effect being triggered on every render. There are two solutions to this problem:</p><h3 id="solution-1">Solution #1</h3><p>Include <code>fetchTodo</code> in the dependency array, and define <code>fetchTodo</code> with <a href="https://reactjs.org/docs/hooks-reference.html#usecallback">useCallback</a>. Like <code>useEffect</code>, <code>useCallback</code> also accepts a dependency array. Because <code>fetchTodo</code> references <code>id</code> in its function body, we need to include <code>id</code> in its dependency array:</p><pre><code>const fetchTodo = useCallback(() =&gt; {
+  return fetch(`/api/todos/${id}`);
+}, [id]); // Whenever `id` changes, `fetchTodo` will be redefined
+
+useEffect(() =&gt; {
+  fetchTodo()
+    .then(res =&gt; res.json())
+    .then(json =&gt; setTodo(json));
+}, [fetchTodo]); // Add `fetchTodo` to the effect&#x27;s dependency array</code></pre><h3 id="solution-2">Solution #2</h3><p>The other solution is to extract <code>fetchTodo</code> from the component entirely. Being outside the closure of the <code>Todo</code> component, it won&#x27;t have access to the <code>id</code> prop, but we can supply that as an argument to the function. Extracting <code>fetchTodo</code> will allow its function identity to be stable across renders of <code>Todo</code>:</p><pre><code>function Todo({ id }) {
+  const [todo, setTodo] = useState();
+
+  useEffect(() =&gt; {
+    fetchTodo(id) // Pass `id` as an argument
+      .then(res =&gt; res.json())
+      .then(json =&gt; setTodo(json));
+  }, [id]); // `fetchTodo` now has a stable function identity
+
+  if (!todo) return null;
+  return &lt;div&gt;{todo.title}&lt;/div&gt;;
+}
+
+function fetchTodo(id) { // Make `id` an argument
+  return fetch(`/api/todos/${id}`);
+}</code></pre><h2 id="example-3-access-updated">Example 3: Access Updated <code>props</code> Without Rerunning an Effect</h2><p>Let&#x27;s look at another example. This one is a fairly unique case, as we need to access updated values in our effect, but re-executing the effect actually breaks the functionality we&#x27;re going for:</p><pre><code>function Counter({ incrementBy }) {
+  const [num, setNum] = useState(0);
+
+  useEffect(() =&gt; {
+    const handle = setInterval(() =&gt; {
+      setNum(num + incrementBy);
+    }, 3000);
+
+    return () =&gt; clearInterval(handle);
+  }, [num, incrementBy]);
+
+  return &lt;div&gt;{num}&lt;/div&gt;;
+}</code></pre><p><code>setNum</code> won&#x27;t change, but <code>num</code> and <code>incrementBy</code> are both problematic. With <code>num</code> in the dependency array, and our effect updating <code>num</code> via <code>setNum</code>, this will cause our effect to be triggered every time <code>setNum(num + incrementBy)</code> is run. For setting state relying on previous state values, we can use the callback form of <code>setState</code>, and remove <code>num</code> as a dependency.</p><p>If <code>num</code> is omitted from the dependency array, the linter will actually suggest this solution to us:</p><pre><code>React Hook useEffect has a missing dependency: &#x27;num&#x27;.
+Either include it or remove the dependency array.
+You can also do a functional update &#x27;setNum(n =&gt; ...)&#x27;
+if you only need &#x27;num&#x27; in the &#x27;setNum&#x27; call</code></pre><p>To use the functional update form of <code>setState</code>, we can change this to:</p><pre><code>function Counter({ incrementBy }) {
+  const [num, setNum] = useState(0);
+
+  useEffect(() =&gt; {
+    const handle = setInterval(() =&gt; {
+      setNum(prevNum =&gt; prevNum + incrementBy); // `num` is no longer used here
+    }, 3000);
+
+    return () =&gt; clearInterval(handle);
+  }, [incrementBy]); // `num` removed from dependency array
+
+  return &lt;div&gt;{num}&lt;/div&gt;;
+}</code></pre><p>Now we&#x27;re left to deal with <code>incrementBy</code>. If this prop is updated, say from <code>10</code> to <code>20</code>, we do want that updated value to be referenced in our effect, rather than referencing a stale value. However, when our effect is redefined, we lose the timing of our interval, and a new interval is created. We have it setup to call <code>setNum(prevNum =&gt; prevNum + incrementBy)</code> every 3 seconds.</p><p>What happens if just 1.5 seconds have passed for the interval, and the value of <code>incrementBy</code> changes?</p><ol><li><p>Our effect cleanup function we provided to React will be executed, <code>() =&gt; clearInterval(handle)</code>, clearing our current 3 second interval.</p></li><li><p>Our effect will be redefined, creating a new 3 second interval, along with a new cleanup function.</p></li><li><p>From there, 3 more seconds must pass before <code>setNum(...)</code> is called, for a total of 4.5 seconds since the last interval call (wrong behavior).</p></li></ol><p>This example with <code>setInterval</code> provides us with a unique challenge. We want the updated values present in our effect, but we don&#x27;t want the timing of our interval to be messed up, as a result of redefining our effect. <code>useReducer</code> can help us achieve this, by accessing updated props in our reducer function, rather than in <code>useEffect</code>:</p><pre><code>function Counter({ incrementBy }) {
+  const [num, incrementNum] = useReducer(
+    prevNum =&gt; prevNum + incrementBy, // Our &quot;setter&quot; (reducer function)
+    0 // Initial state
+  );
+
+  useEffect(() =&gt; {
+    const handle = setInterval(() =&gt; {
+      incrementNum();
+    }, 3000);
+
+    return () =&gt; clearInterval(handle);
+  }, []);
+
+  return &lt;div&gt;{num}&lt;/div&gt;;
+}</code></pre><p>We use <code>useReducer</code> in a similar fashion to <code>useState</code>, but with the ability to specify what our &quot;setter&quot; function does, and for it to access updated props. <code>useReducer</code> is flexible in how you use it for your state. It can be used for simple, single value state, or more complex state objects. By convention, you&#x27;d normally see <code>useReducer</code> used like this: <code>const [state, dispatch] = useReducer(...)</code>. We instead choose to name these <code>num</code> &amp; <code>incrementNum</code>. <code>incrementNum</code> is our <code>dispatch</code> function that <code>useReducer</code> returns to us, and it is guaranteed to have a stable function identity, preventing it from triggering <code>useEffect</code> to rerun. Since <code>incrementNum</code> is the <code>dispatch</code> function returned to us by <code>useReducer</code>, it can be omitted from the dependency array and the exhaustive deps linter won&#x27;t complain.</p><h2 id="conclusion">Conclusion</h2><p>Hopefully this post helped in understanding <code>useEffect</code>. As you can tell, the design of this hook by the React team is something that&#x27;s opinionated and strict in how it is intended to be used, though that&#x27;s not a bad thing. Being honest about an effect&#x27;s dependencies is important in avoiding subtle bugs. We looked at some tricks that can be used to limit the number of dependencies in our effects. These recommended workarounds to reduce dependencies are something I wish was documented a little better in the official React docs. One of the more helpful parts of the docs is the <a href="https://reactjs.org/docs/hooks-faq.html#performance-optimizations">Hooks FAQ #Performance Optimizations</a> section, which to me seems like more of a general usage guide. Knowing these recommended strategies for working with <code>useEffect</code> is crucial, as I&#x27;ve found that it&#x27;s very easy to &quot;break the rules&quot; of <code>useEffect</code> when building real world applications.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Create a Typed Event Emitter with Native Browser APIs]]></title>
+            <link>https://zzzachzzz.github.io/blog/create-a-typed-event-emitter-with-native-browser-apis</link>
+            <guid>https://zzzachzzz.github.io/blog/create-a-typed-event-emitter-with-native-browser-apis</guid>
+            <pubDate>Wed, 24 Feb 2021 19:56:02 GMT</pubDate>
+            <content:encoded><![CDATA[<p>You can create an event emitter in the browser, much like the Node.js <a href="https://nodejs.dev/learn/the-nodejs-event-emitter">EventEmitter</a> API. We&#x27;ll be using the <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget">EventTarget</a> and <a href="https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent">CustomEvent</a> browser APIs to achieve this. The browser support for these APIs is good, but if you need more browser coverage, there are also polyfills available, such as <a href="https://www.npmjs.com/package/custom-event-polyfill">custom-event-polyfill</a>. As a bonus, we can make the events and their details fully typed with TypeScript.</p><pre><code>class EventEmitter extends EventTarget {
+  constructor() {
+    super();
+  }
+
+  on&lt;T extends EventType&gt;(
+    type: T, listener: (e: CustomEvent&lt;EventTypeToDetailMap[T]&gt;) =&gt; void
+  ) {
+    return this.addEventListener(type, listener);
+  }
+
+  emit&lt;T extends EventType&gt;(
+    type: T, detail: EventTypeToDetailMap[T]
+  ) {
+    const event = new CustomEvent(type, { detail })
+    return this.dispatchEvent(event);
+  }
+}
+
+type EventType = keyof EventTypeToDetailMap;
+
+type EventTypeToDetailMap = {
+  &#x27;customEvent1&#x27;: number;
+  &#x27;customEvent2&#x27;: Array&lt;string&gt;;
+};</code></pre><p>As we write event listeners and emitters for certain events, we get type checking for those specific events:</p><p><img src="https://zzzachzzz.github.io/assets/typed-eventemitter-on.png" alt="type checking for EventEmitter.on"/></p><p><img src="https://zzzachzzz.github.io/assets/typed-eventemitter-emit.png" alt="type checking for EventEmitter.emit"/></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[How to Set Up WSL for Development]]></title>
+            <link>https://zzzachzzz.github.io/blog/how-to-set-up-wsl-for-development</link>
+            <guid>https://zzzachzzz.github.io/blog/how-to-set-up-wsl-for-development</guid>
+            <pubDate>Tue, 23 Feb 2021 23:13:25 GMT</pubDate>
+            <content:encoded><![CDATA[<p>WSL (Windows Subsystem for Linux) is a great way to gain access to a Linux OS through a command line interface. Being restricted to the CLI, WSL does require us to use Windows GUI programs. This, along with WSL being a subsystem that depends on Windows, does result in certain quirks that need to be worked around in order to utilize WSL to the fullest.</p><p>Some of these quirks to resolve include:</p><ul><li><p>Synchronizing clipboards between WSL &amp; Windows</p></li><li><p>Accessing files from both Windows and WSL</p></li><li><p>Choosing the right terminal to access WSL through</p></li></ul><p>Due to the differences between WSL 1 &amp; 2, the solutions to some of these issues differ depending on the version in use. I&#x27;ll be focusing mainly on WSL 2 in this post, though I will cover some of the differences between WSL 1 &amp; 2.</p><h2 id="installation">Installation</h2><p>If you haven&#x27;t already, follow the <a href="https://docs.microsoft.com/en-us/windows/wsl/install-win10">installation guide from Microsoft</a> to get WSL installed, preferably WSL 2. One possible reason you would need to settle for WSL 1, is if your version of Windows is not new enough, as covered in the guide. Another problem which I once ran into when installing WSL 2, is virtualization not being enabled in my PC&#x27;s BIOS. I was halted with the error:</p><blockquote><p>&quot;Please enable the Virtual Machine Platform Windows feature and ensure virtualization is enabled in the BIOS.&quot;</p></blockquote><p>The setting you need to enable in your BIOS may be called &quot;Intel Virtualization Technology&quot; or similar depending on your CPU and motherboard.</p><h2 id="synchronizing-clipboards">Synchronizing Clipboards</h2><p>While you may be able to copy text from your WSL terminal to your Windows clipboard by highlighting it with the mouse, programs in WSL such as Tmux or Vim copy text to the Linux clipboard, rather than to the Windows clipboard. In order to synchronize the two, the solution I&#x27;ve used is an X server, VcXsrv. To set this up you can follow these <a href="https://github.com/Microsoft/WSL/issues/892#issuecomment-275873108">instructions from a GitHub comment</a>, with one exception if you&#x27;re on WSL 2. Due to the way networking was changed between WSL 1 &amp; 2, instead of adding <code>export DISPLAY=localhost:0.0</code> to your <code>.bashrc</code> / <code>.zshrc</code> in step 5, add these two lines:</p><pre><code>export DISPLAY=$(awk &#x27;/nameserver / {print $2; exit}&#x27; /etc/resolv.conf 2&gt;/dev/null):0
+export LIBGL_ALWAYS_INDIRECT=1</code></pre><p>Also, those instructions don&#x27;t mention how to have VcXsrv start up automatically. For that, you&#x27;ll want to move the <code>config.xlaunch</code> file it creates to the Windows startup directory: <code>C:\Users\&lt;YOUR-USER&gt;\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\</code></p><h2 id="accessing-files-from-both-windows-and-wsl">Accessing Files from Both Windows and WSL</h2><p>This is something that has changed a lot between WSL 1 &amp; 2. In WSL 1, opening files from the Linux filesystem with a Windows program <a href="https://devblogs.microsoft.com/commandline/do-not-change-linux-files-using-windows-apps-and-tools">was a no go</a>, and it was instead recommended to keep those shared files in the Windows filesystem, that both Windows and Linux could access. When I was using WSL 1, I would keep all my git repos in a Windows directory, and symlink it for quick access to my Ubuntu home directory, at <code>~/_</code>. I used this underscore directory as a sort of &quot;shared home directory&quot; for Windows &amp; Linux.</p><p>However in WSL 2, it is now recommended to keep those files in the Linux filesystem, for performance reasons. Now Windows is able to access the Linux filesystem as a network drive. You can view your Linux filesystem from the Windows File Explorer, by typing <code>\\wsl$</code> into its address bar. There&#x27;s only one limitation I&#x27;m aware of with this network drive approach: symlinks.</p><p>Taking my use case as an example, I keep my configuration files in a &quot;dotfiles&quot; git repo. When developing on WSL and using VSCode on Windows, I would need to keep my dotfiles repo in the Windows filesystem in order to create a Windows symlink (<code>mklink /D &quot;&lt;target-dir&gt;&quot; &quot;&lt;source-dir&gt;&quot;</code> in <code>cmd.exe</code>) that links those config files to the directory that VSCode looks for them. That&#x27;s one case to consider before you put everything in the Linux filesystem.</p><h2 id="choosing-a-terminal-for-wsl">Choosing a Terminal for WSL</h2><p>The default terminal you get upon opening the Ubuntu Windows app (or other distro) is okay, but may be lacking some features or config options you&#x27;ve come to expect. Unless you&#x27;re using Tmux, you&#x27;re probably missing multiple terminal tabs. You can get this feature from the <a href="https://www.microsoft.com/en-us/p/windows-terminal/9n0dx20hk701">Windows Terminal</a>, from the Microsoft Store. My personal choice is <a href="https://github.com/mskyaxl/wsl-terminal">wsl-terminal</a>.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Hot Reloading Blog Preview on Markdown File Edit]]></title>
+            <link>https://zzzachzzz.github.io/blog/hot-reloading-blog-preview-on-markdown-file-edit</link>
+            <guid>https://zzzachzzz.github.io/blog/hot-reloading-blog-preview-on-markdown-file-edit</guid>
+            <pubDate>Sat, 20 Feb 2021 16:23:26 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="https://zzzachzzz.github.io/assets/blog-hot-reload.gif" alt="Side by side web browser and vim hot reloading"/></p><p>When building this feature for my blog, what I wanted is the snappiness of an in-browser blog post editor, where you have a split view showing the editor on one side, and the rendered post on the other, instantaneously updated as you type into the editor. I used to use an in-browser editor for this purpose, but I now wanted the ability to edit inside my editor of choice, Vim.</p><p>You may have noticed in the gif above that the page only updates once I save the file. If you want something that updates as you type, you could opt for an auto-save solution like a plugin specific to your editor.</p><p>Since I&#x27;m using Next.js, which comes with its own preconfigured dev server, I needed to customize the Next.js dev server to add this functionality. This isn&#x27;t actually mandatory, as you could run an Express server separate from your Webpack / Next.js / other dev server, to be responsible for the file watching and WebSocket server.</p><p>For Next.js, there&#x27;s some good suggestions for how to achieve this in <a href="https://github.com/vercel/next.js/discussions/11419">Next.js GitHub issue</a>. One of the suggestions I tried, the package <a href="https://github.com/hashicorp/next-remote-watch">next-remote-watch</a>, ended up being too sluggish for my liking. This is because the mechanism used is triggering an actual Next.js hot reload, the same as what happens when editing a source file.</p><p>I ended up creating my own solution, utilizing:</p><ul><li><p>File watching (via <a href="https://www.npmjs.com/package/chokidar">chokidar</a>)</p></li><li><p>WebSockets (<a href="https://www.npmjs.com/package/ws">ws</a> for the dev server, and the built in browser <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API">WebSocket API</a> for the client)</p></li><li><p><a href="https://nextjs.org/docs/advanced-features/custom-server">Next.js custom server</a> (only for development, not production)</p></li></ul><p>These are the source files relevant for this feature:</p><ul><li><p><a href="https://github.com/zzzachzzz/zzzachzzz.github.io/blob/master/dev-server.ts">dev-server.ts</a> - Custom Next.js server, responsible for file watching and the WebSocket server.</p></li><li><p><a href="https://github.com/zzzachzzz/zzzachzzz.github.io/blob/master/pages/blog/edit/%5Bslug%5D.tsx">/blog/edit/[slug].tsx</a> - Wrapper component for the blog post page, which connects to the WebSocket server.</p></li><li><p><a href="https://github.com/zzzachzzz/zzzachzzz.github.io/blob/master/pages/blog/%5Bslug%5D.tsx">/blog/[slug].tsx</a> - The blog post page, that receives either static props from Next, or when in edit mode, dynamic props from the above wrapper component that manages the WebSocket connection.</p></li></ul>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Going Truly Serverless with Next.js Static Site Generation]]></title>
+            <link>https://zzzachzzz.github.io/blog/going-truly-serverless-with-nextjs-static-site-generation</link>
+            <guid>https://zzzachzzz.github.io/blog/going-truly-serverless-with-nextjs-static-site-generation</guid>
+            <pubDate>Sat, 20 Feb 2021 14:35:05 GMT</pubDate>
+            <content:encoded><![CDATA[<p>With the hype of the <a href="https://jamstack.org">Jamstack</a>, and the benefits it offers, I made the switch from MERN stack to JAM stack for my blog. The most appealing benefits to me in my use case were:</p><ol><li><p>Improved SEO, for my site that can be 100% statically generated.</p></li><li><p>Simplified architecture. No more databases and servers, just files served from GitHub Pages.</p></li><li><p>Using Git as my &quot;CMS&quot;. Switching from storing blog posts in a database, to storing them in <code>.md</code> files, tracked by Git.</p></li></ol><h2 id="choosing-a-react-static-site-generator">Choosing a React Static Site Generator</h2><p>Coming from a MERN app, I needed a SSG solution for React. I considered choosing between three different options:</p><ul><li><p><a href="https://github.com/gatsbyjs/gatsby">Gatsby</a></p></li><li><p><a href="https://github.com/vercel/next.js">Next.js</a></p></li><li><p><a href="https://github.com/react-static/react-static">React Static</a></p></li></ul><p>The two most popular React frameworks are Gatsby &amp; Next.js. Gatsby is a very powerful tool that emphasizes a plugin ecosystem. Gatsby can do a lot. As I went through Gatsby&#x27;s vast documentation, I was having difficulty figuring out how to do what I wanted to do, for my fairly simple use case. After this experience, I was drawn to the simplicity of React Static. Ultimately, I ended up choosing Next.js for a few different reasons, one being their documentation coupled with their collection of examples on GitHub. I used their <a href="https://github.com/vercel/next.js/tree/canary/examples/blog-starter">blog-starter template</a> as a starting point. Another reason I chose Next is their great out-of-the-box TypeScript support.</p><p>The last minor thing that sealed the deal for my decision, was the React team announcing that they are collaborating with the Next.js team on React&#x27;s new experimental feature, &quot;Server Components&quot;. Relevant links:</p><ul><li><p><a href="https://reactjs.org/blog/2020/12/21/data-fetching-with-react-server-components.html">Introducing Zero-Bundle-Size React Server Components</a></p></li><li><p><a href="https://youtu.be/TQQPAU21ZUw?t=2570">(Timestamp in the talk where Dan Abramov mentions the Next.js collab)</a></p></li></ul><p>While not a huge factor, it gave me the impression that the design philosophies of Next.js and the React core team align the most closely, and that Next.js would be receiving first-class support for this feature.</p><h2 id="migrating-from-mern-to-jam">Migrating from MERN to JAM</h2><p>Source code can be found here:</p><ul><li><p>Post-migration GitHub source: <a href="https://github.com/zzzachzzz/zzzachzzz.github.io/tree/master">https://github.com/zzzachzzz/zzzachzzz.github.io/tree/master</a></p></li><li><p>Pre-migration GitHub source: <a href="https://github.com/zzzachzzz/zzzachzzz.github.io/tree/2ab6f0b10606162a57b946461c4dae74e2a295d5">https://github.com/zzzachzzz/zzzachzzz.github.io/tree/2ab6f0b10606162a57b946461c4dae74e2a295d5</a></p></li></ul><p>Aside from the usual steps to migrate a common React app to a Next.js React app, there were a few other things I needed to handle in the migration. There would be changes to accommodate for the removal of a server; no Express &amp; no MongoDB. There would also be some small changes to account for a React app utilizing SSG or SSR (server-side rendering), specifically the way CSS is loaded, depending on the tool you use for CSS.</p><h3 id="mongodb-to-md-files">MongoDB to .md Files</h3><p>For moving the content from MongoDB to markdown files, I created a migration script: <a href="https://github.com/zzzachzzz/zzzachzzz.github.io/blob/fc62221055adea46ef43803c973b28445262c448/backend/migrations/db-to-markdown-file.js">backend/migrations/db-to-markdown-file.js</a></p><h3 id="css-for-ssg-ssr">CSS for SSG / SSR</h3><p>Depending on which tool you use for CSS, Next.js documents how to use it in SSG &amp; SSR here: <a href="https://nextjs.org/docs/basic-features/built-in-css-support">https://nextjs.org/docs/basic-features/built-in-css-support</a></p><p>From there, they link to examples on their GitHub. I use <code>styled-components</code>, so I followed their example here: <a href="https://github.com/vercel/next.js/tree/canary/examples/with-styled-components">https://github.com/vercel/next.js/tree/canary/examples/with-styled-components</a></p><h3 id="hosting-a-static-site-on-github-pages">Hosting a Static Site on GitHub Pages</h3><p>In addition to the <code>next build</code> script, to deploy a fully static site without a server, the <code>next export</code> script is used: <a href="https://nextjs.org/docs/advanced-features/static-html-export">https://nextjs.org/docs/advanced-features/static-html-export</a></p><p>When hosting the static build on a git branch on GitHub Pages, the naming of the exported <code>_next/</code> directory triggers Jekyll on GitHub Pages, as directories with a leading underscore have a special meaning to Jekyll. This unexpected side effect resulted in 404s for certain static assets my site was trying to fetch. To disable Jekyll processing on GitHub pages, we need to provide a <code>.nojekyll</code> file at the root. This was my final build script in my <code>package.json</code> file:<br/><code>&quot;build&quot;: &quot;next build &amp;&amp; next export &amp;&amp; touch ./out/.nojekyll&quot;</code><br/>More info here: <a href="https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages">https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages</a></p><p>While not mandatory, I do recommend the <a href="https://www.npmjs.com/package/gh-pages">gh-pages</a> npm package if you do intend to deploy to GitHub Pages. By default it will push to a branch named <code>gh-pages</code>. You&#x27;ll want to configure your GitHub repo&#x27;s settings to serve GitHub Pages from this branch. In conjunction with the build script I mentioned above, this was my deploy script:<br/><code>&quot;deploy&quot;: &quot;yarn run build &amp;&amp; gh-pages --dist out --dotfiles&quot;</code><br/><code>out/</code> is the default output directory name for a Next.js static export, and we need to include the option <code>--dotfiles</code> for the <code>.nojekyll</code> file to be included in the push to the <code>gh-pages</code> branch.</p><h3 id="getting-prismjs-to-work-with-ssg-ssr">Getting Prism.js to Work with SSG / SSR</h3><p>I never found it straightforward to set up Prism.js for code highlighting in a React app. When my pages were still being rendered client-side, I used <code>React.useEffect</code> to trigger Prism to highlight all code blocks:</p><pre><code>React.useEffect(() =&gt; {
+  Prism.highlightAll();
+}, []);</code></pre><p>While I could still have the effect be performed client-side, I wanted to go all in on having my site be fully statically generated. In my <a href="https://github.com/zzzachzzz/zzzachzzz.github.io/blob/master/components/TreeToJSX.tsx">TreeToJSX.tsx</a> component, responsible for rendering a markdown document tree to JSX, I came up with the following solution to have the Prism highlighted HTML be built:</p><pre><code>// Add leading whitespace to &lt;code&gt; className due to className mismatch caused by Prism injecting class
+const CodeBlock = ({ lang, children }: { lang?: string; children: string; }) =&gt; {
+  const langCls = ` language-${lang || &#x27;none&#x27;}`;
+  if (lang) {
+    const highlightedCode = Prism.highlight(children, Prism.languages[lang], lang);
+    return (
+      &lt;Pre className={langCls}&gt;
+        &lt;code className={&quot; &quot; + langCls} dangerouslySetInnerHTML={{__html: highlightedCode}}&gt;&lt;/code&gt;
+      &lt;/Pre&gt;
+    );
+  } else {
+    return (
+      &lt;Pre className={langCls}&gt;
+        &lt;code className={&quot; &quot; + langCls}&gt;{children}&lt;/code&gt;
+      &lt;/Pre&gt;
+    );
+  }
+};</code></pre><p>Prism offers a low level <code>highlight</code> function that will return stringified HTML of the syntax highlighted code we provide in the string <code>children</code>. I was getting a warning about a mismatching className between the client and server (server in development, for SSG). The mismatch was caused by leading whitespace in one but not the other: <code>&quot; language-jsx&quot;</code> vs <code>&quot;language-jsx&quot;</code>. This was some oddity caused by the way Prism injects CSS classes, that I was able to workaround by adding leading whitespace to the class names.</p><h2 id="hot-reloading-a-rendered-blog-post-upon-its-markdown-file-being-edited">Hot Reloading a Rendered Blog Post Upon its Markdown File Being Edited</h2><p>I outline this feature in a separate post:<br/><a href="https://zzzachzzz.github.io/blog/hot-reloading-blog-preview-on-markdown-file-edit">Hot Reloading Blog Preview on Markdown File Edit</a></p><p><img src="https://zzzachzzz.github.io/assets/blog-hot-reload.gif" alt="Side by side web browser and vim hot reloading"/></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Dockerizing a MERN App for Development and Production]]></title>
+            <link>https://zzzachzzz.github.io/blog/dockerizing-a-mern-app-for-development-and-production</link>
+            <guid>https://zzzachzzz.github.io/blog/dockerizing-a-mern-app-for-development-and-production</guid>
+            <pubDate>Sun, 25 Oct 2020 16:30:43 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Creating a Dockerfile for a single service usually isn&#x27;t too bad. The example Dockerfile provided by the official guide for Node.js, <a href="https://nodejs.org/en/docs/guides/nodejs-docker-webapp/">Dockerizing a Node.js web app</a>, can be copied almost exactly.</p><p>However, things start to get a little more complicated when we want to:</p><ul><li><p>Create configurations for both development and production environments</p></li><li><p>Enable hot reloading in development (avoid needing Docker to re-build for every change)</p></li><li><p>Orchestrate connecting multiple services together (relevant for any web app with a frontend, backend, database, etc.)</p></li><li><p>Persist data in a database between runs (with Docker volumes)</p></li></ul><p>The app I&#x27;ll be using as an example can be found here: <a href="https://github.com/zzzachzzz/zzzachzzz.github.io/tree/2ab6f0b10606162a57b946461c4dae74e2a295d5">https://github.com/zzzachzzz/zzzachzzz.github.io/tree/2ab6f0b10606162a57b946461c4dae74e2a295d5</a><br/>I will also include the various Docker files in this post.</p><blockquote><p><b>Edit (Feb. 15, 2021)</b><br/>Yep, that&#x27;s the source code for this site, at a prior commit. The site has since been migrated to Next.js with static site generation. To learn more about that, see the post:<br/><a href="https://zzzachzzz.github.io/blog/going-truly-serverless-with-nextjs-static-site-generation">Going Truly Serverless with Next.js Static Site Generation</a></p></blockquote><p>To Dockerize a React app, we&#x27;ll definitely want a config for development, and production. In development, webpack-dev-server (<code>npm run [start|react-scripts-start]</code> in CRA) will be used with hot-reloading. In production, there are multiple ways to go about it, but I&#x27;ll be using Nginx to serve the bundle, and proxying <code>/api</code> requests to the Express app.</p><p><code>frontend/Dockerfile.dev</code>:</p><pre><code>FROM node:14
+WORKDIR /usr/src/frontend
+COPY package*.json ./
+RUN npm install
+EXPOSE 3000
+CMD [&quot;npm&quot;, &quot;run&quot;, &quot;start&quot;]</code></pre><p>One thing to note for proxying requests in development. If using CRA, you&#x27;ve likely set <code>&quot;proxy&quot;: &quot;http://localhost:&lt;port&gt;&quot;</code> in <code>package.json</code> before, to proxy requests from React to a server, like Express. When running the frontend and the backend in separate Docker containers, they don&#x27;t share the same localhost. Instead, we need to provide the network address created by Docker to connect the two together. You&#x27;ll see more of this in later steps involving the Docker Compose <code>.yml</code> files, but as far as Webpack is concerned, we&#x27;ll need to provide it a config file for the proxy:</p><p><code>frontend/src/setupProxy.js</code>:</p><pre><code>const { createProxyMiddleware } = require(&#x27;http-proxy-middleware&#x27;);
+
+const EXPRESS_HOST = process.env.EXPRESS_HOST || &#x27;localhost&#x27;;
+
+module.exports = function(app) {
+  app.use(
+    &#x27;/api&#x27;,
+    createProxyMiddleware({
+      target: `http://${EXPRESS_HOST}:5000`
+    })
+  );
+};</code></pre><p>Since I don&#x27;t know of a way to embed an environment variable in the <code>package.json</code> file, this more advanced <code>setupProxy.js</code> file is necessary. Notice the environment variable <code>EXPRESS_HOST</code>. We will provide this variable to our Docker container, through our Docker Compose config. More on the above proxy config here: <a href="https://create-react-app.dev/docs/proxying-api-requests-in-development/#configuring-the-proxy-manually">https://create-react-app.dev/docs/proxying-api-requests-in-development/#configuring-the-proxy-manually</a></p><p><code>frontend/Dockerfile.prod</code>:</p><pre><code>FROM node:14 as builder
+WORKDIR /usr/src/frontend
+COPY package*.json ./
+RUN npm install
+COPY . .
+RUN npm run build
+
+FROM nginx
+COPY --from=builder /usr/src/frontend/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/
+EXPOSE 8080
+CMD [&quot;nginx&quot;, &quot;-g&quot;, &quot;daemon off;&quot;]</code></pre><p>This is considered a multi-stage Docker build, due to the multiple <code>FROM</code> statements. We build our Webpack bundle, beginning from the <code>node:14</code> base image, and then switch to the <code>nginx</code> base image to serve that Webpack bundle. Notice the line <code>COPY nginx.conf /etc/nginx/conf.d/</code>, which refers to a <code>nginx.conf</code> file I keep in Git.</p><p><code>frontend/nginx.conf</code>:</p><pre><code>server {
+    listen 8080;
+
+    location /api {
+        proxy_pass http://backend:5000;
+    }
+
+    location / {
+        root /usr/share/nginx/html;
+        try_files $uri /index.html;
+    }
+}</code></pre><p><b>Note that my <code>nginx.conf</code> is a bit abnormal</b>, since my server hosting the site has another Nginx instance running outside of Docker, which I have setup with <code>location / { proxy_pass http://localhost:8080; }</code>. I have it setup this way so I can host multiple sites, and have Nginx handle routing traffic based on the <code>server_name</code>. You&#x27;ll probably want your <code>nginx.conf</code> setup to include sections for Certbot, to manage SSL certificates, and listen on port 80 &amp; 443. Consult another tutorial on Certbot &amp; Nginx for that.</p><p>The portion of this <code>nginx.conf</code> file that is applicable to you is the <code>proxy_pass</code> setup for <code>/api</code> requests, which sends it to the network host <code>backend</code> on port <code>5000</code>. This is Docker managing networking again. In this case, <code>backend</code>, is the name of our docker-compose service for Express, so Docker provides us the address for that specific container under the hostname <code>backend</code>.</p><p>Before we get to those Docker Compose files that link everything together, there&#x27;s one more Dockerfile:</p><p><code>backend/Dockerfile</code>:</p><pre><code>FROM node:14
+WORKDIR /usr/src/backend
+COPY package*.json ./
+RUN npm install
+COPY . .
+EXPOSE 5000
+CMD [&quot;node&quot;, &quot;app.js&quot;]</code></pre><p>For the backend, I don&#x27;t currently have a separate dev &amp; prod Dockerfile, however I would recommend it, with the use of <code>nodemon</code> in place of <code>node</code> in the <code>CMD</code> statement in <code>Dockerfile.dev</code>, to enable hot reloading in development.</p><p>Now onto the <code>docker-compose.yml</code> files. I have 3 of these under the filenames <code>docker-compose.yml</code>, <code>docker-compose.override.yml</code>, and <code>docker-compose.prod.yml</code>. You can choose different filenames, but there is a rational for these specific filenames. Both <code>docker-compose.yml</code> and <code>docker-compose.override.yml</code> are <a href="https://docs.docker.com/compose/extends/">filenames that Docker specifically looks for</a>. In both dev &amp; prod, we use 2 of these 3 docker-compose files.</p><ul><li><p><code>docker-compose.yml</code> - The base config for dev &amp; prod</p></li><li><p><code>docker-compose.override.yml</code> - The dev config overrides</p></li><li><p><code>docker-compose.prod.yml</code> - The prod config overrides</p></li></ul><p>As shown in the Docker Compose docs linked above, multiple compose files can be specified with <code>-f</code> like so (also see <code>docker-compose --help</code>):<br/><code>docker-compose -f docker-compose.yml -f docker-compose.prod.yml [COMMAND] [ARGS...]</code></p><p>Compose files specified are read from left to right, which means <code>docker-compose.prod.yml</code> will be read last, giving it priority over our base <code>docker-compose.yml</code>.</p><p>If no files are specified with <code>-f</code>, Docker will do this:
+<code>docker-compose -f docker-compose.yml -f docker-compose.override.yml [COMMAND] [ARGS...]</code></p><p>Why does this matter? In development, when you want to use the dev config, <b>you don&#x27;t have to specify compose files for every <code>docker-compose</code> command you want to execute</b>. Running your entire application&#x27;s stack in development becomes one short command: <code>docker-compose up</code>. That&#x27;s it. Finally, here are those compose files:</p><p><code>docker-compose.yml</code>:</p><pre><code>version: &quot;3.8&quot;
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+    environment:
+      EXPRESS_HOST: backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - &quot;5000:5000&quot;
+    env_file: ./backend/.env
+    environment:
+      HOST: 0.0.0.0
+      MONGO_HOST: mongo
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - &quot;127.0.0.1:27017:27017&quot;
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:</code></pre><p><code>docker-compose.override.yml</code>:</p><pre><code>services:
+  frontend:
+    build:
+      dockerfile: ./Dockerfile.dev
+    ports:
+      - &quot;3000:3000&quot;
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./frontend:/usr/src/frontend
+      - /usr/src/frontend/node_modules
+    # Due to stupid react-scripts bug still present in v3.4.3
+    # https://github.com/facebook/create-react-app/issues/8688
+    stdin_open: true
+
+  backend:
+    environment:
+      NODE_ENV: development
+    volumes:
+      - ./backend:/usr/src/backend
+      - /usr/src/backend/node_modules</code></pre><p><code>docker-compose.prod.yml</code>:</p><pre><code>services:
+  frontend:
+    build:
+      dockerfile: ./Dockerfile.prod
+    ports:
+      - &quot;127.0.0.1:8080:8080&quot;
+    environment:
+      NODE_ENV: production
+
+  backend:
+    environment:
+      NODE_ENV: production</code></pre><p>There&#x27;s a lot we could go over in these compose files. I mentioned in the beginning that we want to enable hot-reloading in development, so that changes to code made on our host computer, are reflected in our Docker container, triggering a hot-reload from webpack-dev-server (or nodemon). The way we reflect file changes between host and container is through specifying <code>volumes</code>:</p><pre><code>volumes:
+  - ./frontend:/usr/src/frontend
+  - /usr/src/frontend/node_modules</code></pre><p><code>./frontend:/usr/src/frontend</code> maps our host&#x27;s <code>./frontend</code> directory, to our container&#x27;s <code>/usr/src/frontend</code> directory. Since our host may have its own <code>node_modules</code> directory inside <code>./frontend</code>, we don&#x27;t want this to be shared with the container. The container needs to maintain its own installed dependencies in isolation. To prevent our container&#x27;s <code>node_modules</code> from being overwritten, we create an anonymous volume of our container&#x27;s <code>/usr/src/frontend/node_modules</code> directory. The ordering of the two volumes listed is important, so that our container&#x27;s <code>node_modules</code> stored in a volume have highest priority (applied last). I would recommend doing other research on Docker volumes to better understand the different types of volumes that Docker supports. Just note that we can tell Docker to persist its own <code>node_modules</code> by creating an anonymous volume (we don&#x27;t assign a name to it), that Docker keeps track of with a generated hash as the volume name. This volume persists between container instances.</p><p>On the subject of volumes, another volume is very important to persist data in our Mongo database. Without a volume, our Mongo data would be lost every time out container stops and starts again, and we definitely don&#x27;t want to lose our DB data, at least in production. You&#x27;ll notice this volume is mentioned in two places:</p><pre><code>  mongo:
+    image: mongo:latest
+    ports:
+      - &quot;127.0.0.1:27017:27017&quot;
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:</code></pre><p>Why does <code>mongo-data</code> appear twice? In this situation, we&#x27;re using a &quot;named volume&quot; (again, highly recommend reading more on these volume types). A named volume behaves quite similar to the anonymous volume I described earlier, except it&#x27;s named! We could technically make this volume anonymous, but it&#x27;s good to be able to identify the volume in case we need to manipulate it somehow, like making a backup of our database data. Named volumes must be defined in the top-level <code>volumes</code> key, that&#x27;s why it appears in two places, unlike anonymous volumes.</p><p>See the Docker Compose docs on volumes: <a href="https://docs.docker.com/compose/compose-file/#volumes">https://docs.docker.com/compose/compose-file/#volumes</a></p><p>You may have noticed that ports are usually mapped like <code>&quot;&lt;port&gt;:&lt;port&gt;&quot;</code>, without specifying a host. With this shorthand, the host is implied to be <code>0.0.0.0</code>, listening on all interfaces. This makes it publicly accessible outside of the machine. If you don&#x27;t need to directly access Mongo (via the Mongo shell) remotely, and can instead do so over SSH, I highly recommend that for security. Especially with the default Mongo config for Docker, there will be no credentials required to access Mongo. This means that an attacker who only knows the IP address of your server can remotely access your database! Yes, I did learn that the hard way, thankfully with non-consequential data. 😅 So do yourself a favor and specify the mapping <code>127.0.0.1:27017:27017</code> (<code>localhost</code> for the host, implicit <code>0.0.0.0</code> for the container).</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[How to Install Vim with +clipboard with Homebrew on Linux]]></title>
+            <link>https://zzzachzzz.github.io/blog/how-to-install-vim-with-clipboard-with-homebrew-on-linux</link>
+            <guid>https://zzzachzzz.github.io/blog/how-to-install-vim-with-clipboard-with-homebrew-on-linux</guid>
+            <pubDate>Sat, 08 Feb 2020 17:08:57 GMT</pubDate>
+            <content:encoded><![CDATA[<blockquote><p>Note: Or just install NeoVim and this should be a non-issue.</p></blockquote><p>Installing Vim with brew on OSX has worked flawlessly for me, and included +clipboard support. In my experience, working with Windows Subsystem for Linux specifically, a simple <code>brew install vim</code> didn&#x27;t cut it, and <code>vim --version</code> displayed that sad <code>-clipboard</code>. I would prefer to use the same package manager between OSX and Linux, especially since I use a shell script for installing all my brew packages. In the past I&#x27;ve just resorted to installing vim-gtk to get a clipboard enabled build of vim on Linux. However, vim-gtk only yielded me version 8.0, while brew offered 8.2. I cared enough about this to open a GitHub issue and get a solution.</p><p><a href="https://github.com/Homebrew/linuxbrew-core/issues/19505">Installing custom formula for Vim, options not present (+clipboard) - GitHub Issue</a></p><ol><li><p>Install dependencies<br/><code>sudo apt-get install libncurses5-dev libgnome2-dev libgnomeui-dev libgtk2.0-dev libatk1.0-dev libbonoboui2-dev libcairo2-dev libx11-dev libxpm-dev libxt-dev</code></p></li><li><p>Modify the vim formula<br/><code>brew edit vim</code><br/>Change the configure option <code>--without-x</code> to <code>--with-x</code> and add the option <code>--with-features=huge</code>. Save the changes.</p></li><li><pre><code>system &quot;./configure&quot;, &quot;--prefix=#{HOMEBREW_PREFIX}&quot;,
+                      &quot;--mandir=#{man}&quot;,
+                      &quot;--enable-multibyte&quot;,
+                      # New options
+                      &quot;--with-x&quot;,
+                      &quot;--with-features=huge&quot;,</code></pre></li><li><p>Install the modified formula<br/><code>brew install --build-from-source vim</code></p></li></ol><p>It is crucial to have the necessary dependencies installed. I tried these steps with the same formula options, <code>--with-x</code> and <code>--with-features=huge</code>, and my Vim installation <i>silently failed to include clipboard support, prior to installing the dependencies</i>. This is a major nuisance, and I hope to have raised some awareness of this issue, for a use case as common as installing Vim with clipboard support with Homebrew on Linux.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[|, >, >>, <, <<, <<<, <() Piping and Redirection in the Shell]]></title>
+            <link>https://zzzachzzz.github.io/blog/piping-and-redirection-in-the-shell</link>
+            <guid>https://zzzachzzz.github.io/blog/piping-and-redirection-in-the-shell</guid>
+            <pubDate>Mon, 06 Jan 2020 22:53:59 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Lately I&#x27;ve been learning Vim more in depth, beyond just Vim&#x27;s modal editing. With that, I&#x27;ve been learning more about Unix and the shell. As they say, &quot;Unix is an IDE&quot;, and Vim is just one of its tools. I&#x27;m going to keep it simple and use the terms input &amp; output to refer to stdin &amp; stdout, the more technically correct terms here.</p><p><code>program &gt; file</code> Redirects the output of a program to a file. If the file exists, it will be overwritten (be careful).</p><p><code>program &gt;&gt; file</code> Redirects the output of a program to a file. If the file exists, it will be appended to (safer option).</p><p><code>program &lt; file</code> Redirects a file to be the input of a program. From what I can tell, this is rarely useful on its own, since nearly all programs which accept an input stream, also accept a file argument. Hence, these two are equivalent: <code>cat &lt; file</code> &amp; <code>cat file</code>. More details on that here:<br/><a href="https://askubuntu.com/a/883822">How does input redirection work? - Ask Ubuntu</a></p><p><code>output | program</code> Redirects the output of a program, to be the input of another program.<br/>Example: <code>echo $PATH | less</code><br/>This is functionally equivalent to:<br/><code>echo $PATH &gt; temp_file &amp;&amp; less &lt; temp_file</code></p><h2 id="herestrings-heredocs">Herestrings &amp; Heredocs</h2><p><code>program &lt;&lt;&lt; string</code> Redirects a string to be the input of a program, as if it were a file&#x27;s contents.<br/>Example:<br/><code>python &lt;&lt;&lt; &quot;print(len(&#x27;Dude no way&#x27;))&quot;
+11</code></p><p><code>program &lt;&lt; delimiter
+multi-line string
+delimiter</code> Redirects a multi-line string to be the input of a program, as if it were a file&#x27;s contents.<br/>Example:<br/><code>python &lt;&lt; EOF
+heredoc&gt; print(&#x27;Sooo&#x27;)
+heredoc&gt; print(&#x27;Powerful&#x27;)
+heredoc&gt; EOF
+Sooo
+Powerful
+</code>EOF (end of file) is just a convention here, the delimiter could be almost any sequence of characters.</p><h2 id="process-substitution">Process Substitution</h2><p><code>program &lt;(output)</code> Redirects the output of a program to a temp file, to be treated as a file argument.<br/>Example:<br/><code>cat &lt;(echo &quot;It&#x27;s almost like...\nI&#x27;m a file&quot;)</code><br/>Note that <code>cat</code> accepts files as arguments, here we provide output instead.<br/>Another example:<br/><code>vimdiff &lt;(/usr/local/bin/vim --version) &lt;(/usr/bin/vim --version)</code></p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Common Tasks: JavaScript and Python Equivalents]]></title>
+            <link>https://zzzachzzz.github.io/blog/common-tasks-javascript-and-python-equivalents</link>
+            <guid>https://zzzachzzz.github.io/blog/common-tasks-javascript-and-python-equivalents</guid>
+            <pubDate>Wed, 13 Nov 2019 05:06:20 GMT</pubDate>
+            <content:encoded><![CDATA[<h2 id="template-strings">Template Strings</h2><pre><code>// JavaScript
+let name = &#x27;Timmy&#x27;;
+console.log(`${name}: ${3+9} btw haHAA`);  // Timmy: 12 btw haHAA</code></pre><pre><code># Python (3.6+)
+name = &#x27;Timmy&#x27;;
+print(f&quot;{name}: {3+9} btw haHAA&quot;);  # Timmy: 12 btw haHAA</code></pre><h2 id="ternary-operator">Ternary Operator</h2><pre><code>// JavaScript
+let x = 0;
+x += true ? 1 : 0;
+console.log(x);  // 1</code></pre><pre><code># Python
+x = 0
+x += 1 if True else 0
+print(x)  # 1</code></pre><h2 id="array-list-manipulation">Array / List Manipulation</h2><pre><code>// JavaScript
+let x = [3];  // x: [3]
+x.push(5);  // x: [3, 5]
+let y = x;  // x: [3, 5], y: [3, 5]
+console.log(x == y);  // true
+// Clone an array (shallow copy)
+y = [...x];  // x: [3, 5], y: [3, 5]
+// Or
+y = x.slice()
+console.log(x == y);  // false
+// Check for equality
+console.log(x.length === y.length &amp;&amp; x.every((e, i) =&gt; e === y[i]))  // true
+x.pop()  // x: [3], y: [3, 5]
+console.log(x.length === y.length &amp;&amp; x.every((e, i) =&gt; e === y[i]))  // false</code></pre><pre><code># Python
+x = [3]  # x: [3]
+x.append(5)  # x: [3, 5]
+y = x  # x: [3, 5], y: [3, 5]
+print(x is y)  # True
+# Clone a list (shallow copy)
+y = x.copy()  # x: [3, 5], y: [3, 5]
+# Or
+y = list(x)
+print(x is y)  # False
+# Check for equality
+print(x == y)  # True
+x.pop()  # x: [3], y: [3, 5]
+print(x == y)  # False</code></pre><h2 id="reading-writing-json-files">Reading &amp; Writing JSON Files</h2><pre><code>// JavaScript
+const fs = require(&#x27;fs&#x27;);
+
+fs.writeFileSync(&#x27;data.json&#x27;, JSON.stringify({a: 1, b: 2}, null, 4));
+let data = JSON.parse(fs.readFileSync(&#x27;data.json&#x27;));
+console.log(data);  // {a: 1, b: 2}</code></pre><pre><code># Python
+import json
+
+with open(&#x27;data.json&#x27;, &#x27;w&#x27;) as file:
+    json.dump({&#x27;a&#x27;: 1, &#x27;b&#x27;: 2}, file, indent=4)
+with open(&#x27;data.json&#x27;, &#x27;r&#x27;) as file:
+    data = json.load(file)
+print(data)  # {&#x27;a&#x27;: 1, &#x27;b&#x27;: 2}</code></pre><h2 id="for-loops-and-iteration">For Loops and Iteration</h2><pre><code>// JavaScript
+const arr = [&#x27;a&#x27;, &#x27;b&#x27;];
+
+for (let i = 0; i &lt; arr.length; i++) {
+  console.log(i, arr[i]);  // 0 &#x27;a&#x27; , 1 &#x27;b&#x27;
+}
+
+for (const x of arr) {
+  console.log(x);  // a , b
+}
+
+const obj = {a: 1, b: 2};
+
+for (const key in obj) {
+  console.log(key, obj[key]);  // a 1 , b 2
+}
+
+for (const [key, value] of Object.entries(obj)) {
+  console.log(key, value);  // a 1 , b 2
+}</code></pre><pre><code># Python
+arr = [&#x27;a&#x27;, &#x27;b&#x27;]
+
+for i in range(len(arr)):
+    print(i, arr[i])  # 0 a , 1 b
+
+for x in arr:
+    print(x)  # a , b
+
+obj = {&#x27;a&#x27;: 1, &#x27;b&#x27;: 2}
+
+for key in obj:
+    print(key, obj[key])  # a 1 , b 2
+
+for key, value in obj.items():
+    print(key, value)  # a 1 , b 2</code></pre><h2 id="list-comprehension-array-map">List Comprehension / Array Map</h2><pre><code>// JavaScript
+let arr = Array.from({length: 4}, _ =&gt; null);
+console.log(arr);  // [null, null, null, null]
+
+arr = [1, 2, 3, 4].map(x =&gt; x % 2 === 0 ? true : false);
+console.log(arr);  // [false, true, false, true]
+
+arr = [1, 2, 3, 4].filter(x =&gt; x % 2 === 0).map(x =&gt; x + 100);
+console.log(arr);  // [102, 104]
+// OR in a single iteration:
+arr = [1, 2, 3, 4].reduce((filtered, x) =&gt; {
+  if (x % 2 === 0) filtered.push(x + 100);
+  return filtered;
+}, []);
+console.log(arr);  // [102, 104]</code></pre><pre><code># Python
+arr = [None for i in range(4)]
+print(arr)  # [None, None, None, None]
+
+arr = [True if x % 2 == 0 else False for x in [1, 2, 3, 4]]
+print(arr)  # [False, True, False, True]
+
+arr = [x + 100 for x in [1, 2, 3, 4] if x % 2 == 0]
+print(arr)  # [102, 104]</code></pre><p>More to come</p><p>___</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[A Practical Guide to Learning Vim]]></title>
+            <link>https://zzzachzzz.github.io/blog/a-practical-guide-to-learning-vim</link>
+            <guid>https://zzzachzzz.github.io/blog/a-practical-guide-to-learning-vim</guid>
+            <pubDate>Tue, 17 Sep 2019 18:49:28 GMT</pubDate>
+            <content:encoded><![CDATA[<p><b>Edit (Jan. 11, 2020):</b> Since the creation of this blog post, I&#x27;ve begun using standalone Vim. My opinion hasn&#x27;t changed about the learning curve, and I don&#x27;t think there&#x27;s an overall advantage to using Vim over using an IDE/Editor with a Vim plugin. My incentive for learning Vim more in depth is because I enjoy the process of mastering the skill. The rest of this blog post will be left in its original state. Also, the <a href="https://github.com/JetBrains/ideavim">IdeaVim</a> plugin for JetBrains IDEs is the best I have used, even better than Neovintageous.</p><p>A more fitting title might be &quot;A Practical Guide to <i>Adopting</i> Vim&quot;. I&#x27;m not an advocate of Vim as an editor, I&#x27;m a fan of modal editing, of a mouse-free text editing experience. I think Vim as an editor can be great after extensively customizing it to your liking, but again, even the process of learning how to customize Vim adds even more to the learning curve. For this reason, I recommend you continue using your editor of choice... <i>with a Vim plugin to enable modal editing</i>.</p><p>Once someone has learned the basics of Vim&#x27;s keybindings, the next step is incorporating this new skill into their daily work, to develop the skill further, and train their muscle memory. One may attempt to switch to using Vim in their daily work, and quickly find their inability to be productive. Picking up Vim as an editor involves both learning Vim, and giving up all the features and keybindings you&#x27;re accustomed to in your last editor. Be it VSCode, Sublime, Atom, even picking up one of these editors and maximizing your productivity in it by learning its features and keyboard shortcuts is not a trivial task.</p><p>&quot;But Vim emulators suck, they&#x27;re not as good as real Vim. Just use Vim you filthy casual.&quot; I read too many comments of this nature in r/vim...<br/>While some plugins emulating Vim are worse than others, this statement of inferiority should not be a barrier to entry. People should learn Vim even only at a basic level. I&#x27;m not an expert, I don&#x27;t do fancy Vim trick shots in my daily editing. The most I&#x27;ve done is a macro, and the use case for this becomes very rare when I have multiple cursors in Sublime. I love too many of Sublime&#x27;s features to give it up! That&#x27;s why I feel I&#x27;ve struck an excellent balance of Vim features and Sublime features with my configuration. That&#x27;s the beauty of this, <i>you can keep the config you have and incrementally adopt Vim functionality, versus diving in head first.</i></p><p>I&#x27;m sure you can achieve a similar level of customization and features using a plugin for some other editor of your choice. My point of reference is the Neovintageous plugin for Sublime Text, so that&#x27;s what I&#x27;ll be covering in the remainder of this post.</p><p>Vintage, Six, Vintageous, Neovintageous, which Vim plugin do I choose? I started with the Vintage package, which comes bundled with Sublime, but the package is set to be ignored by default. Sublime&#x27;s stock offering of Vim emulation with Vintage met my needs just fine for a while, and I didn&#x27;t see any reason to switch. The small tweaks I needed, such as binding jj to &lt;Esc&gt;, was covered by a tweak to Sublime&#x27;s JSON formatted settings.</p><p>I eventually discovered the power of a well configured vimrc, and went in search for how I could include one in my Sublime Vim setup. Through some random comment I stumbled across on some forum, someone mentioned the capability of the Neovintageous package to allow you to include a .neovintageous file, the equivalent of a .vimrc file. I cannot believe that this feature is not advertised more on <a href="https://github.com/NeoVintageous/NeoVintageous">Neovintageous&#x27;s GitHub</a> readme. While they state that it is highly configurable, there is no mention of a .neovintageousrc file in the readme. I am shocked by this.</p><p>This is a killer feature, and for me it would have been the one thing to tempt me to abandon Sublime and force myself to learn all of Vim, beyond just its modal editing. For the record, I&#x27;m not allergic to Vim. I use it every day for quick file edits, but it doesn&#x27;t have the allure that Sublime does on me. When you discover the power of a .vimrc, you may become addicted to making it your own, and improving upon some of Vim&#x27;s less desirable default key mappings.</p><p>I don&#x27;t have a ton of modifications, but I&#x27;ll share what I do have, as well as my motive behind each remap. If you want more, you can look on GitHub at some of the Vim customization repos with thousands of stars, and hundreds of lines of modifications. I prefer to keep it a little bit simpler. By the way, the file goes in your Sublime User folder with your other customizations. Example path on a Windows machine: <code>C:\Users\&lt;your user&gt;\AppData\Roaming\Sublime Text 3\Packages\User\.neovintageousrc</code></p><p>Just before I get into the <code>.neovintageousrc</code>, I know of one keybinding that needs to be assigned in the regular Sublime keybinding settings, and it&#x27;s the most important one:</p><pre><code>{
+    &quot;keys&quot;: [&quot;j&quot;, &quot;j&quot;],
+    &quot;command&quot;: &quot;_enter_normal_mode&quot;,
+    &quot;args&quot;: {&quot;mode&quot;: &quot;mode_insert&quot;},
+    &quot;context&quot;: [{&quot;key&quot;: &quot;vi_insert_mode_aware&quot;}]
+},</code></pre><p><code>jj</code> for exiting insert mode, instead of having to reach over to press <code>&lt;Esc&gt;</code>. This is a popular one. <code>jk</code> is another good alternative. Onto the rest of the key mappings...</p><h2 id="neovintageousrc"><code>.neovintageousrc</code></h2><p><code>noremap J 5j</code> Shift + j moves the cursor down 5 lines<br/><code>noremap K 5k</code> Shift + k moves the cursor up 5 lines<br/><code>noremap W 5w</code> Shift + w moves the cursor forward 5 words<br/><code>noremap B 5b</code> Shift + b moves the cursor backwards 5 words</p><p>These 4 navigation mappings just make sense to me, <code>J</code> and <code>K</code> in particular. I don&#x27;t think I&#x27;d seen these elsewhere. I don&#x27;t like counting lines and words every time I wanna move around in Vim, so instead I would end up spamming <code>j</code> and <code>k</code>. I think this strikes a good balance for medium distance movement, without the need to first hit an arbitrary number key, and then my intended movement command. This way, I can just hold shift and fly around.</p><p><code>noremap M J</code> Join lines with M</p><p>Ah but wait! I just replaced another very important default keybinding for joining lines with J. Yes, so I opted for a key next to it, M, which by default moves your cursor to the middle of the screen. This could also be a useful one, but I didn&#x27;t find myself using it. Customize as you wish.</p><p><code>noremap 0 ^</code><br/><code>noremap ^ 0</code></p><p>Here I&#x27;m swapping the keys responsible for moving the cursor to the beginning of the line, and moving the cursor to the first non-whitespace character (skip the indentation). The latter I find far more useful, so I made it the key that&#x27;s easier to press, <code>0</code>.</p><p><code>noremap $ g_</code></p><p><code>$</code> moves the cursor to the end of the line and includes the newline character. So if you yank and paste that, you&#x27;ll get an extra line. <code>g_</code> is one of those random vim bindings under the g &#x27;namespace&#x27;, and it moves the cursor to the end of the line, excluding the newline character. Much better.</p><p><code>noremap m `
+noremap ` m</code></p><p>Here, I&#x27;m swapping the key for creating a mark and going to a mark. I go to marks far more often than I create them, so it makes sense to me to make goto mark easier to press with <code>m</code>.</p><p><code>noremap &lt;lt&gt; ,</code> Translates to <code>noremap &lt; ,</code> but <code>&lt;</code> is a special character in the vimrc syntax<br/><code>noremap , ;</code></p><p>Normally when using <code>f</code> or <code>t</code> to find a character in a line, you would use <code>;</code> to jump to the next result, and <code>,</code> to jump to the previous result. What I&#x27;ve done here, is sort of mimic the logic of <code>n</code> and <code>N</code> for going to the next and previous result in a Vim search. You&#x27;re using the same key, but holding <code>Shift</code> to do the reverse. This pattern is seen all throughout default Vim keybindings. With <code>,</code> and <code>&lt;</code>, the mapping becomes much the same. You can think of it as <code>,</code> to jump to the next result, and <code>Shift + ,</code> to jump to the previous result.</p><p><code>noremap &lt;C-s&gt; :w&lt;CR&gt;</code></p><p>Make the default keybind for saving in Vim also supported in Sublime.</p><p><code>vnoremap &lt;Tab&gt; &gt;gv
+vnoremap &lt;S-Tab&gt; &lt;gv</code></p><p>I don&#x27;t know all the technicalities of this one, but what it allows is for the repeated indentation and reverse indentation of a selection in visual mode, using <code>Tab</code> and <code>Shift + Tab</code>.</p><p>That&#x27;s all I&#x27;ve got! Have fun customizing to make it your own ~</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Git Reference: Keep it Simple. Common Workflows]]></title>
+            <link>https://zzzachzzz.github.io/blog/git-reference-keep-it-simple-common-workflows</link>
+            <guid>https://zzzachzzz.github.io/blog/git-reference-keep-it-simple-common-workflows</guid>
+            <pubDate>Tue, 03 Sep 2019 19:28:34 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Anywhere you see <code>&lt;remote&gt;</code>, you should probably use <code>origin</code>. More on origin vs upstream below.</p><h2 id="reference">Reference</h2><p><code>git status</code> : display current branch and information on file changes</p><p><code>git branch</code> : view all local branches</p><p><code>git checkout &lt;branch&gt;</code> : switch to the specified branch</p><p><code>git branch -d &lt;branch&gt;</code> : delete a branch (may require <code>-D</code> to force if the branch has commits unique to it)</p><p><code>git checkout -b &lt;name&gt;</code> : create a new branch based on the current branch, specifying a name</p><p><code>git fetch</code> : download changes from remote</p><p><code>git merge &lt;remote&gt;/&lt;branch&gt;</code> : merge another branch into current branch</p><p><code>git pull</code> : fetch and merge the remote of the current branch into the local current branch</p><p><code>git rebase &lt;branch&gt;</code> : like merge, but move the current branch&#x27;s unique commits to be the newest commits in the commit history</p><p><code>git push &lt;remote&gt; HEAD</code> : push current local branch to remote branch with the same name. If remote branch does not yet exist, requires <code>-u</code> flag to create it. If pushing to an existing branch after a rebase, <code>-f</code> flag to force will be required (be careful), as the commit history has been overwritten.</p><p><code>git diff</code> : view line additions and deletions for tracked modified files not yet added to staging</p><p><code>git diff --cached</code> : view line additions and deletions for files added to staging</p><p><code>git log</code> : view commit history with commit hashes</p><p><code>git reset</code> : remove all files from staging (implicit --soft)</p><p><code>git checkout -- &lt;file or directory&gt;</code> : Undo changes made to the specified file(s) (tracked and unstaged files)</p><p><code>git reset --hard &lt;commit-hash&gt;</code> or <code>git reset --hard &lt;branch&gt;</code> : reset current branch to match a specific commit or latest commit of a specified branch.<br/>Example:<br/><code>git reset --hard 151fb5a134912aacec63969f479dd59e5057ff22</code><br/>or <code>git reset --hard master</code>.</p><p><code>git reflog</code> : view history of executed git commands. Undo Git actions with <code>git reset --hard &lt;history-hash&gt;</code> where history-hash is the hash shown in reflog of the state you want to go back to.</p><h2 id="resolve-merge-conflicts">Resolve Merge Conflicts</h2><ol><li><p><code>git status</code> to see files which contain conflicts</p></li><li><p>Open conflicting files in your editor and make desired changes, remembering to delete the lines added by Git containing <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>, <code>=======</code>, <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>.</p></li><li><p><code>git add .</code> from top level directory of your git repo to add all files</p></li><li><p><code>git merge --continue</code> to continue or <code>git merge --abort</code> at any time to cancel the merge</p></li></ol><h2 id="reset-my-current-branch-to-be-exactly-like-remote-master">Reset my current branch to be exactly like remote master</h2><ol><li><p><code>git fetch</code> : download changes from remote</p></li><li><p><code>git reset --hard &lt;remote&gt;/master</code> : reset current branch to be identical to remote master branch</p></li></ol><h2 id="origin-vs-upstream">Origin vs Upstream?</h2><p>Upstream is only applicable in the context of GitHub Forks, as far as I know. There&#x27;s a good explanation here: <a href="https://stackoverflow.com/questions/9257533/what-is-the-difference-between-origin-and-upstream-on-github">Stack Overflow</a>. You may want a workflow where you develop from your fork, get updates from the original repository, and push changes to your fork (perhaps to then open pull requests for the original repo). If that&#x27;s the case, you want certain commands to specify upstream, and others origin:</p><p><code>git pull upstream master</code> (on local master) to update your clean local copy of the original repo as changes get merged to master.</p><p>Then <code>git rebase master</code> or <code>git merge master</code> (on your feature branch) to update your feature branches.</p><p><code>git push -u origin HEAD</code> to push your feature branch to your own forked repo.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Multiple Inheritance in Python: Method Resolution Order (MRO)]]></title>
+            <link>https://zzzachzzz.github.io/blog/multiple-inheritance-in-python-method-resolution-order-mro</link>
+            <guid>https://zzzachzzz.github.io/blog/multiple-inheritance-in-python-method-resolution-order-mro</guid>
+            <pubDate>Fri, 30 Aug 2019 16:08:56 GMT</pubDate>
+            <content:encoded><![CDATA[<pre><code>class A:
+    def __init__(self):
+        print(&#x27;A&#x27;)
+
+class B(A):
+    def __init__(self):
+        super().__init__()
+        print(&#x27;B&#x27;)
+
+class C(A):
+    def __init__(self):
+        super().__init__()
+        print(&#x27;C&#x27;)
+
+class D(B, C):
+    def __init__(self):
+        super().__init__()
+        print(&#x27;D&#x27;)
+
+d = D()</code></pre><p>When class <code>D</code> is instantiated, what do you think will be the order of the print statements?</p><p>Python&#x27;s way of determining the order in which multiple inheritance is resolved is called the Method Resolution Order (MRO). The answer to the question is:</p><pre><code>A
+C
+B
+D</code></pre><p>Lets see why.</p><pre><code>class D(B, C):
+    def __init__(self):
+        super().__init__()
+        print(&#x27;D&#x27;)</code></pre><p>We begin in class D, which inherits from both B and C. Here, Python resolves from right to left. What this means is that the first class listed takes precedence. If both class B and C defined a method, class B&#x27;s version would be the one inherited by class D. Resolving right to left, <code>B &lt;- C</code>, B&#x27;s definition of the method would overwrite C&#x27;s.</p><p>Since Python resolves the inheritance of class <code>C</code> first, we jump into <code>C.__init__</code>.</p><pre><code>class C(A):
+    def __init__(self):
+        super().__init__()
+        print(&#x27;C&#x27;)</code></pre><p>Before even reaching our print statement, we get redirected to <code>A.__init__</code>. Once in class A, there&#x27;s nothing left to inherit, so we reach our first print statement <code>print(&#x27;A&#x27;)</code>. After that, we go back up the chain that got us to A. Next we hit <code>print(&#x27;C&#x27;)</code>, then finally we return to class D.</p><pre><code>class D(B, C):
+    def __init__(self):
+        super().__init__()
+        print(&#x27;D&#x27;)</code></pre><p>We&#x27;re still not done with <code>super().__init()</code>. We&#x27;ve resolved class C, now we&#x27;re onto B.</p><pre><code>class B(A):
+    def __init__(self):
+        super().__init__()
+        print(&#x27;B&#x27;)</code></pre><p>Since B inherits from class A, don&#x27;t we go back there again? Python keeps track of the order of inheritance, and disregards duplicate entries. We have already visited class A during our inheritance journey, so Python will skip going there again altogether. This is where Method Resolution Order comes in. <code>__mro__</code> is an attribute that can be called on a class (not an instance). Lets see what it returns:</p><pre><code>print(D.__mro__)
+# (&lt;class &#x27;__main__.D&#x27;&gt;, &lt;class &#x27;__main__.B&#x27;&gt;, &lt;class &#x27;__main__.C&#x27;&gt;, &lt;class &#x27;__main__.A&#x27;&gt;, &lt;class &#x27;object&#x27;&gt;)</code></pre><p>Look at that, the order of our print statements was <code>A, C, B, D</code>. Python begins with the class &#x27;object&#x27;, and builds on it with each level of inheritance. <code>__mro__</code> and the order of our print statements are the same but reversed.</p><p>Finishing our example, we skip going to class A inherited by B, since we already visited A when it was inherited by C. We hit <code>print(&#x27;B&#x27;)</code>, then finally return to class D and hit <code>print(&#x27;D&#x27;)</code>.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Understanding Promises in JavaScript]]></title>
+            <link>https://zzzachzzz.github.io/blog/understanding-promises-in-javascript</link>
+            <guid>https://zzzachzzz.github.io/blog/understanding-promises-in-javascript</guid>
+            <pubDate>Thu, 29 Aug 2019 20:35:44 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Promises are really confusing. There&#x27;s a lot of keywords associated with promises and async JS:</p><ul><li><p>Promise</p></li><li><p>resolve</p></li><li><p>reject</p></li><li><p>then</p></li><li><p>catch</p></li><li><p>async</p></li><li><p>await</p></li></ul><p>From MDN:</p><pre><code>new Promise(executor);</code></pre><p><code>executor</code></p><blockquote><p>A function that is passed with the arguments resolve and reject. The executor function is executed immediately by the Promise implementation, passing resolve and reject functions...</p></blockquote><p>So if we break this down further, the expected arguments look like this:</p><pre><code>new Promise(function executor(resolve, reject));</code></pre><p>We define the <code>executor</code> function, which receives <code>resolve</code> and <code>reject</code> callback functions as arguments.</p><pre><code>new Promise(function executor(resolve, reject) {
+  if (true) {  // Success
+    resolve(&#x27;Resolved the promise&#x27;);
+  } else {  // Error
+    reject(&#x27;Rejected the promise&#x27;);
+  }
+});</code></pre><p>The <code>executor</code> function doesn&#x27;t have to be named, I&#x27;m just making my example explicit.</p><p>Once the promise has been resolved or rejected, that will trigger either a chained <code>then</code> or <code>catch</code> to be called.</p><pre><code>new Promise(function(resolve, reject) {
+  if (true) {  // Success
+    resolve(&#x27;Resolved&#x27;);
+  } else {  // Error
+    reject(&#x27;Rejected&#x27;);
+  }
+})
+.then(function(result) {
+  console.log(result);  // &#x27;Resolved&#x27;
+})
+.catch(function(error) {
+  console.log(error);  // &#x27;Rejected&#x27;
+});</code></pre><p>An alternative syntax (that I think is more confusing), is to pass a second argument to <code>then</code>, which will handle <code>reject</code> in place of <code>catch</code>. I would not recommend this but it&#x27;s good to know.</p><pre><code>new Promise(function executor(resolve, reject) {
+  if (true) {  // Success
+    resolve(&#x27;Resolved&#x27;);
+  } else {  // Error
+    reject(&#x27;Rejected&#x27;);
+  }
+})
+.then(function(result) {
+  console.log(result);  // &#x27;Resolved&#x27;
+}, function(error) {
+  console.log(error);  // &#x27;Rejected&#x27;
+});</code></pre><p>Now that we understand the general behavior of Promises, let&#x27;s break down this example <code>sleep</code> function.</p><pre><code>function sleep(ms) {
+  return new Promise(function(resolve) {
+    setTimeout(function() {
+      resolve(&#x27;Resolved Value&#x27;);
+    }, ms);
+  })
+}
+
+async function main() {
+  console.log(&#x27;Before sleep&#x27;);
+  const resolvedValue = await sleep(5000);  // 5 seconds
+  console.log(&#x27;After sleep&#x27;);
+  console.log(resolvedValue);  // &#x27;Resolved Value&#x27;
+}
+
+main();</code></pre><p>Normally if we were to call <code>sleep</code> without <code>await</code>, there would be no 5 second pause between the two log statements. That&#x27;s because our <code>sleep</code> function returns a promise, so we must wait for it to be resolved if we want our <code>main</code> function to be executed synchronously.</p><p>In order to use the <code>await</code> keyword, the surrounding function, <code>main</code>, must be given the <code>async</code> keyword.</p><p><code>setTimeout</code> is an asynchronous function, one of few in JS&#x27;s built in library. However, <code>setTimeout</code>_ is not a Promise-based asynchronous function, it is callback-based_. In order to <code>await</code> for <code>setTimeout</code> to complete, we must wrap it in a promise, and <code>resolve</code> that promise inside the callback function we provide to <code>setTimeout</code>.</p><p>Here&#x27;s a shorthand version of the above using arrow functions.</p><pre><code>const sleep = ms =&gt; new Promise(resolve =&gt; setTimeout(() =&gt; resolve(&#x27;Resolved Value&#x27;), ms));
+
+async function main() {
+  console.log(&#x27;Before sleep&#x27;);
+  const resolvedValue = await sleep(5000);  // 5 seconds
+  console.log(&#x27;After sleep&#x27;);
+  console.log(resolvedValue);  // &#x27;Resolved Value&#x27;
+}
+
+main();</code></pre><p>Promises are confusing. If you don&#x27;t understand them fully, don&#x27;t worry about it. Check out other resources, and most importantly, play around with the code yourself.</p>]]></content:encoded>
+        </item>
+        <item>
+            <title><![CDATA[Slate.js: Draft.js without the Bad Parts]]></title>
+            <link>https://zzzachzzz.github.io/blog/slatejs-draftjs-without-the-bad-parts</link>
+            <guid>https://zzzachzzz.github.io/blog/slatejs-draftjs-without-the-bad-parts</guid>
+            <pubDate>Wed, 28 Aug 2019 15:37:27 GMT</pubDate>
+            <content:encoded><![CDATA[<p>Anyone who has used Facebook&#x27;s open source package, <code>Draft.js</code> knows that while it&#x27;s a powerful tool for building rich text editors, the API docs are underdeveloped, and can be very difficult to understand. The editor I wrote this blog post in was made by me with <code>Slate.js</code>, and before I found that, I was struggling to learn how to make Draft.js do what I wanted it to do. I don&#x27;t have the expertise to go too into detail about comparing Slate and Draft, but a lot of that is covered here in the readme of Slate: <a href="https://github.com/ianstormtaylor/slate#principles">Slate Principles</a>. Instead I&#x27;ll tell you about my use case: what I wanted to build with Draft, the problems I ran into, and how Slate made the process easier for me.</p><p>Given that this is a programming blog, the most important feature to me is beautiful code snippets with syntax highlighting. Like so:</p><pre><code>// A JavaScript comment
+const language = &#x27;JavaScript&#x27;;
+console.log(`This is definitely ${language}`);  // This is definitely JavaScript</code></pre><p>I had <code>Prism.js</code> to handle the syntax highlighting.</p><p>I needed my editor to...</p><ol><li><p>Handle multi-line code blocks</p></li><li><p>Keep all those lines within the tags <code>&lt;pre&gt;&lt;code&gt; ... &lt;/code&gt;&lt;/pre&gt;</code> (To comply with how Prism.js works)</p></li><li><p>Have a way to specify the syntax (via adding a css class to a <code>&lt;code&gt;</code> tag: <code>language-javascript</code>)</p></li></ol><p>Not too many requirements. This seemed very doable in Draft, especially considering that the example on <a href="https://draftjs.org">draftjs.org</a> features a Code Block styling option. If you click the code block toggle, make it a couple lines long, and inspect the page, you&#x27;ll see that each line has it&#x27;s own <code>&lt;pre&gt;</code> tag. Ah, that fails requirement #2 for me, but I&#x27;m sure I can customize mine to behave differently.</p><p>At the end of the day, I did just want a rich text editor, much like the one on Draft.js&#x27; home page, but with my customized code blocks. I found an npm package <code>react-rte</code>, which is pretty much a pre-built rich text editor built on Draft.js, with the ability to customize <i>certain</i> things further (with this package, Draft was being abstracted away, and I could only customize parts that the creators of react-rte designated). Out of the box, react-rte did have multi-line code blocks contained in a single <code>&lt;pre&gt;</code> tag, and the ability to insert a soft line-break to stay inside a code block with Shift + Enter. Not bad, until you try to <i><b>paste</b></i> a bunch of code in... which is the main way I would be inserting code into blog posts, pasting it from my real editor.</p><p>So how do you solve this problem?</p><p>What would be needed is a special condition for code blocks. If the content block is a code block, insert another code line, without exiting that parent code block. <i>I&#x27;m sure this type of behavior would have been possible in Draft.js,</i> but the trouble was figuring out <i>how</i>.</p><p>This is the main difference between Draft and Slate: Slate gives you tons of examples <i>with</i> those examples being demonstrated on Slate&#x27;s website, an excellent getting started walkthrough, and an API that actually makes sense.</p><p>Because of these offerings, my experience with Slate went something like this...</p><ol><li><p>Read the Walkthrough (a very pleasant experience might I add)</p></li><li><p>Refer to examples... <i>&quot;Oh look, &#x27;Rich Text&#x27; and &#x27;Code Highlighting&#x27; are exactly what I want, I&#x27;ll just look at the source code for these and combine them into my own!&quot;</i></p></li><li><p>Complete customization of my editor, referring to Slate&#x27;s API docs</p></li></ol><p>And there are many more examples I&#x27;ll be pulling from. At the time of writing this post, my editor doesn&#x27;t have support for images, but there&#x27;s an example on Slate&#x27;s site I&#x27;ll be referring to.</p><p>Happy custom editor building ~</p>]]></content:encoded>
+        </item>
+    </channel>
+</rss>
