@@ -26,13 +26,16 @@ export default function BlogPost({ post }: Props) {
       <Head>
         <title>{post.title}</title>
       </Head>
-      {process.env.NODE_ENV === 'development' && router.pathname.split('/')[2] !== 'edit' && (
+      <Navigation postSlug={post.slug} />
+      {(
+        process.env.NODE_ENV === 'development'
+        && router.pathname.split('/')[2] !== 'edit'
+      ) && (
         <SaveOrEditIcon
           icon="edit"
           onClick={() => router.push(`/blog/edit/${router.query.slug}`)}
         />
       )}
-      <Navigation postSlug={post.slug} />
       <main>
         <header>
           <h1 css="text-align: center; margin: 2em; margin-bottom: 0.2em;">{post.title}</h1>

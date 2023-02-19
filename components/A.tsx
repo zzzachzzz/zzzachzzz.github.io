@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 import { inlineBlockCss } from './mixins';
 
-type Props = {
+type Props = React.ComponentPropsWithRef<"a"> & {
   href: string;
   children: React.ReactNode;
   target?: string;
