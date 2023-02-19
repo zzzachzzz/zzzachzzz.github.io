@@ -1,9 +1,7 @@
 import styled from 'styled-components';
-import { unified } from 'unified';
-import type { Node, Data } from 'unist';
 import TreeToJSX from '@/components/TreeToJSX';
-import markdownParser from 'remark-parse';
-import emojiTransform from 'remark-emoji';
+import markdownToTree from '@/lib/markdownToTree';
+import type { Tree } from '@/types';
 
 type Props = {
   content: string;
@@ -12,11 +10,9 @@ type Props = {
 };
 
 const BlogContent = ({ content, numChildren }: Props) => {
-  let tree: Node<Data> = unified().use(markdownParser).parse(content);
-  tree = unified().use(emojiTransform).runSync(tree);
-
+  const tree = markdownToTree(content);
   if (numChildren !== undefined)
-    tree['children'] = (tree['children'] as Node<Data>[])?.slice(0, numChildren);
+    tree['children'] = (tree['children'] as Tree[])?.slice(0, numChildren);
 
   return (
     <Container>

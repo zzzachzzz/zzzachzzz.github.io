@@ -1,46 +1,30 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import Prism from 'prismjs';
-import type { Node, Data } from 'unist';
 import { convertTitleToSlug } from '@/lib/utils';
+import treeToJSX from '@/lib/treeToJSX';
 import A from './A';
 import InternalLink from './Link';
 import Code from './Code';
+import type { Tree, NodeType } from '@/types';
 
 type Props = {
-  tree: Node<Data>;
+  tree: Tree;
 };
 
-export default function TreeToJSX({ tree }: Props) {
-  let total = 0;
-  function recursive(node: Node<Data>): React.ReactNode {
-    const nodeIdx = total;
-    total++;
-
-    if (node.type === 'text')
-      return node['value'] as string;
-
-    const children = (node['children'] as Node<Data>[])
-      ?.map(n => recursive(n));
-
-    if (node.type === 'root')
-      return children;
-
-    const Component = getComponentForNode(node);
-    return <Component key={nodeIdx} children={children} />
-  }
-  return recursive(tree) as JSX.Element;
+export default function TreeToJSX({ tree }: Props): JSX.Element {
+  return treeToJSX(tree, getComponentForNode);
 }
 
-const getComponentForNode = (node: Node<Data>) => {
-  const componentMatch = nodeTypeToComponentMap[node.type];
+const getComponentForNode = (node: Tree) => {
+  const componentMatch = nodeTypeToComponentMap[node.type as NodeType];
   if (!componentMatch)
     throw Error(`No component for node type: '${node.type}'`);
   return componentMatch(node);
 };
 
 type NodeTypeToComponentMap = Record<
-  string,
+  NodeType,
   (node: any) =>
     | keyof JSX.IntrinsicElements
     | ((props: PropsChildren) => JSX.Element)

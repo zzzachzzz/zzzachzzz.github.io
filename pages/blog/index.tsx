@@ -7,6 +7,7 @@ import BlogContent from '@/components/BlogContent';
 import { getAllPosts } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { InferGetStaticPropsType } from 'next'
+import { BLOG_TITLE, BLOG_DESCRIPTION } from '@/constant';
 
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
@@ -14,10 +15,10 @@ export default function BlogList({ allPosts }: Props) {
   return (
     <div>
       <Head>
-        <title>Web Dev Blog - zzzachzzz</title>
+        <title>{BLOG_TITLE}</title>
         <meta
           name="description"
-          content="JavaScript, TypeScript, and React by example with code."
+          content={BLOG_DESCRIPTION}
         />
       </Head>
       <Navigation />

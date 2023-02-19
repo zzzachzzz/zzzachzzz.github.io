@@ -1,3 +1,5 @@
+public/blog/rss.xml
+
 # dependencies
 node_modules/
 /.pnp
