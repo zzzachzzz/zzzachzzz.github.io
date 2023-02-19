@@ -8,6 +8,11 @@
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>Next.js</generator>
         <language>en</language>
+        <image>
+            <title>Web Dev Blog - zzzachzzz</title>
+            <url>https://zzzachzzz.github.io/favicon.png</url>
+            <link>https://zzzachzzz.github.io/blog</link>
+        </image>
         <atom:link href="https://zzzachzzz.github.io/blog/rss.xml" rel="self" type="application/rss+xml"/>
         <item>
             <title><![CDATA[How to Change a Pacman Package's Dependencies on Arch Linux with remakepkg]]></title>
