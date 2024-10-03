@@ -406,16 +406,26 @@ volumes:
             <link>https://zzzachzzz.github.io/blog/piping-and-redirection-in-the-shell</link>
             <guid>https://zzzachzzz.github.io/blog/piping-and-redirection-in-the-shell</guid>
             <pubDate>Mon, 06 Jan 2020 22:53:59 GMT</pubDate>
-            <content:encoded><![CDATA[<p>Lately I&#x27;ve been learning Vim more in depth, beyond just Vim&#x27;s modal editing. With that, I&#x27;ve been learning more about Unix and the shell. As they say, &quot;Unix is an IDE&quot;, and Vim is just one of its tools. I&#x27;m going to keep it simple and use the terms input &amp; output to refer to stdin &amp; stdout, the more technically correct terms here.</p><p><code>program &gt; file</code> Redirects the output of a program to a file. If the file exists, it will be overwritten (be careful).</p><p><code>program &gt;&gt; file</code> Redirects the output of a program to a file. If the file exists, it will be appended to (safer option).</p><p><code>program &lt; file</code> Redirects a file to be the input of a program. From what I can tell, this is rarely useful on its own, since nearly all programs which accept an input stream, also accept a file argument. Hence, these two are equivalent: <code>cat &lt; file</code> &amp; <code>cat file</code>. More details on that here:<br/><a href="https://askubuntu.com/a/883822">How does input redirection work? - Ask Ubuntu</a></p><p><code>output | program</code> Redirects the output of a program, to be the input of another program.<br/>Example: <code>echo $PATH | less</code><br/>This is functionally equivalent to:<br/><code>echo $PATH &gt; temp_file &amp;&amp; less &lt; temp_file</code></p><h2 id="herestrings-heredocs">Herestrings &amp; Heredocs</h2><p><code>program &lt;&lt;&lt; string</code> Redirects a string to be the input of a program, as if it were a file&#x27;s contents.<br/>Example:<br/><code>python &lt;&lt;&lt; &quot;print(len(&#x27;Dude no way&#x27;))&quot;
+            <content:encoded><![CDATA[<p>Lately I&#x27;ve been learning Vim more in depth, beyond just Vim&#x27;s modal editing. With that, I&#x27;ve been learning more about Unix and the shell. As they say, &quot;Unix is an IDE&quot;, and Vim is just one of its tools. I&#x27;m going to keep it simple and use the terms input &amp; output to refer to stdin &amp; stdout, the more technically correct terms here.</p><p><code>program &gt; file</code> Redirects the output of a program to a file. If the file exists, it will be overwritten (be careful).</p><p><code>program &gt;&gt; file</code> Redirects the output of a program to a file. If the file exists, it will be appended to (safer option).</p><p><code>program &lt; file</code> Redirects a file to be the input of a program. From what I can tell, this is rarely useful on its own, since nearly all programs which accept an input stream, also accept a file argument. Hence, these two are equivalent: <code>cat &lt; file</code> &amp; <code>cat file</code>. More details on that here:<br/><a href="https://askubuntu.com/a/883822">How does input redirection work? - Ask Ubuntu</a></p><p><code>output | program</code> Redirects the output of a program, to be the input of another program.<br/>Example: <code>echo $PATH | less</code><br/>This is functionally equivalent to:<br/><code>echo $PATH &gt; temp_file &amp;&amp; less &lt; temp_file</code></p><h2 id="herestrings-heredocs">Herestrings &amp; Heredocs</h2><p><a href="https://tldp.org/LDP/abs/html/x17837.html">Here Strings - The Linux Documentation Project</a></p><p><code>program &lt;&lt;&lt; string</code> Redirects a string to be the input of a program (stdin).<br/>Example:<br/><code>python &lt;&lt;&lt; &quot;print(len(&#x27;Dude no way&#x27;))&quot;
 11</code></p><p><code>program &lt;&lt; delimiter
 multi-line string
-delimiter</code> Redirects a multi-line string to be the input of a program, as if it were a file&#x27;s contents.<br/>Example:<br/><code>python &lt;&lt; EOF
+delimiter</code> Redirects a multi-line string to be the input of a program (stdin).<br/>Example:</p><pre><code>python &lt;&lt; EOF
 heredoc&gt; print(&#x27;Sooo&#x27;)
 heredoc&gt; print(&#x27;Powerful&#x27;)
 heredoc&gt; EOF
 Sooo
-Powerful
-</code>EOF (end of file) is just a convention here, the delimiter could be almost any sequence of characters.</p><h2 id="process-substitution">Process Substitution</h2><p><code>program &lt;(output)</code> Redirects the output of a program to a temp file, to be treated as a file argument.<br/>Example:<br/><code>cat &lt;(echo &quot;It&#x27;s almost like...\nI&#x27;m a file&quot;)</code><br/>Note that <code>cat</code> accepts files as arguments, here we provide output instead.<br/>Another example:<br/><code>vimdiff &lt;(/usr/local/bin/vim --version) &lt;(/usr/bin/vim --version)</code></p>]]></content:encoded>
+Powerful</code></pre><p>EOF (end of file) is just a convention here, the delimiter could be almost any sequence of characters.</p><h2 id="process-substitution">Process Substitution</h2><p><code>program &lt;(output)</code> Redirects the output of a program to a temp file, to be treated as a file argument.<br/>Examples:</p><pre><code>$ ls -l &lt;(echo hi)
+lr-x------ 1 zach zach 64 Oct  3 07:35 /proc/self/fd/11 -&gt; &#x27;pipe:[23068]&#x27;
+
+$ cat &lt;(echo hi)
+hi
+
+$ echo foo | python3 &lt;(echo &quot;import sys; print(&#x27;python stdin:&#x27;, sys.stdin.read())&quot;)
+python stdin: foo
+
+# Useful for vim diffing outputs, since vimdiff only accepts file arguments
+$ vimdiff &lt;(/usr/local/bin/vim --version) &lt;(/usr/bin/vim --version)
+...</code></pre>]]></content:encoded>
         </item>
         <item>
             <title><![CDATA[Common Tasks: JavaScript and Python Equivalents]]></title>
