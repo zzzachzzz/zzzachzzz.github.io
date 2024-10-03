@@ -19,28 +19,42 @@ This is functionally equivalent to:
 
 ## Herestrings & Heredocs
 
-`program <<< string` Redirects a string to be the input of a program, as if it were a file's contents.  
+[Here Strings - The Linux Documentation Project](https://tldp.org/LDP/abs/html/x17837.html)
+
+`program <<< string` Redirects a string to be the input of a program (stdin).  
 Example:  
 `python <<< "print(len('Dude no way'))"
 11`
 
 `program << delimiter
 multi-line string
-delimiter` Redirects a multi-line string to be the input of a program, as if it were a file's contents.  
+delimiter` Redirects a multi-line string to be the input of a program (stdin).  
 Example:  
-`python << EOF
+```bash
+python << EOF
 heredoc> print('Sooo')
 heredoc> print('Powerful')
 heredoc> EOF
 Sooo
 Powerful
-`EOF (end of file) is just a convention here, the delimiter could be almost any sequence of characters.
+```
+EOF (end of file) is just a convention here, the delimiter could be almost any sequence of characters.
 
 ## Process Substitution
 
 `program <(output)` Redirects the output of a program to a temp file, to be treated as a file argument.  
-Example:  
-`cat <(echo "It's almost like...\nI'm a file")`  
-Note that `cat` accepts files as arguments, here we provide output instead.  
-Another example:  
-`vimdiff <(/usr/local/bin/vim --version) <(/usr/bin/vim --version)`
+Examples:  
+```bash
+$ ls -l <(echo hi)
+lr-x------ 1 zach zach 64 Oct  3 07:35 /proc/self/fd/11 -> 'pipe:[23068]'
+
+$ cat <(echo hi)
+hi
+
+$ echo foo | python3 <(echo "import sys; print('python stdin:', sys.stdin.read())")
+python stdin: foo
+
+# Useful for vim diffing outputs, since vimdiff only accepts file arguments
+$ vimdiff <(/usr/local/bin/vim --version) <(/usr/bin/vim --version)
+...
+```
