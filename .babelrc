@@ -3,7 +3,7 @@
   "plugins": [
     ["styled-components", { "ssr": true }],
     ["prismjs", {
-      "languages": ["javascript", "typescript", "jsx", "tsx", "python", "bash", "docker", "yaml"],
+      "languages": ["javascript", "typescript", "jsx", "tsx", "python", "bash", "docker", "yaml", "powershell"],
       "theme": "okaidia",
       "css": true
     }]
