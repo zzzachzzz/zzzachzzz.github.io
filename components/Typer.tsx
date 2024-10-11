@@ -71,7 +71,7 @@ const inputLines = [
   "import zach",
   "zach.full_name",
   "zach.current_location",
-  "zach.skills",
+  "zach.programming_languages",
   "zach.resume",
   "zach.links",
   "exit()",
@@ -83,7 +83,7 @@ const returnLines = [
   "",
   "'Zachary Rosenberger'",
   "'Boise, ID'",
-  "['TypeScript', 'React', 'Redux', 'Express', 'Python', 'Git']",
+  "['TypeScript / JavaScript', 'Python', 'C#', 'SQL']",
   <>
     '<TerminalLink
        href="https://drive.google.com/open?id=1bQ3qTFrOGzH0jDxaLVAibP99uRxwepbh">
