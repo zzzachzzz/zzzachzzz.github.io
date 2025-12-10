@@ -4,7 +4,7 @@
         <title>Web Dev Blog - zzzachzzz</title>
         <link>https://zzzachzzz.github.io/blog</link>
         <description>JavaScript, TypeScript, and React by example with code.</description>
-        <lastBuildDate>Fri, 11 Oct 2024 14:49:56 GMT</lastBuildDate>
+        <lastBuildDate>Wed, 10 Dec 2025 12:43:16 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>Next.js</generator>
         <language>en</language>
@@ -14,6 +14,148 @@
             <link>https://zzzachzzz.github.io/blog</link>
         </image>
         <atom:link href="https://zzzachzzz.github.io/blog/rss.xml" rel="self" type="application/rss+xml"/>
+        <item>
+            <title><![CDATA[Hitting a Target File Size With FFmpeg (Perfect for Discord Clips)]]></title>
+            <link>https://zzzachzzz.github.io/blog/hitting-a-target-file-size-with-ffmpeg-perfect-for-discord-clips</link>
+            <guid>https://zzzachzzz.github.io/blog/hitting-a-target-file-size-with-ffmpeg-perfect-for-discord-clips</guid>
+            <pubDate>Wed, 10 Dec 2025 12:43:16 GMT</pubDate>
+            <content:encoded><![CDATA[<p>If you&#x27;ve ever tried to send a gaming clip over Discord as a free user, you&#x27;ve run into the 10MB upload limit. My process before creating this script was to use a collection of other ffmpeg commands to trial-and-error trimming the clip, and lowering the quality until it finally went below the 10MB threshold.</p><p>I wanted a way to say: <b>&quot;Here&#x27;s my clip. Make it 10MB. Do what you must.&quot;</b></p><p>So I wrote a Bash function that uses FFmpeg&#x27;s 2‑pass encoding method to reliably target a specific file size. It also has quality‑of‑life options for trimming timestamps. As you&#x27;ll see below, you can write other bash functions which call the main function to make this process happen by typing just a few characters into your terminal.</p><p>My setup:</p><ul><li><p>Gaming on Windows, running the script in WSL (Git Bash will work too)</p></li><li><p>Shadowplay 1 minute instant replay saved videos</p></li><li><p>Discord 10MB file upload limit (non-Nitro paid users)</p></li></ul><h2 id="requirements">Requirements</h2><ul><li><p>A Bash shell to run the script: Linux, WSL, or Git Bash</p></li><li><p>FFmpeg (should include <code>ffmpeg</code> &amp; <code>ffprobe</code>)</p></li></ul><p><b>NOTE</b> I have FFmpeg installed in my Linux distro mounted in WSL (more on that <a href="https://zzzachzzz.github.io/blog/accessing-a-dual-boot-linux-install-in-wsl-with-chroot">here</a>), but using WSL with FFmpeg installed in Windows, with the exe accessible in your <code>$PATH</code> should work too.</p><h2 id="the-scripts">The Scripts</h2><p>Also available as a <a href="https://zzzachzzz.github.io/blog/hitting-a-target-file-size-with-ffmpeg-perfect-for-discord-clips">GitHub Gist</a></p><h3 id="vidunderfilesizesh"><code>vidunderfilesize.sh</code></h3><pre><code>#!/usr/bin/env bash
+
+eval set -- &quot;$(
+  getopt \
+    --options s:e:i:o:k:a: \
+    --longoptions start:,end:,input:,output:,output-filesize-kb:,audio-bitrate-kbps: \
+    -- &quot;$@&quot;
+)&quot;
+
+while true; do
+  case &quot;$1&quot; in
+    -s|--start) start_arg=&quot;$2&quot;; shift 2 ;;
+    -e|--end) end_arg=&quot;$2&quot;; shift 2 ;;
+    -i|--input) input=&quot;$2&quot;; shift 2 ;;
+    -o|--output) output=&quot;$2&quot;; shift 2 ;;
+    -k|--output-filesize-kb) output_filesize_kb=&quot;$2&quot;; shift 2 ;;
+    -a|--audio-bitrate-kbps) audio_bitrate_kbps=&quot;$2&quot;; shift 2 ;;
+    --) shift; break ;;
+  esac
+done
+
+IFS=&quot;:&quot; read -ra start_array &lt;&lt;&lt; &quot;$start_arg&quot;
+IFS=&quot;:&quot; read -ra end_array &lt;&lt;&lt; &quot;$end_arg&quot;
+
+# Prepend default zeros, filling arrays to 3 slots
+while (( ${#start_array[@]} &lt; 3 )); do
+  start_array=(0 ${start_array[@]})
+done
+while (( ${#end_array[@]} &lt; 3 )); do
+  end_array=(0 ${end_array[@]})
+done
+
+# Pad left 2 digits for each slot
+for i in &quot;${!start_array[@]}&quot;; do
+  start_array[$i]=$(printf &quot;%02d&quot; ${start_array[$i]})
+done
+for i in &quot;${!end_array[@]}&quot;; do
+  end_array[$i]=$(printf &quot;%02d&quot; ${end_array[$i]})
+done
+
+start_hours_part=${start_array[0]}
+start_minutes_part=${start_array[1]}
+start_seconds_part=${start_array[2]}
+start_seconds=$(( $start_seconds_part + $start_minutes_part * 60 + $start_hours_part * 60 * 60 ))
+start_time=&quot;$start_hours_part:$start_minutes_part:$start_seconds_part&quot;
+
+# If no end timestamp supplied (or user provided zeroes), get duration of video
+if [[ &quot;${end_array[@]}&quot; == &quot;00 00 00&quot; ]]; then
+  raw_duration_decimal=&quot;$(
+    ffprobe -v error -select_streams v:0 -show_entries stream=duration \
+    -of default=noprint_wrappers=1:nokey=1 &quot;$input&quot;
+  )&quot;
+  end_seconds=&quot;$(awk -v d=&quot;$raw_duration_decimal&quot; &#x27;BEGIN {print int(d)}&#x27;)&quot;
+  # `end_time` intentionally not set
+else
+  end_hours_part=${end_array[0]}
+  end_minutes_part=${end_array[1]}
+  end_seconds_part=${end_array[2]}
+  end_seconds=$(( $end_seconds_part + $end_minutes_part * 60 + $end_hours_part * 60 * 60 ))
+  end_time=&quot;$end_hours_part:$end_minutes_part:$end_seconds_part&quot;
+fi
+
+duration_seconds=$(( $end_seconds - $start_seconds ))
+
+default_audio_bitrate_kbps=&quot;128&quot;
+audio_bitrate_kbps=&quot;${audio_bitrate_kbps:-$default_audio_bitrate_kbps}&quot;
+audio_total_kb=$(( $audio_bitrate_kbps * $duration_seconds ))
+
+_10MB_in_kb=&quot;80000&quot; # 10 megabyte == 80,000 kilobits
+output_filesize_kb=${output_filesize_kb:-$_10MB_in_kb}
+
+video_bitrate_kbps=$(( ( $output_filesize_kb - $audio_total_kb ) / $duration_seconds ))
+
+# tmp file written to in 1st pass and read in 2nd pass
+ffmpeg_stats_file=&quot;$(mktemp --tmpdir --dry-run ffmpeg_stats_XXXXXX)&quot;
+
+maybe_to=&quot;$([[ -n $end_time ]] &amp;&amp; echo &quot;-to $end_time&quot;)&quot;
+ffmpeg_common_output_file_options=&quot;\
+-ss $start_time $maybe_to \
+-c:v libx264 -b:v ${video_bitrate_kbps}k \
+-maxrate 5M -bufsize 10M \
+-passlogfile $ffmpeg_stats_file \
+$FFMPEG_OUTPUT_FILE_OPTIONS\
+&quot;
+
+# 1st pass ffmpeg analyzes video and outputs stats file to `$ffmpeg_stats_file*`,
+# to accurately target `$output_filesize_kb` based on specified bitrates.
+ffmpeg -y -i &quot;$input&quot; \
+  $ffmpeg_common_output_file_options \
+  -pass 1 \
+  -an -f mp4 \
+  /dev/null
+
+# 2nd pass produces actual video output, reading from stats files produced in 1st pass
+ffmpeg -i &quot;$input&quot; \
+  $ffmpeg_common_output_file_options \
+  -pass 2 \
+  -c:a aac -b:a &quot;${audio_bitrate_kbps}k&quot; \
+  &quot;$output&quot;
+
+# Clean up tmp files, mbtree file is ~20MB
+rm &quot;$ffmpeg_stats_file&quot;*.log{,.mbtree}
+</code></pre><p>Additionally, here is my own helper function I use for calling the main script. I suggest you create one too.</p><pre><code>function meleeclip() {
+  local start=&quot;$1&quot;
+  local end=&quot;$2&quot;
+  local input=&quot;$3&quot;
+  local output=&quot;$4&quot;
+  # Defaults for empty start &amp; end options handled in `vidunderfilesize.sh`
+  [[ &quot;$start&quot; == &quot;-&quot; ]] &amp;&amp; start=&quot;&quot;
+  [[ &quot;$end&quot; == &quot;-&quot; ]] &amp;&amp; end=&quot;&quot;
+
+  if [[ -z &quot;$input&quot; || &quot;$input&quot; == &quot;-&quot; ]]; then
+    local input_dir=&quot;/mnt/d/storage/Videos/shadowplay/slippi dolphin.exe&quot;
+    local newest_file=&quot;$(ls -tp &quot;$input_dir&quot; | grep -v &quot;/$&quot; | head -n 1)&quot;
+    input=&quot;${input_dir}/${newest_file}&quot;
+  fi
+
+  if [[ -z &quot;$output&quot; || &quot;$output&quot; == &quot;-&quot; ]]; then
+    local output_dir=&quot;/mnt/d/storage/Videos/shadowplay/slippi dolphin.exe/cropped-clips&quot;
+    local output_filename=&quot;_NEW_CLIP_NAME_ME_$(basename &quot;$input&quot;)&quot;
+    output=&quot;${output_dir}/${output_filename}&quot;
+  fi
+
+  FFMPEG_OUTPUT_FILE_OPTIONS=&quot;-vf crop=in_h*4/3:in_h&quot; \
+    ~/bin/vidunderfilesize.sh \
+    --start=&quot;$start&quot; \
+    --end=&quot;$end&quot; \
+    --input=&quot;$input&quot; \
+    --output=&quot;$output&quot;
+}</code></pre><h2 id="usage">Usage</h2><p><code>FFMPEG_OUTPUT_FILE_OPTIONS</code> is an option you probably don&#x27;t need. Here I am cropping to 4:3 aspect ratio to closely match <a href="https://melee.tv">Slippi Dolphin Melee&#x27;s</a> internal resolution of 73:60.</p><p>The <code>--start</code> and <code>--end</code> options allow you to specify the timestamps you want to trim the clip to. The parsing is flexible and allows for these example inputs, converting to <code>hh:mm:ss</code>.</p><ul><li><p><code>5</code> -&gt; <code>00:00:05</code></p></li><li><p><code>1:50</code> -&gt; <code>00:01:50</code></p></li><li><p><code>01:1:01</code> -&gt; <code>01:01:01</code></p></li></ul><p>With the <code>meleeclip</code> helper function I have, this is how I would typically call it:</p><pre><code># Let&#x27;s say we want to clip from 00:00:36 to the end of my 1 minute clip
+meleeclip 36
+
+# Or from 00:00:36 to 00:00:50
+meleeclip 36 50</code></pre><p>That&#x27;s it, since I have the <code>meleeclip</code> function default to use the newest file in my shadowplay directory as input, and a fixed output directory with a generated filename that I just go and rename separately after.</p><h2 id="explanation">Explanation</h2><p>Bitrate is predictable for producing a given filesize. File size is basically:</p><pre><code>file_size_bits ≈ bitrate_bits_per_sec × duration_sec</code></pre><p>So if you want a 10MB clip:</p><pre><code>10 MB (Megabytes) = 80 Mb (megabits)
+10 MB = 80000 Kb (kilobits)
+target_bitrate_kbps = 80000 Kb / duration_seconds</code></pre><p>In the script, we calculate the maximum video bitrate we can use:</p><pre><code>video_bitrate_kbps=$(( ( $output_filesize_kb - $audio_total_kb ) / $duration_seconds ))</code></pre><p>Once you know the exact bitrate needed, FFmpeg can aim for it, and using <b>2‑pass encoding</b>, it can hit that target very accurately.</p>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Accessing a dual boot Linux install in WSL with chroot]]></title>
             <link>https://zzzachzzz.github.io/blog/accessing-a-dual-boot-linux-install-in-wsl-with-chroot</link>
