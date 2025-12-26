@@ -4,7 +4,7 @@
         <title>Web Dev Blog - zzzachzzz</title>
         <link>https://zzzachzzz.github.io/blog</link>
         <description>JavaScript, TypeScript, and React by example with code.</description>
-        <lastBuildDate>Wed, 10 Dec 2025 12:43:16 GMT</lastBuildDate>
+        <lastBuildDate>Fri, 26 Dec 2025 14:18:15 GMT</lastBuildDate>
         <docs>https://validator.w3.org/feed/docs/rss2.html</docs>
         <generator>Next.js</generator>
         <language>en</language>
@@ -14,6 +14,51 @@
             <link>https://zzzachzzz.github.io/blog</link>
         </image>
         <atom:link href="https://zzzachzzz.github.io/blog/rss.xml" rel="self" type="application/rss+xml"/>
+        <item>
+            <title><![CDATA[How I Finally Got Secure Boot Working in Debian]]></title>
+            <link>https://zzzachzzz.github.io/blog/how-i-finally-got-secure-boot-working-in-debian</link>
+            <guid>https://zzzachzzz.github.io/blog/how-i-finally-got-secure-boot-working-in-debian</guid>
+            <pubDate>Fri, 26 Dec 2025 14:18:15 GMT</pubDate>
+            <content:encoded><![CDATA[<p><img src="https://zzzachzzz.github.io/assets/secure-boot-enabled-mokutil.jpg" alt="sudo mokutil --sb-state SecureBoot enabled"/></p><p>TL;DR: <a href="#how-i-did-it">How I Did It</a></p><h2 id="intro">Intro</h2><p>Secure boot is actually pretty well supported on Debian and other major distros. But complications can arise when:</p><ol><li><p>Enabling secure boot later, not during a clean install of the OS</p></li><li><p>Using a non-default bootloader (default is typically GRUB)</p></li><li><p>Having multiple bootloaders installed</p></li></ol><p>All of the above applied to my situation, making it hard mode.</p><h2 id="background-on-my-weird-setup">Background on My Weird Setup</h2><p>I was single booting Arch + systemd-boot for a while.</p><p>Then I adapted this setup to dual boot Arch &amp; Debian via multiple systemd-boot boot entries.</p><p>When Debian was installed, GRUB got installed too, somehow, despite reusing my boot partition and specifically trying to avoid this.</p><p>Later I removed the Arch installation, and switched to dual booting Debian &amp; Windows. (through multiple UEFI boot entries, couldn&#x27;t quite get it working to launch Windows from systemd-boot)</p><p>I enabled secure boot for a Windows game (League of Legends Vanguard anti-cheat...).</p><p>Now, the problem motivating me to get secure boot working on Debian:
+<b>I can&#x27;t boot Debian without first disabling secure boot</b></p><h2 id="terminology">Terminology</h2><ul><li><p><b>UEFI/NVRAM boot entries</b> : Boot entries in motherboard menu (firmware level shit) (<code>Boot0001</code>, <code>Boot0002</code>, etc.)</p></li><li><p><b>Bootloader</b> : Software (systemd-boot, GRUB) that loads the OS kernel, acting as the bridge between firmware (UEFI/BIOS) and the OS</p></li><li><p><b><a href="https://wiki.archlinux.org/title/Unified_Extensible_Firmware_Interface">UEFI (Unified Extensible Firmware Interface)</a></b> : Modern firmware standard for motherboards, successor to legacy BIOS</p></li><li><p><b>EFI (Extensible Firmware Interface)</b> : <code>.efi</code> files are UEFI executables, typically bootloaders and shims, placed on the boot partition</p></li><li><p><b><a href="https://wiki.archlinux.org/title/EFI_system_partition">ESP (EFI System Partition)</a></b> : OS-independent boot partition for UEFI (typically mounted at <code>/boot</code>)</p></li><li><p><b>Shim</b> : An alternative method of managing accepted Secure Boot keys without touching the UEFI firmware settings. In its simplest configuration, shim will just chainload any EFI executable.</p></li><li><p><b>Trixie</b> : Debian 13 Trixie (stable release at time of writing)</p></li><li><p><b>Bookworm</b> : Debian 12 Bookworm (oldstable release at time of writing)</p></li></ul><h2 id="debian-docs-and-shim-explained">Debian Docs and Shim Explained</h2><p>I was hopeful when I found this excerpt from the Debian Wiki:</p><blockquote><p>Starting with Trixie, users of Debian (and of the Debian Installer, since Trixie RC3) can optionally choose to use systemd-boot with shim. The integration point is the systemd-boot package and its postinst/prerm scripts. If GRUB packages are not installed, and both the shim-signed and systemd-boot-efi-[amd64|arm64]-signed packages are installed, then the maintainer scripts will run logic to install the appropriate EFI binaries to the ESP, and to add an EFI boot entry (named Debian) pointing to shim and making it the default entry. If either or both packages are removed, this logic runs in reverse and completely removes the binaries from the ESP, and deletes the EFI boot entry.</p></blockquote><p><a href="https://wiki.debian.org/SecureBoot#Secure_Boot_setup_with_systemd-boot">Secure Boot setup with systemd-boot - Debian Wiki</a></p><blockquote><p>shim is a simple software package that is designed to work as a first-stage bootloader on UEFI systems.</p><p>It was developed by a group of Linux developers from various distros, working together to make Secure Boot work using Free Software. It is a common piece of code that is safe, well-understood and audited so that it can be trusted and signed using platform keys. This means that Microsoft (or other potential firmware CA providers) only have to worry about signing shim, and not all of the other programs that distro vendors might want to support.</p></blockquote><p><a href="https://wiki.debian.org/SecureBoot#Shim">Shim - Debian Wiki</a></p><p>In other words, the default secure boot keys on your motherboard firmware that work for Windows secure boot will also work for the shim secure boot. This makes it so you don&#x27;t have to configure custom, non-standard secure boot keys in your motherboard firmware (UEFI).</p><p>Note... shim is not a security bypass that allows secure booting of any arbitrary unsigned EFI. It &quot;Enforces signature verification on whatever it chainloads&quot;.</p><pre><code>UEFI firmware
+  -&gt; shimx64.efi (Microsoft-signed shim)
+     -&gt; verifies next EFI binary (systemd-bootx64.efi, grubx64.efi)
+        -&gt; launches it if trusted (Linux kernel)</code></pre><h2 id="how-i-did-it">How I Did It</h2><p><b>Follow the instructions: <a href="https://wiki.debian.org/SecureBoot#Secure_Boot_setup_with_systemd-boot">Secure Boot setup with systemd-boot - Debian Wiki</a></b></p><p>In the sections that follow, I&#x27;ll explain where I found the docs lacking, and more detail on what I did.</p><h3 id="why-it-was-not-working-insofar-as-i-can-tell">Why It Was Not Working (Insofar as I Can Tell)</h3><p>I tried following the instructions outlined in the Debian Wiki, and I found them difficult to understand.</p><p>I suspect there&#x27;s one of two reasons it didn&#x27;t work for me initially...</p><h4 id="reason-1-missing">Reason 1: Missing <code>systemd-boot-efi-[amd64|arm64]-signed</code></h4><p>I did not first install <code>systemd-boot-efi-[amd64|arm64]-signed</code> as instructed:</p><blockquote><p>If GRUB packages are not installed, and both the shim-signed and systemd-boot-efi-[amd64|arm64]-signed packages are installed, then the maintainer scripts will run logic to install the appropriate EFI binaries to the ESP...</p></blockquote><p>I&#x27;m not really sure why the command to install this is not explicitly included with the other <code>apt</code> commands in the doc&#x27;s code blocks. But I addressed this with:</p><pre><code>sudo apt install --reinstall shim-signed systemd-boot-efi-amd64-signed</code></pre><h4 id="reason-2-leftover-grub">Reason 2: Leftover GRUB</h4><p>Maybe I did not do a thorough enough purging of leftover GRUB?</p><blockquote><p>A user wanting to switch from GRUB to systemd-boot should do so by removing the GRUB packages and installing systemd-boot at the same time, for example on an amd64 system:
+<code># apt install --allow-remove-essential systemd-boot grub-efi-amd64-signed-</code></p></blockquote><p>For good measure I did the following to fully remove GRUB:</p><pre><code># Find all grub packages
+apt list --installed | grep -i grub
+# Remove em. Your packages may vary, these were mine.
+sudo apt purge grub-common grub-efi-amd64-bin grub-efi-amd64-unsigned grub-efi-amd64 grub2-common
+# Other grub artifacts removed
+# Enter root session `sudo -i` and `cd /boot` partition
+find . -iname &#x27;*grub*&#x27;
+rm -r ./grub/</code></pre><h2 id="additional-info">Additional Info</h2><h3 id="cleaning-up-preshim-systemdboot-efis">Cleaning Up Pre-Shim systemd-boot EFIs</h3><p>When I reinstalled one of the systemd-boot packages (probably <code>systemd-boot</code>, don&#x27;t remember), I got a message about these files already being present:</p><ul><li><p><code>/boot/efi/EFI/systemd/systemd-bootx64.efi</code></p></li><li><p><code>/boot/efi/EFI/BOOT/BOOTX64.EFI</code></p></li></ul><p>Out of an abundance of caution, I first removed the <code>.efi</code> files (perhaps you should back them up somewhere):</p><pre><code>sudo rm /boot/efi/EFI/systemd/systemd-bootx64.efi /boot/efi/EFI/BOOT/BOOTX64.EFI</code></pre><p>And then I reinstalled said systemd-boot packages, just to be sure that the <code>.efi</code> files were signed, postinst scripts ran correctly, etc.</p><h3 id="commands-for">Commands for: <code>efibootmgr - change the UEFI Boot Manager configuration</code></h3><p>See: <code>man efibootmgr</code></p><p>Using <code>efibootmgr -v</code>, you can see the UEFI boot entries (<code>Boot0001</code>, <code>Boot0002</code>, etc.).</p><p>You can supposedly delete boot entries through this interface, but this didn&#x27;t work for me. I think this only deactivated/disabled boot entries: <code>sudo efibootmgr -b 0004 -B</code></p><p>Alternatively you can disable unwanted entries in your motherboard&#x27;s UEFI menu.</p><h3 id="set-default-systemdboot-entry-to-current">Set Default systemd-boot Entry to Current</h3><p>Once you have booted into the right systemd-boot entry:</p><pre><code>sudo bootctl set-default @current</code></pre><h3 id="verify-secure-boot-enabled-from-linux">Verify Secure Boot Enabled From Linux</h3><pre><code>$ sudo mokutil --sb-state
+SecureBoot enabled</code></pre><h3 id="get-info-from">Get Info From <code>bootctl status</code></h3><p><code>sudo bootctl status</code> ouputs lots of info such as:</p><pre><code>System:
+      Firmware: UEFI 2.70 (American Megatrends 5.19)
+ Firmware Arch: x64
+   Secure Boot: enabled (user)
+  TPM2 Support: yes
+  Measured UKI: no
+  Boot into FW: supported
+
+...
+
+Available Boot Loaders on ESP:
+          ESP: /boot/efi (/dev/disk/by-partuuid/d64202ea-8de9-47d6-947c-11122d0ba571)
+         File: ├─/EFI/systemd/systemd-bootx64.efi (systemd-boot 257.9-1~deb13u1)
+               ├─/EFI/BOOT/BOOTX64.efi
+               └─/EFI/BOOT/fbx64.efi
+
+...
+
+Boot Loaders Listed in EFI Variables:
+        Title: Debian
+           ID: 0x0003
+       Status: active, boot-order
+    Partition: /dev/disk/by-partuuid/d64202ea-8de9-47d6-947c-11122d0ba571
+         File: └─EFI/DEBIAN/SHIMX64.EFI
+
+... and more!</code></pre>]]></content:encoded>
+        </item>
         <item>
             <title><![CDATA[Hitting a Target File Size With FFmpeg (Perfect for Discord Clips)]]></title>
             <link>https://zzzachzzz.github.io/blog/hitting-a-target-file-size-with-ffmpeg-perfect-for-discord-clips</link>
