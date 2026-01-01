@@ -1,9 +1,12 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import matter from 'gray-matter';
 import { getPathToBlogPost, postsDirectory, convertTitleToSlug } from './utils';
 
 export function getPostSlugs() {
-  return fs.readdirSync(postsDirectory).filter(slug => slug !== 'new.md');
+  return fs.readdirSync(postsDirectory)
+    .filter(filename => filename !== 'new.md')
+    .map(filename => filename.replace(/\.md$/, ''));
 }
 
 type BlogFrontMatter = {
@@ -19,15 +22,21 @@ type Fields = BlogFrontMatter & {
 export function getPostBySlug<T extends keyof Fields>(
   slug: string, fields: Array<T> = []
 ): Pick<Fields, typeof fields[number]> {
-  const realSlug = slug.replace(/\.md$/, '')
-  const fullPath = getPathToBlogPost(realSlug);
-  const fileContents = fs.readFileSync(fullPath, 'utf8')
+  const filepath = getPathToBlogPost(slug);
+  return getPostByFilepath(filepath, fields);
+}
+
+export function getPostByFilepath<T extends keyof Fields>(
+  filepath: string, fields: Array<T> = []
+): Pick<Fields, typeof fields[number]> {
+  const fileContents = fs.readFileSync(filepath, 'utf8')
   const matter_ = matter(fileContents);
   const { content } = matter_;
   const data = matter_.data as BlogFrontMatter;
+  const slug = path.parse(filepath).name;
   const allItems = {
     ...data,
-    slug: realSlug,
+    slug,
     content,
   };
 

@@ -1,28 +1,29 @@
-import { createServer } from 'http';
-import { parse } from 'url';
+import * as http from 'http';
+import * as url from 'url';
 import next from 'next';
 import chokidar from 'chokidar';
 import { WebSocketServer } from 'ws';
-import { getPostBySlug, writeNewPostToFile } from './lib/api';
-import { getPathToBlogPost } from './lib/utils';
+import { getPostByFilepath, writeNewPostToFile } from './lib/api';
+import { getPathToBlogPost, postsDirectory, filepathToSlug } from './lib/utils';
+
 const app = next({ dev: true });
-const handle = app.getRequestHandler();
+const handleReq = app.getRequestHandler();
 
 app.prepare().then(() => {
-  const server = createServer((req, res) => {
-    const parsedUrl = parse(req.url, true)
+  const server = http.createServer((req, res) => {
+    const parsedUrl = url.parse(req.url, true)
     if (parsedUrl.pathname === '/blog/edit/new/save') {
       writeNewPostToFile();
       res.end();
     } else {
-      handle(req, res, parse(req.url, true))
+      handleReq(req, res, url.parse(req.url, true));
     }
   });
 
   const wss = new WebSocketServer({ noServer: true });
 
   server.on('upgrade', (req, socket, head) => {
-    const { pathname } = parse(req.url, true)
+    const { pathname } = url.parse(req.url, true);
 
     if (pathname === '/hot-blog-edit') {
       wss.handleUpgrade(req, socket, head, (ws: any) => {
@@ -31,38 +32,31 @@ app.prepare().then(() => {
     }
   });
 
-  let watchedSlug: string | null = null;
-  const watcher = new chokidar.FSWatcher();
+  const fsWatcher = chokidar.watch(postsDirectory);
+
   wss.on('connection', (ws) => {
+    // Each connection gets updates for one watched slug / post.
+    // May have multiple browser tabs open on multiple posts
+    // and each will receive the correct updates.
+    let watchedSlug: string | null = null;
+
     ws.on('message', (data) => {
       const postSlug = data.toString();
-      if (postSlug) {
-        watchedSlug = postSlug;
-        let post = null;
-        try {
-          post = getPostBySlug(watchedSlug, ['title', 'date', 'slug', 'content']);
-          watcher.add(getPathToBlogPost(watchedSlug));
-        } catch (err) {
-          // Throws an error when the .md file does not exist on disk
-          console.error(err);
-        }
-        ws.send(JSON.stringify(post));
-      }
+      if (!postSlug) return;
+      watchedSlug = postSlug;
+      const filepath = getPathToBlogPost(postSlug);
+      sendPost(filepath);
     });
 
-    ws.on('close', () => {
-      if (watchedSlug) {
-        watcher.unwatch(getPathToBlogPost(watchedSlug));
-        watchedSlug = null;
-      }
-    });
+    const sendPost = (filepath: string): void => {
+      const post = getPostByFilepath(filepath, ['title', 'date', 'slug', 'content']);
+      ws.send(JSON.stringify(post));
+    };
 
-    watcher.removeAllListeners('change');
-    watcher.on('change', (filePath) => {
-      if (new RegExp(`.*/${watchedSlug}\.md$`).test(filePath)) {
-        const post = getPostBySlug(watchedSlug, ['title', 'date', 'slug', 'content']);
-        ws.send(JSON.stringify(post));
-      }
+    fsWatcher.on('change', (filepath) => {
+      const slug = filepathToSlug(filepath);
+      if (watchedSlug !== slug) return;
+      sendPost(filepath);
     });
   });
 

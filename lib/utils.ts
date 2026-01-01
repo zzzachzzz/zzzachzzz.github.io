@@ -16,6 +16,9 @@ export const postsDirectory = path.join(process.cwd(), '_posts');
 
 export const getPathToBlogPost = (slug: string) => `${postsDirectory}/${slug}.md`;
 
+export const filepathToSlug = (filepath: string): string =>
+  path.parse(filepath).name;
+
 export const formatDate = (dateString: string) => {
   if (!dateString) return '';
   const date = new Date(dateString);
