@@ -19,7 +19,7 @@ export default function HotReloadBlogPost() {
 
   React.useEffect(() => {
     if (slug) {
-      const socket = new WebSocket('ws://localhost:3000/hot-blog-edit');
+      const socket = new WebSocket(`ws://${location.host}/hot-blog-edit`);
       socket.onopen = () => {
         socket.send(slug);
       };
