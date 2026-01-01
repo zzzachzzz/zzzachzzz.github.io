@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 import Prism from 'prismjs';
-import { convertTitleToSlug } from '@/lib/utils';
+import { titleToSlug } from '@/lib/utils';
 import treeToJSX from '@/lib/treeToJSX';
 import A from './A';
 import InternalLink from './Link';
@@ -80,7 +80,7 @@ type HeadingProps = {
 
 const Heading = ({ text, depth, children }: HeadingProps) => {
   const H_ = `h${depth}` as keyof JSX.IntrinsicElements;
-  const id = convertTitleToSlug(text);
+  const id = titleToSlug(text);
   return (
     <H_ id={id}>
       {children}

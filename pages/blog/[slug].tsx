@@ -6,7 +6,7 @@ import { GetStaticPaths, GetStaticProps } from 'next';
 import Navigation from '@/components/Navigation';
 import BlogContent from '@/components/BlogContent';
 import SaveOrEditIcon from '@/components/SaveOrEditIcon';
-import { getPostBySlug, getAllPosts } from '@/lib/api';
+import { getPostBySlug, getAllPostSlugs } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 
 type Props = {
@@ -54,7 +54,7 @@ export default function BlogPost({ post }: Props) {
 type Params = { slug: string; };
 
 export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) => {
-  const post = getPostBySlug(params.slug, ['title', 'date', 'content', 'slug']);
+  const post = getPostBySlug(params.slug);
 
   return {
     props: {
@@ -66,11 +66,11 @@ export const getStaticProps: GetStaticProps<Props, Params> = async ({ params }) 
 };
 
 export const getStaticPaths: GetStaticPaths<Params> = async () => {
-  const posts = getAllPosts(['slug'])
+  const postSlugs = getAllPostSlugs();
 
   return {
-    paths: posts.map(post => ({
-      params: { slug: post.slug }
+    paths: postSlugs.map(slug => ({
+      params: { slug }
     })),
     fallback: false,
   }

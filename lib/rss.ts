@@ -2,19 +2,14 @@ import { Feed } from 'feed';
 import * as React from 'react';
 import * as ReactDOMServer from 'react-dom/server';
 import type { Tree, NodeType } from '@/types';
-import { convertTitleToSlug } from './utils';
+import { titleToSlug } from './utils';
 import treeToJSX from './treeToJSX';
 import markdownToTree from './markdownToTree';
 import { getAllPosts } from './api';
 import { BLOG_TITLE, BLOG_DESCRIPTION, BASE_URL } from '../constant';
 
 export function generateBlogRssFeed(): string {
-  const posts = getAllPosts([
-    'title',
-    'date',
-    'slug',
-    'content',
-  ]);
+  const posts = getAllPosts();
 
   const blogUrl = BASE_URL + '/blog';
   const feed = new Feed({
@@ -71,7 +66,7 @@ const nodeTypeToComponentMap: NodeTypeToComponentMap = {
   'heading'    : node => ({ children }) => {
     const h = `h${node.depth as number}`;
     const text = node.children[0].value as string
-    const id = convertTitleToSlug(text);
+    const id = titleToSlug(text);
     return React.createElement(h, { id }, children);
   },
   'paragraph'  : ()   => 'p',

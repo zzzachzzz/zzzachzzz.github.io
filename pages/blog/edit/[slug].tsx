@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/router';
 import BlogPost from '@/pages/blog/[slug]';
-import { convertTitleToSlug } from '@/lib/utils';
+import { titleToSlug } from '@/lib/utils';
 import SaveOrEditIcon from '@/components/SaveOrEditIcon';
 
 /**
@@ -30,7 +30,7 @@ export default function HotReloadBlogPost() {
             ..._post,
             ...(isNew && {
               date: new Date().toISOString(),
-              slug: convertTitleToSlug(_post.title),
+              slug: titleToSlug(_post.title),
             }),
           });
         }

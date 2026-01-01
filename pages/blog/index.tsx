@@ -126,12 +126,7 @@ const BlogLink = styled(Link)`
 `;
 
 export const getStaticProps = async () => {
-  const allPosts = getAllPosts([
-    'title',
-    'date',
-    'slug',
-    'content',
-  ]);
+  const allPosts = getAllPosts();
 
   return {
     props: { allPosts }

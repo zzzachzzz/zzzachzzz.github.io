@@ -4,7 +4,7 @@ import next from 'next';
 import chokidar from 'chokidar';
 import { WebSocketServer } from 'ws';
 import { getPostByFilepath, writeNewPostToFile } from './lib/api';
-import { getPathToBlogPost, postsDirectory, filepathToSlug } from './lib/utils';
+import { slugToFilepath, postsDirectory, filepathToSlug } from './lib/utils';
 
 const app = next({ dev: true });
 const handleReq = app.getRequestHandler();
@@ -44,12 +44,12 @@ app.prepare().then(() => {
       const postSlug = data.toString();
       if (!postSlug) return;
       watchedSlug = postSlug;
-      const filepath = getPathToBlogPost(postSlug);
+      const filepath = slugToFilepath(postSlug);
       sendPost(filepath);
     });
 
     const sendPost = (filepath: string): void => {
-      const post = getPostByFilepath(filepath, ['title', 'date', 'slug', 'content']);
+      const post = getPostByFilepath(filepath);
       ws.send(JSON.stringify(post));
     };
 
