@@ -2,7 +2,11 @@
 title: 'How I Use Git Rebase'
 ---
 
+## Intro
+
 Yeah so yeah ok sure yup emojo
+
+## Aliases & Shit
 
 Todo, get the rest of my aliases from work config
 
@@ -40,5 +44,14 @@ alias gs="git status"
   dc = diff --cached
   head = !git rev-parse --abbrev-ref HEAD
   heador = !echo "origin/$(git head)"
+  TODO is this exactly it? Your default compare branch here
+  cmp = !echo "origin/main"
 ```
+
+## Useful Shit
+
+Rebasing local and diffing against remote, then force push
+
+Alias: `cmp = !echo "origin/main"`
+`$(g cmp)` to refer to the main compare branch. This can be repository scoped, by overriding the `cmp` alias on a per repo basis in the repo's `.git/config` file.
 
