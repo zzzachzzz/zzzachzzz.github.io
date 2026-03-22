@@ -15,5 +15,6 @@ export type NodeType =
   | 'code'
   | 'inlineCode'
   | 'image'
-  | 'link';
+  | 'link'
+  | 'thematicBreak'
 

@@ -45,6 +45,7 @@ const nodeTypeToComponentMap: NodeTypeToComponentMap = {
   'inlineCode' : node => ()    => <Code children={node.value} />,
   'image'      : node => ()    => <Img src={node.url} alt={node.alt} />,
   'link'       : node => props => <Link url={node.url} children={props.children} />,
+  'thematicBreak': () => 'hr',
 };
 
 type PropsChildren = {

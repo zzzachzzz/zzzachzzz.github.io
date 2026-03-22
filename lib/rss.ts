@@ -92,6 +92,7 @@ const nodeTypeToComponentMap: NodeTypeToComponentMap = {
       : node.url;
     return React.createElement('a', { href }, children);
   },
+  'thematicBreak': ()   => 'hr',
 };
 
 const getComponentForNode = (node: Tree) => {
