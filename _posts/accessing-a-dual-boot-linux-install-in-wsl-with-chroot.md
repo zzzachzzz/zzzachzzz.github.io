@@ -5,6 +5,27 @@ date: '2024-10-11T14:49:56.465Z'
 
 Got a Windows & Linux dual boot setup? Rather than setting up a new WSL install, wouldn't it be nice to be able to "import" your existing native Linux install into WSL? While this method is not exactly an import, it is functionally similar.
 
+---
+
+**Edit (March 11, 2026):** Updates to the `walter` function, checking the return code of `mountpoint` before calling `mount` allows for the function to be called without repeat recursive mount complications.
+
+Also... `linuxunmnt` can be unreliable, and you may have to resort to `wsl --shutdown` if you really do need to unmount. See this note from the [chroot Arch Wiki page](https://wiki.archlinux.org/title/Chroot#Using_chroot):
+> When using `--rbind`, some subdirectories of `dev/` and `sys/` will not be unmountable. Attempting to unmount with `umount -l` in this situation will break your session, requiring a reboot. If possible, use `-o bind` instead.
+
+Lastly, [Sudo for Windows](https://learn.microsoft.com/en-us/windows/advanced-settings/sudo/) provides us some other potential conveniences:
+
+Consider this bash alias...
+```bash
+# `powershell.exe` can be used also, `pwsh.exe` refers to PowerShell 6+
+alias linuxmnt='pwsh.exe -Command "linuxmnt"'
+```
+And update the PowerShell function to use `sudo`:
+```powershell
+Function linuxmnt { sudo wsl --mount ... }
+```
+
+---
+
 ## Mounting the disk partition
 
 Resources
@@ -85,16 +106,19 @@ The helper function (named walter because that's the hostname that was chosen fo
 # TODO: Replace zach with the user you wish to switch to
 
 function walter() {
-  if [[ ! -e /mnt/wsl/PHYSICALDRIVE0p4 ]]; then
-    echo "'/mnt/wsl/PHYSICALDRIVE0p4' does not exist. Did you call linuxmnt?"
+  local root=/mnt/wsl/PHYSICALDRIVE0p4
+
+  if [[ ! -e $root ]]; then
+    echo "'$root' does not exist. Did you call linuxmnt?"
     return 1
   fi
-  sudo mount -t proc /proc /mnt/wsl/PHYSICALDRIVE0p4/proc
-  sudo mount -t sysfs /sys /mnt/wsl/PHYSICALDRIVE0p4/sys 2> /dev/null
 
-  sudo mount --rbind /dev /mnt/wsl/PHYSICALDRIVE0p4/dev
-  sudo mount --rbind /mnt /mnt/wsl/PHYSICALDRIVE0p4/mnt
-  sudo chroot /mnt/wsl/PHYSICALDRIVE0p4/ su zach
+  mountpoint -q $root/proc || sudo mount -t proc /proc $root/proc
+  mountpoint -q $root/sys || sudo mount -t sysfs /sys $root/sys 2>/dev/null
+  mountpoint -q $root/dev || sudo mount --rbind /dev $root/dev
+  mountpoint -q $root/mnt || sudo mount --rbind /mnt $root/mnt
+
+  sudo chroot $root su --login zach
 }
 ```
 
