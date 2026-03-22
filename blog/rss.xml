@@ -206,7 +206,8 @@ target_bitrate_kbps = 80000 Kb / duration_seconds</code></pre><p>In the script, 
             <link>https://zzzachzzz.github.io/blog/accessing-a-dual-boot-linux-install-in-wsl-with-chroot</link>
             <guid>https://zzzachzzz.github.io/blog/accessing-a-dual-boot-linux-install-in-wsl-with-chroot</guid>
             <pubDate>Fri, 11 Oct 2024 14:49:56 GMT</pubDate>
-            <content:encoded><![CDATA[<p>Got a Windows &amp; Linux dual boot setup? Rather than setting up a new WSL install, wouldn&#x27;t it be nice to be able to &quot;import&quot; your existing native Linux install into WSL? While this method is not exactly an import, it is functionally similar.</p><h2 id="mounting-the-disk-partition">Mounting the disk partition</h2><p>Resources</p><ul><li><p><a href="https://learn.microsoft.com/en-us/windows/wsl/wsl2-mount-disk#mounting-a-partitioned-disk">WSL 2 - Mounting a partitioned disk</a></p></li><li><p><a href="https://www.youtube.com/watch?v=aX1vH1j7m7U">EXT4 in Windows - Chris Titus Tech</a></p></li></ul><p>The first step is mounting the partition containing your Linux install. If you only want to access the files of an ext4 partition from Windows, you&#x27;ll only need this step.</p><p>I have defined a couple of PowerShell functions to making mounting and unmounting easier:</p><pre><code># These WSL (un)mount commands must be run in PowerShell as administrator
+            <content:encoded><![CDATA[<p>Got a Windows &amp; Linux dual boot setup? Rather than setting up a new WSL install, wouldn&#x27;t it be nice to be able to &quot;import&quot; your existing native Linux install into WSL? While this method is not exactly an import, it is functionally similar.</p><hr/><p><b>Edit (March 11, 2026):</b> Updates to the <code>walter</code> function, checking the return code of <code>mountpoint</code> before calling <code>mount</code> allows for the function to be called without repeat recursive mount complications.</p><p>Also... <code>linuxunmnt</code> can be unreliable, and you may have to resort to <code>wsl --shutdown</code> if you really do need to unmount. See this note from the <a href="https://wiki.archlinux.org/title/Chroot#Using_chroot">chroot Arch Wiki page</a>:</p><blockquote><p>When using <code>--rbind</code>, some subdirectories of <code>dev/</code> and <code>sys/</code> will not be unmountable. Attempting to unmount with <code>umount -l</code> in this situation will break your session, requiring a reboot. If possible, use <code>-o bind</code> instead.</p></blockquote><p>Lastly, <a href="https://learn.microsoft.com/en-us/windows/advanced-settings/sudo/">Sudo for Windows</a> provides us some other potential conveniences:</p><p>Consider this bash alias...</p><pre><code># `powershell.exe` can be used also, `pwsh.exe` refers to PowerShell 6+
+alias linuxmnt=&#x27;pwsh.exe -Command &quot;linuxmnt&quot;&#x27;</code></pre><p>And update the PowerShell function to use <code>sudo</code>:</p><pre><code>Function linuxmnt { sudo wsl --mount ... }</code></pre><hr/><h2 id="mounting-the-disk-partition">Mounting the disk partition</h2><p>Resources</p><ul><li><p><a href="https://learn.microsoft.com/en-us/windows/wsl/wsl2-mount-disk#mounting-a-partitioned-disk">WSL 2 - Mounting a partitioned disk</a></p></li><li><p><a href="https://www.youtube.com/watch?v=aX1vH1j7m7U">EXT4 in Windows - Chris Titus Tech</a></p></li></ul><p>The first step is mounting the partition containing your Linux install. If you only want to access the files of an ext4 partition from Windows, you&#x27;ll only need this step.</p><p>I have defined a couple of PowerShell functions to making mounting and unmounting easier:</p><pre><code># These WSL (un)mount commands must be run in PowerShell as administrator
 
 # TODO: Replace the Model string with your own value: &#x27;SHGS31-500GS-2&#x27;
 # TODO: Replace the parition number with your own value: 4
@@ -233,16 +234,19 @@ sdd      8:48   0     1T  0 disk /mnt/wslg/distro
 # TODO: Replace zach with the user you wish to switch to
 
 function walter() {
-  if [[ ! -e /mnt/wsl/PHYSICALDRIVE0p4 ]]; then
-    echo &quot;&#x27;/mnt/wsl/PHYSICALDRIVE0p4&#x27; does not exist. Did you call linuxmnt?&quot;
+  local root=/mnt/wsl/PHYSICALDRIVE0p4
+
+  if [[ ! -e $root ]]; then
+    echo &quot;&#x27;$root&#x27; does not exist. Did you call linuxmnt?&quot;
     return 1
   fi
-  sudo mount -t proc /proc /mnt/wsl/PHYSICALDRIVE0p4/proc
-  sudo mount -t sysfs /sys /mnt/wsl/PHYSICALDRIVE0p4/sys 2&gt; /dev/null
 
-  sudo mount --rbind /dev /mnt/wsl/PHYSICALDRIVE0p4/dev
-  sudo mount --rbind /mnt /mnt/wsl/PHYSICALDRIVE0p4/mnt
-  sudo chroot /mnt/wsl/PHYSICALDRIVE0p4/ su zach
+  mountpoint -q $root/proc || sudo mount -t proc /proc $root/proc
+  mountpoint -q $root/sys || sudo mount -t sysfs /sys $root/sys 2&gt;/dev/null
+  mountpoint -q $root/dev || sudo mount --rbind /dev $root/dev
+  mountpoint -q $root/mnt || sudo mount --rbind /mnt $root/mnt
+
+  sudo chroot $root su --login zach
 }</code></pre><p>Add the above function to your <code>.bashrc</code> or other config file in your WSL install.</p><p>Random note, in my Debian WSL install, when I added a function to the <code>.bashrc</code> file, running <code>which walter</code> did not find the function, but <code>type walter</code> did. More on that <a href="https://unix.stackexchange.com/a/10529">here</a>.</p><p>At a minimum, all that&#x27;s really needed is this line, <code>sudo chroot /mnt/wsl/PHYSICALDRIVE0p4/ su zach</code>, to choot into the mountpoint and switch from the root user to your regular user.</p><p><code>sudo mount --rbind /mnt /mnt/wsl/PHYSICALDRIVE0p4/mnt</code> - This is helpful so that the typical WSL mounts to access the Windows C:\ drive (<code>/mnt/c</code>) and any additional drives are accessible.</p><p>The <code>/proc</code>, <code>/sys</code>, and <code>/dev</code> mounts are necessary for certain programs to work. In my case for <code>tmux</code>.</p><h2 id="bringing-it-all-together-the-workflow">Bringing it all together: The Workflow</h2><ol><li><p>Open PowerShell as Administrator and run <code>linuxmnt</code></p></li><li><p>Open a terminal for your WSL install, and run <code>walter</code> (or whatever you chose to name it).</p></li><li><p>You have now chroot&#x27;d into your non-WSL Linux install! You&#x27;ll have access to that shell and your installed programs, kind of as if you had SSH&#x27;d into it.</p></li></ol>]]></content:encoded>
         </item>
         <item>
