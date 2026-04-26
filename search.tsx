@@ -3,7 +3,7 @@ import { autocomplete } from '@algolia/autocomplete-js'
 import '@algolia/autocomplete-theme-classic'
 import MiniSearch from 'minisearch'
 import * as React from 'react';
-import { createRoot } from 'react-dom/client';
+import * as ReactDOM from 'react-dom';
 
 // https://www.algolia.com/doc/ui-libraries/autocomplete/integrations/using-react
 
@@ -37,7 +37,7 @@ export function init({ containerRef, panelRootRef, rootRef }) {
     renderer: {
       createElement: React.createElement,
       Fragment: React.Fragment,
-      render: function noop() {},
+      render: (...args) => ReactDOM.render(,
     },
     render({ children }, root) {
       if (!panelRootRef.current || rootRef.current !== root) {
