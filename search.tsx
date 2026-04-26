@@ -3,7 +3,7 @@ import { autocomplete } from '@algolia/autocomplete-js'
 import '@algolia/autocomplete-theme-classic'
 import MiniSearch from 'minisearch'
 import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import * as ReactDOM from 'react-dom/client';
 
 // https://www.algolia.com/doc/ui-libraries/autocomplete/integrations/using-react
 
@@ -19,6 +19,7 @@ async function loadIndex() {
   ];
   const ms = new MiniSearch({
     fields: ['title', 'text'],
+    storeFields: ['title', 'url', 'excerpt'],  // fields to return with results ← this is what matters
   });
   ms.addAll(data);
 
@@ -27,6 +28,7 @@ async function loadIndex() {
 
   miniSearch = MiniSearch.loadJSON(msJSON, {
     fields: ['title', 'text'],
+    storeFields: ['title', 'url', 'excerpt'],  // fields to return with results ← this is what matters
   })
   return miniSearch
 }
@@ -37,14 +39,14 @@ export function init({ containerRef, panelRootRef, rootRef }) {
     renderer: {
       createElement: React.createElement,
       Fragment: React.Fragment,
-      render: (...args) => ReactDOM.render(,
+      render: function noop() {},
     },
     render({ children }, root) {
       if (!panelRootRef.current || rootRef.current !== root) {
         rootRef.current = root;
 
         panelRootRef.current?.unmount();
-        panelRootRef.current = createRoot(root);
+        panelRootRef.current = ReactDOM.createRoot(root);
       }
 
       panelRootRef.current.render(children);
