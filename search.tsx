@@ -2,6 +2,10 @@
 import { autocomplete } from '@algolia/autocomplete-js'
 import '@algolia/autocomplete-theme-classic'
 import MiniSearch from 'minisearch'
+import * as React from 'react';
+import { createRoot } from 'react-dom/client';
+
+// https://www.algolia.com/doc/ui-libraries/autocomplete/integrations/using-react
 
 let miniSearch: MiniSearch | null = null
 
@@ -27,9 +31,24 @@ async function loadIndex() {
   return miniSearch
 }
 
-export function init() {
+export function init({ containerRef, panelRootRef, rootRef }) {
   autocomplete({
-    container: '#search',
+    container: containerRef.current,
+    renderer: {
+      createElement: React.createElement,
+      Fragment: React.Fragment,
+      render: function noop() {},
+    },
+    render({ children }, root) {
+      if (!panelRootRef.current || rootRef.current !== root) {
+        rootRef.current = root;
+
+        panelRootRef.current?.unmount();
+        panelRootRef.current = createRoot(root);
+      }
+
+      panelRootRef.current.render(children);
+    },
     placeholder: 'Search posts…',
     // getSources can be async — autocomplete handles the promise
     async getSources({ query }) {
@@ -51,14 +70,16 @@ export function init() {
             return item.url as string
           },
           templates: {
-            item({ item, html }) {
-              return html`
-                <a class="aa-ItemLink" href="${item.url}">
-                  <div class="aa-ItemContent">
-                    <div class="aa-ItemTitle">${item.title}</div>
+            item(itemProps) {
+              const { item } = itemProps;
+              console.log('itemProps:', itemProps);
+              return (
+                <a className="aa-ItemLink" href={item.url as any}>
+                  <div className="aa-ItemContent">
+                    <div className="aa-ItemTitle">{item.title as any}</div>
                   </div>
                 </a>
-              `
+              );
             },
             noResults() {
               return 'No results for this query.'

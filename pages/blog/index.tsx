@@ -15,8 +15,12 @@ import { init } from '@/search';
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
 export default function BlogList({ allPosts }: Props) {
+  const containerRef = React.useRef(null);
+  const panelRootRef = React.useRef(null);
+  const rootRef = React.useRef(null);
+
   React.useEffect(() => {
-    init();
+    init({ containerRef, panelRootRef, rootRef });
   }, []);
 
   return (
@@ -29,7 +33,7 @@ export default function BlogList({ allPosts }: Props) {
         />
       </Head>
       <Navigation />
-      <div id="search" />
+      <div id="search" ref={containerRef} />
       <h1 css="text-align: center;">Recent Posts</h1>
       <div css="flex-direction: column; display: flex; max-width: 1200px; margin: 0 auto;">
         {allPosts.map((post, i) =>
