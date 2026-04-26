@@ -9,9 +9,16 @@ import { formatDate } from '@/lib/utils';
 import { InferGetStaticPropsType } from 'next'
 import { BLOG_TITLE, BLOG_DESCRIPTION } from '@/constant';
 
+import * as React from 'react';
+import { init } from '@/search';
+
 type Props = InferGetStaticPropsType<typeof getStaticProps>;
 
 export default function BlogList({ allPosts }: Props) {
+  React.useEffect(() => {
+    init();
+  }, []);
+
   return (
     <div>
       <Head>
@@ -22,6 +29,7 @@ export default function BlogList({ allPosts }: Props) {
         />
       </Head>
       <Navigation />
+      <div id="search" />
       <h1 css="text-align: center;">Recent Posts</h1>
       <div css="flex-direction: column; display: flex; max-width: 1200px; margin: 0 auto;">
         {allPosts.map((post, i) =>
